@@ -2,7 +2,7 @@
   "name": "urban-spoon",
   "version": "1.0.0",
   "description": "Ich bin einen Beschreibung. Bitte lese mich. Danke.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/Mario4217/urban-spoon/issues"
   },
-  "homepage": "https://github.com/Mario4217/urban-spoon#readme"
+  "homepage": "https://github.com/Mario4217/urban-spoon#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^2.0.1"
+  }
 }
