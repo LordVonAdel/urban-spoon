@@ -1,0 +1,19 @@
+{
+  "name": "urban-spoon",
+  "version": "1.0.0",
+  "description": "Ich bin einen Beschreibung. Bitte lese mich. Danke.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mario4217/urban-spoon.git"
+  },
+  "author": "Mario & Adrian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mario4217/urban-spoon/issues"
+  },
+  "homepage": "https://github.com/Mario4217/urban-spoon#readme"
+}
