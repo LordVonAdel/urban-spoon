@@ -13,5 +13,4 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
   console.log("Spieler ist verbunden!");
-  //spieler ist verbunden
 });
