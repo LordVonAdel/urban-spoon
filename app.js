@@ -12,5 +12,7 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-  console.log("Spieler ist verbunden!");
+  socket.on('login',function(data){
+    console.log("Player: "+data.name+" connected into lobby: "+data.lobby);
+  });
 });

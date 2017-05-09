@@ -1,0 +1,38 @@
+body{
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: solid 2px #c9c9c9;
+  transition: border 0.3s;
+  font-size: 20px;
+}
+input:focus {
+  outline: none;
+  border-bottom: solid 2px #969696;
+}
+button{
+  border: none;
+  width: 100%;
+  font-size: 20px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+button:focus{
+  outline: none;
+}
+button:hover{
+  background-color: #969696;
+}
+.panel{
+  width: 400px;
+  margin: auto; 
+  background-color: #efefef; 
+  margin-top:100px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 1px;
+  padding-bottom: 20px;
+}

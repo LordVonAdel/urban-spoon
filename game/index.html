@@ -1,11 +1,21 @@
 <html>
   <head>
+    <link href="style.css" rel="stylesheet">
+    <script src="/lib/jquery-3.2.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      io();
+      var socket = io();
+      function login(){
+        socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()})
+      }
     </script>
   </head>
   <body>
-
+    <div class="panel" id="startPanel">
+      <h2>Login</h2>
+      <label>Spielername:</label><input type="text" id="inName"><br><br>
+      <label>Spiel ID:</label><input type="text" id="inId">
+      <br><br><button onclick='login()'>Spielen</button>
+    </div>
   </body>
 </html>
