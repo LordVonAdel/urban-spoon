@@ -2,7 +2,11 @@
   <head>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      io();
+      var socket = io();
+      socket.on(0, function(data) {
+        alert(data);
+        socket.emit(1, "JOOOOOOOOOOOOOO!!!!!!!");
+      });
     </script>
   </head>
   <body>

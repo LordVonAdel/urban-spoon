@@ -13,4 +13,10 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
   console.log("Spieler ist verbunden!");
+  socket.emit(0, "HEY!!!!!!!!!!!");
+
+  socket.on(1, function(data) {
+    console.log(data);
+    socket.emit(0, "HEY!!!!!!!!!!!");
+  });
 });
