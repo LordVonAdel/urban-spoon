@@ -1,8 +1,8 @@
-module.exports = function(seed){
-  this.terrain = new Terrain(seed);
+module.exports = function(seed, generator){
+  this.terrain = new Terrain(seed, generator);
 }
 
-function Terrain(seed){
+function Terrain(seed, generator){
 
   this.getHeight = function(x) {
 
