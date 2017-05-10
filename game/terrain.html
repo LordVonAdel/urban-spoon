@@ -11,14 +11,14 @@
       mDown=false;
       terrain = [];
       function loaded(){
-        var h = 1/2;
+        var h = 0.5;
         var s = 0;
         for(var i=0; i<100; i++){
           terrain[i] = h;
-          s+=Math.random()*0.02-0.01+(-0.02*((h)-0.5));
-          s=Math.min(0.02,Math.max(s,-0.02));
+          s+=Math.random()*0.01-0.005+(-0.01*(h-0.5));
+          s=Math.min(0.03,Math.max(s,-0.03));
           h+=s;
-          h = Math.min(0.95,Math.max(h,0.05));
+          h=Math.min(0.95,Math.max(h,0.05));
         }
         draw();
         var canvas = document.getElementById('terrain');
@@ -26,16 +26,18 @@
         canvas.addEventListener('mousedown',modify);
       }
       function draw(){
+        var tHeight = 1000;
+
         var canvas = document.getElementById('terrain');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         var ctx =canvas.getContext('2d');
         var bw = canvas.width/(terrain.length-1);
         for(var i=0; i<terrain.length-1; i++){
-          var y = canvas.height-1000*terrain[i];
+          var y = canvas.height-tHeight*terrain[i];
           ctx.beginPath();
           ctx.moveTo(bw*i,y);
-          ctx.lineTo(bw*i+bw,canvas.height-1000*terrain[i+1]);
+          ctx.lineTo(bw*i+bw,canvas.height-tHeight*terrain[i+1]);
           ctx.stroke();
         }
       }
