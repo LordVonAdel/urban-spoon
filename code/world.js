@@ -42,7 +42,7 @@ generators = {
     var s = 0;
     for(var i=0; i<terrain.length; i++){
       terrain.nodeSet(i,h);
-      s+=Math.random()*8-4+(-8*((h/maxH)-0.5));
+      s+=Math.random()*8-4-(8*((h/maxH)-0.5));
       s=Math.min(30,Math.max(s,-30));
       h+=s;
       h = Math.min(maxH-30,Math.max(h,30));
