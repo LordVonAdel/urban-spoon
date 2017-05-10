@@ -1,6 +1,11 @@
-module.exports = function(){
+module.exports = function(host){
   this.clients = [];
-  this.addClient = function(client){
+  this.host = host;
+  this.addClient = function(client){ //Add a client to the lobby
     this.clients.push(client);
+  }
+  this.removeClient = function(client){ //Removes a client from the lobby
+    var index = this.clients.indexOf(client);
+    this.clients.splice(index,1);
   }
 }
