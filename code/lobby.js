@@ -5,7 +5,7 @@ module.exports = function(host,name){
 
   this.maxClients = 2;
   this.teamNumber = 2;
-  this.gameMode = "DM" //DM: Deathmatch
+  this.gameMode = "DM"; //DM: Deathmatch
 
   this.teams = [["Spieler A","Spieler B"],["Spieler C","Spieler D"],["Spieler E","Spieler F"]];
   this.addClient = function(client){ //Add a client to the lobby
@@ -15,6 +15,7 @@ module.exports = function(host,name){
   }
   this.removeClient = function(client){ //Removes a client from the lobby
     var index = this.clients.indexOf(client);
+    client.lobby = null;
     this.clients.splice(index,1);
   }
   this.sync = function(){ //syncronize the lobby between all players in the lobby

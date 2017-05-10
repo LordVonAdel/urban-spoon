@@ -43,6 +43,9 @@ button:hover{
   box-shadow: 4px 4px black;
   border: lime 1px solid;
 }
+#panelLobby{
+  width: 1000px;
+}
 #panelLobby table{
   width: 100%;
 }
@@ -54,4 +57,16 @@ button:hover{
 }
 #panelLobby table td:nth-child(3){ 
   background: skyblue;
+}
+span.button:before{
+  content: "["
+}
+span.button:after{
+  content: "]"
+}
+span.button{
+  cursor: pointer;
+}
+span.button.hover{
+  color: blue;
 }

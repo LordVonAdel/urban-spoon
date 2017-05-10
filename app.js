@@ -24,7 +24,7 @@ io.on('connection', function (socket) {
   console.log("Connection opened!");
 
   socket.on('login',function(data){
-    if(client.lobby == null){  //if player is not in a lobby
+    if(client.lobby == null && data.name && data.lobby){  //if player is not in a lobby and has the player give a name / lobby
       console.log("Player: "+data.name+" connected into lobby: "+data.lobby);
       if(lobbies[data.lobby] == undefined){ 
         lobbies[data.lobby] = new Lobby(client,data.lobby); //if the lobby does not exists create a new one and set the player as the host
@@ -32,5 +32,12 @@ io.on('connection', function (socket) {
         lobbies[data.lobby].addClient(client); //else add the player to the existing lobby
       }
     }
+  });
+  socket.on('leave',function(){
+    client.leave();
+    socket.emit('leave'); //when the player leaves say him he left
+  });
+  socket.on('disconnect',function(){
+    client.disconnect(); //removes the player from the current lobby and other stuff
   });
 });
