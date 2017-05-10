@@ -6,10 +6,10 @@ function getHeight(x) {
 
 }
 
-function setHeight(xmin, xmax, height) {
+function setHeight(xMin, xMax, height) {
 
 }
 
-function addHeight(xmin, xmax, height) {
+function addHeight(xMin, xMax, height) {
     
 }
