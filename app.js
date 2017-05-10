@@ -17,8 +17,8 @@ clients = [];
 lobbies = {};
 
 io.on('connection', function (socket) {
-
-  var client = new Client(socket);
+  //player connect
+  var client = new Client(socket); //create the client instance for the player
   clients.push(client);
 
   console.log("Connection opened!");
