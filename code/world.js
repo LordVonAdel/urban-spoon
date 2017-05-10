@@ -39,12 +39,12 @@ generators = {
   berge: function(terrain){
     var h = 0.5;
     var s = 0;
-    for(var i=0; i<terrain.length; i++){
-      terrain.nodeSet(i,h);
-      s+=Math.random()*0.05-0.025-(0.05*(h-0.5));
-      s=Math.min(0.2,Math.max(s,-0.2));
+    for(var i=0; i<100; i++){
+      terrain[i] = h;
+      s+=Math.random()*0.01-0.005+(-0.01*(h-0.5));
+      s=Math.min(0.03,Math.max(s,-0.03));
       h+=s;
-      h = Math.min(0.95,Math.max(h, 0.05));
+      h=Math.min(0.95,Math.max(h,0.05));
     }
   }
 }
