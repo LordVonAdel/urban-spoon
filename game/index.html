@@ -8,6 +8,7 @@
     <script>
       var socket = io();
       isInLobby = false;
+      isReady = true;
 
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
@@ -15,10 +16,19 @@
       function leave(){
         socket.emit('leave');
       }
+      function ready(){
+        socket.emit('ready',isReady);
+      }
+
       socket.on('leave',function(){ //show the login thing again
         $('.panel').hide(100);
         $('#panelLogin').show(100);
         isInLobby = false;
+      });
+
+      socket.on('start',function(){
+        $('.panel').hide(100);
+        $('#game').show(100);
       });
 
       Lobby.init() //init lobby stuff (see lobby.js)
@@ -36,7 +46,12 @@
       <div id="lobbyTable"></div>
       <br>
       <button onclick="leave()">Leave</button><br><br>
-      <button>Ready</button>
+      <button onclick="ready()">Ready</button>
+    </div>
+    <div id="game" style="display: none">
+      <canvas>
+
+      </canvas>
     </div>
   </body>
 </html>
