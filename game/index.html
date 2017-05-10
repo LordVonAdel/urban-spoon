@@ -6,7 +6,7 @@
     <script>
       var socket = io();
       function login(){
-        socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
+        socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});;
       }
     </script>
   </head>
