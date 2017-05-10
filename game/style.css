@@ -36,3 +36,6 @@ button:hover{
   padding-top: 1px;
   padding-bottom: 20px;
 }
+#panelLobby table{
+  width: 100%;
+}
