@@ -12,4 +12,8 @@ module.exports = function(terrain){
   this.addHeight = function(xMin, xMax, height) {
       
   }
+
+  this.digTerrain = function(x, radius, power) {
+
+  }
 }
