@@ -40,4 +40,7 @@ io.on('connection', function (socket) {
   socket.on('disconnect',function(){
     client.disconnect(); //removes the player from the current lobby and other stuff
   });
+  socket.on('ready',function(data){
+    client.setReady(data);
+  });
 });

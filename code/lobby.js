@@ -1,12 +1,16 @@
+Game = require('./game.js');
+
 module.exports = function(host,name){
-  
+
   this.clients = []; //list with clients in the lobby
   this.host = host; //host of the lobby (client object)
   this.name = name; //name of the lobby
 
   this.maxClients = 2;
   this.teamNumber = 2;
-  this.gameMode = "DM"; //DM: Deathmatch
+  this.gamemode = "DM"; //DM: Deathmatch
+
+  this.game = null;
 
   this.teams = [["Spieler A","Spieler B"],["Spieler C","Spieler D"],["Spieler E","Spieler F"]]; //for debugging
 
@@ -21,6 +25,21 @@ module.exports = function(host,name){
     client.lobby = null;
     this.clients.splice(index,1);
     this.sync(); //Synchronize with everyone so they know there has someone left the game
+
+    if(this.clients.length <= 0){
+      delete lobbies[this.name]; //remove the lobby if no player is in
+    }
+  }
+
+  this.checkReady = function(){
+    var ready = this.clients.every(function(index){
+      return (index.isReady);
+    });
+    if(ready && this.clients.length >= 1){ //for debugging. In real situation only "> 1"
+      if(this.game == null){
+        this.game = new Game(this,{gamemode: this.gamemode});
+      }
+    }
   }
 
   this.sync = function(){ //Synchronize the lobby between all players in the lobby
