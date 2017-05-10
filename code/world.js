@@ -1,15 +1,15 @@
 module.exports = function(terrain){
-  this.terrain = terrain;
-}
+    this.terrain = terrain;
 
-function getHeight(x) {
+    this.getHeight = function(x) {
 
-}
+    }
 
-function setHeight(xMin, xMax, height) {
+    this.setHeight = function(xMin, xMax, height) {
 
-}
+    }
 
-function addHeight(xMin, xMax, height) {
-    
+    this.addHeight = function(xMin, xMax, height) {
+        
+    }
 }
