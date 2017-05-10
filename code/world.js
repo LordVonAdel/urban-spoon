@@ -37,15 +37,14 @@ generators = {
 
   },
   berge: function(terrain){
-    var maxH = 400; //maximum height
-    var h = maxH/2;
+    var h = 0.5;
     var s = 0;
     for(var i=0; i<terrain.length; i++){
       terrain.nodeSet(i,h);
-      s+=Math.random()*8-4-(8*((h/maxH)-0.5));
-      s=Math.min(30,Math.max(s,-30));
+      s+=Math.random()*0.05-0.025-(0.05*(h-0.5));
+      s=Math.min(0.2,Math.max(s,-0.2));
       h+=s;
-      h = Math.min(maxH-30,Math.max(h,30));
+      h = Math.min(0.95,Math.max(h, 0.05));
     }
   }
 }

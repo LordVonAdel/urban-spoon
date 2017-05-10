@@ -11,15 +11,14 @@
       mDown=false;
       terrain = [];
       function loaded(){
-        var maxH = window.innerHeight;
-        var h = maxH/2;
+        var h = 1/2;
         var s = 0;
         for(var i=0; i<100; i++){
           terrain[i] = h;
-          s+=Math.random()*8-4+(-8*((h/maxH)-0.5));
-          s=Math.min(30,Math.max(s,-30));
+          s+=Math.random()*0.02-0.01+(-0.02*((h)-0.5));
+          s=Math.min(0.02,Math.max(s,-0.02));
           h+=s;
-          h = Math.min(maxH-30,Math.max(h,30));
+          h = Math.min(0.95,Math.max(h,0.05));
         }
         draw();
         var canvas = document.getElementById('terrain');
@@ -33,10 +32,10 @@
         var ctx =canvas.getContext('2d');
         var bw = canvas.width/(terrain.length-1);
         for(var i=0; i<terrain.length-1; i++){
-          var y = canvas.height-terrain[i];
+          var y = canvas.height-1000*terrain[i];
           ctx.beginPath();
           ctx.moveTo(bw*i,y);
-          ctx.lineTo(bw*i+bw,canvas.height-terrain[i+1]);
+          ctx.lineTo(bw*i+bw,canvas.height-1000*terrain[i+1]);
           ctx.stroke();
         }
       }
