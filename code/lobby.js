@@ -2,6 +2,11 @@ module.exports = function(host,name){
   this.clients = [];
   this.host = host;
   this.name = name;
+
+  this.maxClients = 2;
+  this.teamNumber = 2;
+  this.gameMode = "DM" //DM: Deathmatch
+
   this.teams = [["Spieler A","Spieler B"],["Spieler C","Spieler D"],["Spieler E","Spieler F"]];
   this.addClient = function(client){ //Add a client to the lobby
     this.clients.push(client);

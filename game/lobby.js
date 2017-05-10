@@ -1,4 +1,8 @@
-teamNames = ["Alpha","Bravo","Charlie","Delta"];
+teamNames = [
+  "Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India",
+  "Juliett","Kilo","Lima","Mike","November","Oscar","Papa","Quebec","Romeo",
+  "Sierra","Tango","Uniform","Victor","Whiskey","X-Ray","Yankee","Zulu"
+];
 
 Lobby = {
   show: function(){
@@ -12,19 +16,19 @@ Lobby = {
       var maxTeamSize = 0;
       for(var i=0; i<data.teams.length; i++){
         maxTeamSize = Math.max(maxTeamSize,data.teams[i].length);
-        html+="<th>"+teamNames[i]+"</th>"
+        html+="<th>"+teamNames[i]+"</th>";
       }
-      panel.append("</tr>")
+      panel.append("</tr>");
       for(var i=0; i<maxTeamSize; i++){
-        html+="<tr>"
+        html+="<tr>";
         for(var j=0; j<data.teams.length; j++){
           var playerName = data.teams[j][i] || "";
-          html+="<td>"+playerName+"</td>"
+          html+="<td>"+playerName+"</td>";
         }
-        html+="</tr>"
+        html+="</tr>";
       }
-      html += "</table>"
-      panel.html(html)
+      html += "</table>";
+      panel.html(html);
     });
   }
 }
