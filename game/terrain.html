@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Terrain</title>
+    <style>
+      body{
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script>
+      mDown=false;
+      terrain = [];
+      function loaded(){
+        var maxH = window.innerHeight;
+        var h = maxH/2;
+        var s = 0;
+        for(var i=0; i<100; i++){
+          terrain[i] = h;
+          s+=Math.random()*8-4+(-8*((h/maxH)-0.5));
+          s=Math.min(30,Math.max(s,-30));
+          h+=s;
+          h = Math.min(maxH-30,Math.max(h,30));
+        }
+        draw();
+        var canvas = document.getElementById('terrain');
+        canvas.addEventListener('mousemove',modify);
+        canvas.addEventListener('mousedown',modify);
+      }
+      function draw(){
+        var canvas = document.getElementById('terrain');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        var ctx =canvas.getContext('2d');
+        var bw = canvas.width/(terrain.length-1);
+        for(var i=0; i<terrain.length-1; i++){
+          var y = canvas.height-terrain[i];
+          ctx.beginPath();
+          ctx.moveTo(bw*i,y);
+          ctx.lineTo(bw*i+bw,canvas.height-terrain[i+1]);
+          ctx.stroke();
+        }
+      }
+      function modify(e){
+        var canvas = document.getElementById('terrain');
+        if(mDown){
+          var bw = canvas.width/(terrain.length-1);
+          var xPos = Math.round(e.clientX/bw);
+          terrain[xPos] = canvas.height-e.clientY;
+          draw();
+        }
+      }
+    </script>
+  </head>
+  <body onload="loaded();">
+    <canvas id="terrain" onmousedown="mDown = true" onmouseup="mDown = false"></canvas>
+  </body>
+</html>
