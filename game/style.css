@@ -1,5 +1,10 @@
 body{
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background: -webkit-linear-gradient(90deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), -webkit-linear-gradient(0deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), -webkit-linear-gradient(90deg, rgba(255,255,255,0.29) 0, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 100%), -webkit-linear-gradient(0deg, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px), rgba(0,0,0,1);
+  background: -moz-linear-gradient(0deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), -moz-linear-gradient(90deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), -moz-linear-gradient(0deg, rgba(255,255,255,0.29) 0, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 100%), -moz-linear-gradient(90deg, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px), rgba(0,0,0,1);
+  background: linear-gradient(0deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(90deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(0deg, rgba(255,255,255,0.29) 0, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 100%), linear-gradient(90deg, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px), rgba(0,0,0,1);
+  background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+  background-size: 400px 400px, 400px 400px, 50px 50px, 50px 50px;
 }
 input {
   width: 100%;
@@ -24,18 +29,29 @@ button:focus{
   outline: none;
 }
 button:hover{
-  background-color: #969696;
+  background-color: #00ff00;
 }
 .panel{
   width: 400px;
   margin: auto; 
-  background-color: #efefef; 
+  background-color: #969696; 
   margin-top:100px;
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 1px;
   padding-bottom: 20px;
+  box-shadow: 4px 4px black;
+  border: lime 1px solid;
 }
 #panelLobby table{
   width: 100%;
+}
+#panelLobby table td:first-child{ 
+  background: red;
+}
+#panelLobby table td:nth-child(2){ 
+  background: lime;
+}
+#panelLobby table td:nth-child(3){ 
+  background: skyblue;
 }

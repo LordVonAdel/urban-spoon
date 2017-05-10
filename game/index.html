@@ -6,7 +6,7 @@
     <script src="/lobby.js"></script>
     <script>
       var socket = io();
-      
+
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
       }
@@ -22,9 +22,6 @@
       <br><br><button onclick='login()'>Spielen</button>
     </div>
     <div class="panel" id="panelLobby">
-      <h2>Lobby</h2>
-      
-      <br><br><button onclick='login()'>Bereit</button>
     </div>
   </body>
 </html>
