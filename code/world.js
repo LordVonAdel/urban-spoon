@@ -37,8 +37,8 @@ generators = {
 
   },
   berge: function(terrain){
-    var h = 0.5;
-    var s = 0;
+    var h = Math.random()*0.6+0.2;
+    var s = Math.random()*0.06-0.03;
     for(var i=0; i<100; i++){
       terrain[i] = h;
       s+=Math.random()*0.01-0.005+(-0.01*(h-0.5));
