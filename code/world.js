@@ -20,3 +20,12 @@ function Terrain(seed, generator){
 
   }
 }
+
+generators = {
+  random: function(terrain){
+
+  },
+  berge: function(terrain){
+    
+  }
+}
