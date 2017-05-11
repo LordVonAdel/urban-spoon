@@ -27,14 +27,14 @@
       }
 
       socket.on('leave',function(){ //show the login thing again
-        $('.panel').hide(100);
-        $('#panelLogin').show(100);
+        $('.panel').slideUp(100);
+        $('#panelLogin').slideDown(100);
         isInLobby = false;
       });
 
       socket.on('start',function(){
-        $('.panel').hide(100);
-        $('#game').show(100);
+        $('.panel').slideUp(100);
+        $('#game').slideDown(100);
       });
 
       $(function(){
@@ -65,8 +65,11 @@
           <tr><td>Public</td><td><input type="checkbox" min=1 max=26 value=1 name="public"></td></tr>
           <tr><th colspan=2>Game</th></tr>
           <tr><td>Realtime</td><td><input type="checkbox" min=1 max=26 value=1 name="realtime"></td></tr>
+          <tr><td>Max units per team</td><td><input type="number" min=1 max=20 value=1 name="maxUnitsPerTeam"></td></tr>
           <tr><th colspan=2>World</th></tr>
           <tr><td>Generator</td><td><select name="generator"><option>Hills</option><option>Random</option></select></td></tr>
+          <tr><td>Spikes</td><td><input type="checkbox" min=1 max=26 value=1 name="worldSpikes"></td></tr>
+          <tr><td>Noise</td><td><input type="checkbox" min=1 max=26 value=1 name="worldNoise"></td></tr>
         </table>
       </div>
       <br>

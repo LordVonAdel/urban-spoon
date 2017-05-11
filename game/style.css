@@ -71,6 +71,9 @@ a{
 #lobbyTable{
   float: left;
   width: 70%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 30vh;
 }
 #lobbySettings tr{
   background: #606060;
@@ -106,6 +109,13 @@ a{
 }
 #lobbyTable table td:nth-child(6){  /*foxtrot*/
   background: #40dada;
+}
+#lobbyTable table td:nth-child(7){  /*gold*/
+  background: #d4af37;
+}
+#lobbyTable table td:nth-child(8){  /*hotel*/
+  background: #401010;
+  color: white;
 }
 #game{
   position: absolute;

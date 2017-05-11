@@ -6,8 +6,8 @@ teamNames = [
 
 Lobby = {
   show: function(){
-    $('.panel').hide(100);
-    $('#panelLobby').show(100);
+    $('.panel').slideUp(100);
+    $('#panelLobby').slideDown(100);
   },
   init: function(){
     socket.on('lobby',function(data){
