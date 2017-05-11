@@ -6,11 +6,15 @@ module.exports = function(host,name){
   this.host = host; //host of the lobby (client object)
   this.name = name; //name of the lobby
 
+  this.countdown = 5;
+  this.allAreReady = false;
+
   this.settings = {
     maxClients: 2,
     teamNumber: 1,
     gamemode: "DM",
     equalTeams: false,
+    worldSeed: ""
   }
 
   this.game = null;
@@ -52,7 +56,11 @@ module.exports = function(host,name){
     if(ready && this.clients.length >= 1){ //for debugging. In real situation only "> 1"
       if(this.game == null){
         this.game = new Game(this,{gamemode: this.gamemode});
+        this.allAreReady = true;
+        this.countdown = 5;
       }
+    }else{
+      this.countdown = 5;
     }
   }
 

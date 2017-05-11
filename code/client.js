@@ -25,4 +25,11 @@ module.exports = function(socket,name){
       this.lobby.sync();
     }
   }
+
+  this.saveString = function(str){ //a function to remove characters like "<" or ">" for saefty reasons
+    str = str.replace(/>/g, '&gt');
+    str = str.replace(/</g, '&lt');
+    return str;
+  }
+
 }

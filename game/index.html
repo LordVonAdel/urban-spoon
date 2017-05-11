@@ -16,7 +16,7 @@
 
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
-        me.name =  $('#inName').val();
+        me.name =  $('#inName').val().replace(/>/g, '&gt').replace(/</g, '&lt');
       }
       function leave(){
         socket.emit('leave');
