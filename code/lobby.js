@@ -82,7 +82,8 @@ module.exports = function(host,name){
     return {
       teams: teams,
       name: this.name,
-      settings: this.settings
+      settings: this.settings,
+      host: this.host.name
     }
   }
 
@@ -109,11 +110,25 @@ module.exports = function(host,name){
   }
 
   this.changeSettings = function(data){ //when the host change settings
-    Object.assign(this.settings,data);
-    if (data.teamNumber != undefined){
-      this.checkTeams();
+    if (typeof data !== typeof {}){
+      return false;
     }
-    this.sync();
+    var that = this;
+    var checkers = { //functions to check that values are in the right range
+      teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data},
+      maxClients: function(data){return Math.min(Math.max(data,2),100)}
+    }
+    if (this.game == null){ //can't change settings in game
+      for(var k in data){
+        var fun = checkers[k];
+        if(fun == undefined){
+          this.settings[k] = data[k]
+        }else{
+          this.settings[k] = fun(data[k]);
+        }
+      }
+      this.sync();
+    }
   }
 
   this.changeTeam = function(client,team){ //change the team of a player

@@ -84,6 +84,7 @@ a{
 }
 #lobbyTable table{
   width: 100%;
+  table-layout: fixed;
 }
 #lobbyTable table th{
   border-bottom: 1px solid white;

@@ -28,6 +28,9 @@ io.on('connection', function (socket) {
   console.log("Connection opened!");
 
   socket.on('login',function(data){
+    if(typeof data !== typeof {}){
+      return false;
+    }
     if(client.lobby == null && data.name && data.lobby){  //if player is not in a lobby and has the player give a name / lobby
       client.name = data.name;
       //console.log("Player: "+data.name+" connected into lobby: "+data.lobby);
@@ -46,6 +49,9 @@ io.on('connection', function (socket) {
     client.disconnect(); //removes the player from the current lobby and other stuff
   });
   socket.on('ready',function(data){
+    if (typeof data !== typeof true){
+      return false;
+    }
     client.setReady(data);
   });
   socket.on('lobbySetting',function(data){
@@ -56,6 +62,9 @@ io.on('connection', function (socket) {
     }
   });
   socket.on('changeTeam',function(data){
+    if (typeof data !== typeof 1){
+      return false;
+    }
     if (client.lobby != null){
       client.lobby.changeTeam(client,data);
     }

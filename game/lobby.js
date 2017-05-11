@@ -15,7 +15,7 @@ Lobby = {
         isInLobby = true;
         Lobby.show();
       }
-      $("#lobbyTitle").html("Lobby - "+data.name);
+      $("#lobbyTitle").html("Lobby - "+data.name+"<span style='float: right;'>You are "+me.name+"</span>");
       var html = "<table><tr>"
       var maxTeamSize = 0;
       for(var i=0; i<data.teams.length; i++){
@@ -46,8 +46,14 @@ Lobby = {
         $('#lobbySettings input, #lobbySettings select').filter("[name='"+k+"']").val(data.settings[k]);
       }
       $('.teamChanger').click(function(){
-        socket.emit('changeTeam',$(this).attr('team'));
+        socket.emit('changeTeam',$(this).attr('team')*1);
       });
+
+      if (me.name != data.host){
+        $('#lobbySettings input, #lobbySettings select').prop("disabled",true)
+      }else{
+        $('#lobbySettings input, #lobbySettings select').prop("disabled",false)
+      }
     });
 
     $('#lobbySettings input, #lobbySettings select').on('change',function(){ 

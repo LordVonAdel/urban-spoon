@@ -9,9 +9,14 @@
       var socket = io();
       isInLobby = false;
       isReady = false;
+      isHost = false;
+      me = { //object with information about the own player
+        name: "unnamed"
+      };
 
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
+        me.name =  $('#inName').val();
       }
       function leave(){
         socket.emit('leave');
@@ -45,7 +50,7 @@
       <label>Lobby:</label><input type="text" id="inId">
       <br><br><button onclick='login()'>Play</button>
     </div>
-    <div class="panel" id="panelLobby" style="display: block">
+    <div class="panel" id="panelLobby" style="display: none">
       <h2 id="lobbyTitle"></h2>
       <div id="lobbyTable">
         <table><tr><th>Filler</th></tr></table>
@@ -57,6 +62,7 @@
           <tr><td>Max Players</td><td><input type="number" min=2 max=100 value=2 name="maxClients"></td></tr>
           <tr><td>Teams</td><td><input type="number" min=1 max=26 value=1 name="teamNumber"></td></tr>
           <tr><td>Equal Teams</td><td><input type="checkbox" min=1 max=26 value=1 name="equalTeams"></td></tr>
+          <tr><td>Public</td><td><input type="checkbox" min=1 max=26 value=1 name="public"></td></tr>
           <tr><th colspan=2>Game</th></tr>
           <tr><td>Realtime</td><td><input type="checkbox" min=1 max=26 value=1 name="realtime"></td></tr>
           <tr><th colspan=2>World</th></tr>
