@@ -24,12 +24,19 @@ button{
   font-size: 20px;
   transition: background-color 0.3s;
   cursor: pointer;
+  margin: 4px;
 }
 button:focus{
   outline: none;
 }
 button:hover{
   background-color: #00ff00;
+}
+table{
+  border-collapse: collapse;
+}
+a{
+  cursor: pointer;
 }
 .panel{
   width: 400px;
@@ -46,17 +53,58 @@ button:hover{
 #panelLobby{
   width: 1000px;
 }
-#panelLobby table{
+#lobbySettings{
+  float: right;
+  width: 30%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 30vh;
+}
+#lobbySettings input, #lobbySettings select{
+  height: 20px;
+  width: 100%;
+  font-size: 10pt;
+}
+#lobbySettings table{
   width: 100%;
 }
-#panelLobby table td:first-child{ 
-  background: red;
+#lobbyTable{
+  float: left;
+  width: 70%;
 }
-#panelLobby table td:nth-child(2){ 
-  background: lime;
+#lobbySettings tr{
+  background: #606060;
+  padding: 0px;
+  margin: 0px;
+  border: none;
+  height: 20px;
 }
-#panelLobby table td:nth-child(3){ 
-  background: skyblue;
+#lobbySettings tr:nth-child(even){
+  background: #505050;
+}
+#lobbyTable table{
+  width: 100%;
+}
+#lobbyTable table th{
+  border-bottom: 1px solid white;
+}
+#lobbyTable table td:first-child{  /*alpha*/
+  background: #5050dd;
+}
+#lobbyTable table td:nth-child(2){  /*bravo*/
+  background: #aa5050;
+}
+#lobbyTable table td:nth-child(3){  /*charlie*/
+  background: #50aa50;
+}
+#lobbyTable table td:nth-child(4){  /*delta*/
+  background: #dada40;
+}
+#lobbyTable table td:nth-child(5){  /*echo*/
+  background: #900090;
+}
+#lobbyTable table td:nth-child(6){  /*foxtrot*/
+  background: #40dada;
 }
 #game{
   position: absolute;

@@ -8,7 +8,7 @@
     <script>
       var socket = io();
       isInLobby = false;
-      isReady = true;
+      isReady = false;
 
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
@@ -17,6 +17,7 @@
         socket.emit('leave');
       }
       function ready(){
+        isReady = !isReady;
         socket.emit('ready',isReady);
       }
 
@@ -31,7 +32,10 @@
         $('#game').show(100);
       });
 
-      Lobby.init(); //init lobby stuff (see lobby.js)
+      $(function(){
+        Lobby.init(); //init lobby stuff (see lobby.js)
+      })
+      
     </script>
   </head>
   <body>
@@ -41,11 +45,26 @@
       <label>Lobby:</label><input type="text" id="inId">
       <br><br><button onclick='login()'>Play</button>
     </div>
-    <div class="panel" id="panelLobby" style="display: none">
+    <div class="panel" id="panelLobby" style="display: block">
       <h2 id="lobbyTitle"></h2>
-      <div id="lobbyTable"></div>
+      <div id="lobbyTable">
+        <table><tr><th>Filler</th></tr></table>
+      </div>
+      <div id="lobbySettings">
+        Settings
+        <table>
+          <tr><th colspan=2>Lobby</th></tr>
+          <tr><td>Max Players</td><td><input type="number" min=2 max=100 value=2 name="maxClients"></td></tr>
+          <tr><td>Teams</td><td><input type="number" min=1 max=26 value=1 name="teamNumber"></td></tr>
+          <tr><td>Equal Teams</td><td><input type="checkbox" min=1 max=26 value=1 name="equalTeams"></td></tr>
+          <tr><th colspan=2>Game</th></tr>
+          <tr><td>Realtime</td><td><input type="checkbox" min=1 max=26 value=1 name="realtime"></td></tr>
+          <tr><th colspan=2>World</th></tr>
+          <tr><td>Generator</td><td><select name="generator"><option>Hills</option><option>Random</option></select></td></tr>
+        </table>
+      </div>
       <br>
-      <button onclick="leave()">Leave</button><br><br>
+      <button onclick="leave()">Leave</button>
       <button onclick="ready()">Ready</button>
     </div>
     <div id="game" style="display: none">

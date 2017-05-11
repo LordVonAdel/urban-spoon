@@ -22,6 +22,7 @@ module.exports = function(socket,name){
     this.isReady = status;
     if (this.lobby != null){
       this.lobby.checkReady();
+      this.lobby.sync();
     }
   }
 }

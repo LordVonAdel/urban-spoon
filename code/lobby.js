@@ -6,9 +6,12 @@ module.exports = function(host,name){
   this.host = host; //host of the lobby (client object)
   this.name = name; //name of the lobby
 
-  this.maxClients = 2;
-  this.teamNumber = 1;
-  this.gamemode = "DM"; //DM: Deathmatch
+  this.settings = {
+    maxClients: 2,
+    teamNumber: 1,
+    gamemode: "DM",
+    equalTeams: false,
+  }
 
   this.game = null;
 
@@ -17,7 +20,10 @@ module.exports = function(host,name){
 
   this.addClient = function(client){ //Add a client to the lobby
     if (this.game != null){
-      return false;
+      return false; //if a game is currently running
+    }
+    if (this.clients.length >= this.settings.maxClients){
+      return false; //if the lobby is already full
     }
     this.clients.push(client);
     client.lobby = this;
@@ -52,7 +58,31 @@ module.exports = function(host,name){
 
   this.sync = function(){ //Synchronize the lobby between all players in the lobby
     for(var i=0; i<this.clients.length; i++){
-      this.clients[i].socket.emit("lobby",{teams: this.teams, name: this.name});
+      this.clients[i].socket.emit("lobby",this.getSync());
+    }
+  }
+
+  this.getSync = function(){ //get the data needed for the clients
+
+    //create a 2-Dimensional array with objects for the client!
+    var teams = [];
+    for(var i=0; i<this.settings.teamNumber; i++){
+      teams[i] = [];
+    }
+    for(var i=0; i<this.clients.length; i++){
+      var client = this.clients[i];
+      var team = client.team;
+      if (team >= this.settings.teamNumber){ //if the team of the player don't exists
+        client.team = 0;
+        team = 0;
+      }
+      teams[team].push({name: client.name, ready: client.isReady});
+    }
+
+    return {
+      teams: teams,
+      name: this.name,
+      settings: this.settings
     }
   }
 
@@ -64,18 +94,34 @@ module.exports = function(host,name){
 
   this.checkTeams = function(){ //refreshes the teams array
     this.teams = [];
-    for(var i=0; i<this.teamNumber; i++){
+    for(var i=0; i<this.settings.teamNumber; i++){
       this.teams[i] = [];
     }
     for(var i=0; i<this.clients.length; i++){
       var client = this.clients[i];
       var team = client.team;
-      if (team >= this.teamNumber){ //if the team of the player don't exists
+      if (team >= this.settings.teamNumber){ //if the team of the player don't exists
         client.team = 0;
         team = 0;
       }
-      this.teams[team].push(client.name);
+      this.teams[team].push(client);
     }
+  }
+
+  this.changeSettings = function(data){ //when the host change settings
+    Object.assign(this.settings,data);
+    if (data.teamNumber != undefined){
+      this.checkTeams();
+    }
+    this.sync();
+  }
+
+  this.changeTeam = function(client,team){ //change the team of a player
+    if(this.game == null){
+      client.team = team;
+    }
+    this.checkTeams();
+    this.sync();
   }
 
   this.addClient(host); //add the host to the lobby, so he know he is this lobby
