@@ -4,6 +4,7 @@
     <link href="style.css" rel="stylesheet">
     <script src="/lib/jquery-3.2.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/gameClient.js"></script>
     <script src="/lobby.js"></script>
     <script>
       var socket = io();
@@ -35,6 +36,11 @@
       socket.on('start',function(){
         $('.panel').slideUp(100);
         $('#game').slideDown(100);
+        gameStart();
+      });
+      socket.on('world',function(data){
+        console.log('Got world data',data);
+        terrain.nodes = data.nodes;
       });
 
       $(function(){
@@ -68,7 +74,7 @@
           <tr><td>Fixed base positions</td><td><input type="checkbox" min=1 max=26 value=1 name="fixedBases"></td></tr>
           <tr><td>Max units per team</td><td><input type="number" min=1 max=20 value=1 name="maxUnitsPerTeam"></td></tr>
           <tr><th colspan=2>World</th></tr>
-          <tr><td>Generator</td><td><select name="generator"><option>Hills</option><option>Random</option></select></td></tr>
+          <tr><td>Generator</td><td><select name="generator"><option>berge</option><option>random</option></select></td></tr>
           <tr><td>Spikes</td><td><input type="checkbox" min=1 max=26 value=1 name="worldSpikes"></td></tr>
           <tr><td>Noise</td><td><input type="checkbox" min=1 max=26 value=1 name="worldNoise"></td></tr>
         </table>
@@ -78,7 +84,7 @@
       <button onclick="ready()">Ready</button>
     </div>
     <div id="game" style="display: none">
-      <canvas>
+      <canvas id=gameCanvas>
 
       </canvas>
     </div>

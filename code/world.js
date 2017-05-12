@@ -15,11 +15,11 @@ function Terrain(seed, generator){
   }
 
   this.setNode = function(index, height){
-
+    this.nodes[index] = height;
   }
 
   this.addNode = function(index, height){
-    
+    this.nodes[index] += height;
   }
 
   this.addHeight = function(xMin, xMax, height) {

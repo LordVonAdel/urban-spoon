@@ -7,4 +7,7 @@ module.exports = function(lobby, settings){
   console.log("Start Game from lobby "+this.lobby.name);
   this.lobby.broadcast("start",{});
   this.world = new World(lobby.settings.worldSeed,lobby.settings.worldGenerator);
+  this.lobby.broadcast('world',{
+    nodes: this.world.terrain.nodes
+  })
 }
