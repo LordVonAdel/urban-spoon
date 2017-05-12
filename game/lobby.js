@@ -43,7 +43,12 @@ Lobby = {
       html += "</table>";
       $('#lobbyTable').html(html);
       for(var k in data.settings){
-        $('#lobbySettings input, #lobbySettings select').filter("[name='"+k+"']").val(data.settings[k]);
+        var element = $('#lobbySettings input, #lobbySettings select').filter("[name='"+k+"']")
+        if(element.attr("type")=="checkbox"){
+          element.prop('checked', data.settings[k]);
+        }else{
+          element.val(data.settings[k]);
+        }
       }
       $('.teamChanger').click(function(){
         socket.emit('changeTeam',$(this).attr('team')*1);
@@ -60,6 +65,9 @@ Lobby = {
       //if a setting in the lobby are changed send the change to the server
       var key = $(this).attr('name');
       var val = $(this).val();
+      if($(this).attr("type")=="checkbox"){
+        val = $(this).is(':checked');
+      }
       var obj = {};
       obj[key] = val;
       socket.emit('lobbySetting',obj);

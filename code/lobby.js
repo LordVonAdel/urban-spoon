@@ -30,6 +30,9 @@ module.exports = function(host,name){
     if (this.clients.length >= this.settings.maxClients){
       return false; //if the lobby is already full
     }
+    if (!this.clients.every(function(element){return (element.name != client.name);})){ //If name is already in use
+      return false;
+    }
     this.clients.push(client);
     client.lobby = this;
 
@@ -54,7 +57,7 @@ module.exports = function(host,name){
     var ready = this.clients.every(function(index){
       return (index.isReady);
     });
-    if(ready && this.clients.length >= 1){ //for debugging. In real situation only "> 1"
+    if(ready && this.clients.length > 1){ //for debugging. In real situation only "> 1"
       if(this.game == null){
         this.game = new Game(this,{gamemode: this.gamemode});
         this.allAreReady = true;
