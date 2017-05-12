@@ -1,5 +1,5 @@
 //Game controls the game actions. What player is next and how projectiles fly and this stuff
-World = require('world.js');
+World = require('./world.js');
 
 module.exports = function(lobby, settings){
   this.lobby = lobby;
