@@ -14,11 +14,11 @@ function Terrain(seed, generator){
 
   }
 
-  this.nodeSet = function(index, height){
+  this.setNode = function(index, height){
 
   }
 
-  this.nodeAdd = function(index, height){
+  this.addNode = function(index, height){
     
   }
 
@@ -30,12 +30,14 @@ function Terrain(seed, generator){
 
   }
 
-  generators["berge"](this.nodes);
+  generators["berge"](this);
 }
 
 generators = {
-  random: function(nodes){
-
+  random: function(terrain){
+    for(var i=0; i<terrain.length; i++){
+      terrain.setNode(i,Math.random());
+    }
   },
   berge: function(terrain){
     var h = Math.random()*0.5+0.25;

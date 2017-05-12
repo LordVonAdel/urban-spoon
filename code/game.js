@@ -6,5 +6,5 @@ module.exports = function(lobby, settings){
   this.settings = settings; //gamemode, and other stuff
   console.log("Start Game from lobby "+this.lobby.name);
   this.lobby.broadcast("start",{});
-  this.world = new World();
+  this.world = new World(lobby.settings.worldSeed,lobby.settings.worldGenerator);
 }

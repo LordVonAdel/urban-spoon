@@ -14,7 +14,8 @@ module.exports = function(host,name){
     teamNumber: 1,
     gamemode: "DM",
     equalTeams: false,
-    worldSeed: ""
+    worldSeed: "",
+    worldGenerator: "berge"
   }
 
   this.game = null;
