@@ -4,6 +4,7 @@ module.exports = function(seed, generator){
 
 function Terrain(seed, generator){
   this.length = 500;
+  this.nodes = [];
 
   this.getHeight = function(x) {
 
@@ -29,18 +30,18 @@ function Terrain(seed, generator){
 
   }
 
-  generators["berge"](this);
+  generators["berge"](this.nodes);
 }
 
 generators = {
-  random: function(terrain){
+  random: function(nodes){
 
   },
-  berge: function(terrain){
+  berge: function(nodes){
     var h = Math.random()*0.5+0.25;
     var s = Math.random()*0.05-0.025;
     for(var i=0; i<100; i++){
-      terrain[i] = h;
+      nodes[i] = h;
       var v = h-0.5;
       s+=Math.random()*0.01-0.005-(0.01*(Math.sign(v)*Math.sqrt(Math.abs(v))));
       s=Math.min(0.03,Math.max(s,-0.03));
