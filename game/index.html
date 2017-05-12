@@ -42,6 +42,12 @@
         console.log('Got world data',data);
         terrain.nodes = data.nodes;
       });
+      socket.on('placement',function(data){
+        placement = data;
+      });
+      socket.on('build',function(data){
+        ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite};
+      });
 
       $(function(){
         Lobby.init(); //init lobby stuff (see lobby.js)

@@ -8,11 +8,17 @@ camDrag = false;
 camDragX = 0;
 camDragY = 0;
 
+placement = null;
+
+ents = {};
+
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
+
   gameLoop();
 
+  //add event listeners for controls and stuff
   $(document).on('keydown',function(e){
     inputDownKeys[e.keyCode] = true;
     inputPressKeys[e.keyCode] = true;
@@ -81,11 +87,32 @@ function draw(){
   ctx.fillStyle = "#ff0000"
   drawCircle(mouseX,terrain.getY(mouseX),4);
 
+  //ents
+  for(var k in ents){
+    var ent = ents[k];
+    drawBuilding(ent.x,canvas.height-ent.y,ent.sprite,ent.team);
+  }
+
+  //placement
+  if(placement != null){
+    drawPlacement(mouseX,mouseH,placement.sprite)
+    ctx.font = "30px Verdana";
+    ctx.fillStyle = "#ffffff";
+    ctx.textBaseline="top";
+    ctx.fillText(placement.text,10,10);
+    if (keyCheckPressed("M0")){
+      socket.emit('place',{x: mouseX, y: 0, type: placement.type})
+      placement = null;
+    }
+  }
 }
+
 function gameLoop(){
 
   mouseX = mouseVX + camX;
   mouseY = mouseVY + camY;
+
+  mouseH = terrain.getY(mouseX);
 
   if(keyCheckDown(39)){
     camX += 3;
@@ -164,8 +191,33 @@ function inputNext(){
 }
 
 //extra draw stuff
+sprites = {};
+
 function drawCircle(x,y,radius){
   ctx.beginPath();
   ctx.arc(x-camX, y-camY, radius, 0, 2 * Math.PI, false);
   ctx.fill();
+}
+function drawSprite(x,y,sprite){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+  ctx.drawImage(sprites[sprite],x-camX,y-camY);
+}
+function drawPlacement(x,y,sprite){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+  var img = sprites[sprite]
+  ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
+}
+function drawBuilding(x,y,sprite,team){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+  var img = sprites[sprite]
+  ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
 }

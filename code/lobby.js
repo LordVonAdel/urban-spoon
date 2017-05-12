@@ -15,7 +15,8 @@ module.exports = function(host,name){
     gamemode: "DM",
     equalTeams: false,
     worldSeed: "",
-    worldGenerator: "berge"
+    worldGenerator: "berge",
+    fixedBases: false
   }
 
   this.game = null;
@@ -105,6 +106,15 @@ module.exports = function(host,name){
     }
   }
 
+  this.broadcastTeam = function(msg,data,team){
+    for(var i=0; i<this.clients.length; i++){
+      var cl = this.clients[i];
+      if (cl.team == team){
+        cl.socket.emit(msg,data);
+      }
+    }
+  }
+
   this.checkTeams = function(){ //refreshes the teams array
     this.teams = [];
     for(var i=0; i<this.settings.teamNumber; i++){
@@ -151,5 +161,5 @@ module.exports = function(host,name){
     this.sync();
   }
 
-  this.addClient(host); //add the host to the lobby, so he know he is this lobby
+  this.addClient(host); //add the host to the lobby, so he know he is in this lobby
 }
