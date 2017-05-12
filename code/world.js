@@ -37,11 +37,11 @@ generators = {
   random: function(nodes){
 
   },
-  berge: function(nodes){
+  berge: function(terrain){
     var h = Math.random()*0.5+0.25;
     var s = Math.random()*0.05-0.025;
-    for(var i=0; i<100; i++){
-      nodes[i] = h;
+    for(var i=0; i<terrain.length; i++){
+      terrain.setNode(i,h);
       var v = h-0.5;
       s+=Math.random()*0.01-0.005-(0.01*(Math.sign(v)*Math.sqrt(Math.abs(v))));
       s=Math.min(0.03,Math.max(s,-0.03));

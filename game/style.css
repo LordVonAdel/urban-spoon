@@ -107,6 +107,7 @@ a{
 }
 #lobbyTable table td:nth-child(5){  /*echo*/
   background: #900090;
+  color: white;
 }
 #lobbyTable table td:nth-child(6){  /*foxtrot*/
   background: #40dada;
