@@ -46,7 +46,7 @@
         placement = data;
       });
       socket.on('build',function(data){
-        ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite};
+        ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite, team: data.team};
       });
       socket.on('loginError',function(data){
         $('.loginError').html(data);
@@ -86,7 +86,7 @@
           <tr><td>Public</td><td><input type="checkbox" min=1 max=26 value=1 name="public"></td></tr>
           <tr><th colspan=2>Game</th></tr>
           <tr><td>Realtime</td><td><input type="checkbox" min=1 max=26 value=1 name="realtime"></td></tr>
-          <tr><td>Fixed base positions</td><td><input type="checkbox" min=1 max=26 value=1 name="fixedBases"></td></tr>
+          <tr><td>Bases</td><td><select name="bases"><option value="free">Free Placement</option><option value="auto">Auto start Positions</option><option value="none">None</option></td></tr>
           <tr><td>Max units per team</td><td><input type="number" min=1 max=20 value=1 name="maxUnitsPerTeam"></td></tr>
           <tr><th colspan=2>World</th></tr>
           <tr><td>Generator</td><td><select name="generator"><option>berge</option><option>random</option></select></td></tr>

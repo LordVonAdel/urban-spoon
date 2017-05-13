@@ -3,6 +3,9 @@ teamNames = [
   "Juliett","Kilo","Lima","Mike","November","Oscar","Papa","Quebec","Romeo",
   "Sierra","Tango","Uniform","Victor","Whiskey","X-Ray","Yankee","Zulu"
 ];
+teamColors = [
+  "#5050dd", "#aa5050", "#50aa50", "#dada40", "#900090","#40dada", "#d4af37", "#401010"
+];
 
 Lobby = {
   show: function(){

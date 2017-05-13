@@ -9,6 +9,7 @@ camDragX = 0;
 camDragY = 0;
 
 placement = null;
+animationTick = 0;
 
 ents = {};
 
@@ -109,10 +110,13 @@ function draw(){
 
 function gameLoop(){
 
+  animationTick ++;
+  if (animationTick >= 60){
+    animationTick = 0;
+  }
+
   mouseX = mouseVX + camX;
   mouseY = mouseVY + camY;
-
-  mouseH = terrain.getY(mouseX);
 
   if(keyCheckDown(39)){
     camX += 3;
@@ -130,6 +134,10 @@ function gameLoop(){
   if(camDrag){
     camX = camDragX - (mouseX - camX); //drag view
   }
+
+  mouseX = mouseVX + camX;
+  mouseH = terrain.getY(mouseX);
+
   camX = Math.min(Math.max(camX,0),(terrain.nodes.length*terrain.ppn)-camW);
 
   draw();
@@ -198,6 +206,7 @@ function drawCircle(x,y,radius){
   ctx.arc(x-camX, y-camY, radius, 0, 2 * Math.PI, false);
   ctx.fill();
 }
+
 function drawSprite(x,y,sprite){
   if (sprites[sprite] == undefined){
     sprites[sprite] = new Image();
@@ -205,19 +214,48 @@ function drawSprite(x,y,sprite){
   }
   ctx.drawImage(sprites[sprite],x-camX,y-camY);
 }
+
 function drawPlacement(x,y,sprite){
+  ctx.globalAlpha = (Math.sin((animationTick/60)*Math.PI*2)+1)/4+0.5;
   if (sprites[sprite] == undefined){
     sprites[sprite] = new Image();
     sprites[sprite].src = sprite;
   }
   var img = sprites[sprite]
   ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
+  ctx.globalAlpha = 1;
 }
+
 function drawBuilding(x,y,sprite,team){
   if (sprites[sprite] == undefined){
     sprites[sprite] = new Image();
     sprites[sprite].src = sprite;
   }
-  var img = sprites[sprite]
-  ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
+
+  var img = sprites[sprite];
+  drawSpriteColor(x-camX-img.width/2,y-camY-img.height,sprite,teamColors[team]);
+}
+
+function drawSpriteColor(x,y,sprite,color){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+  var img = sprites[sprite];
+  
+  buffer = document.createElement('canvas'); //yes. every tick a buffer is created... will be changed in the future
+  buffer.width = img.width;
+  buffer.height = img.height;
+
+  bx = buffer.getContext('2d');
+  bx.fillStyle = color;
+  bx.fillRect(0,0,buffer.width,buffer.height);
+  bx.globalCompositeOperation = "destination-atop";
+  bx.drawImage(img,0,0);
+
+  ctx.drawImage(img,x,y);
+  ctx.globalAlpha = 0.5;
+  ctx.drawImage(buffer,x,y);
+  ctx.globalAlpha = 1;
+
 }

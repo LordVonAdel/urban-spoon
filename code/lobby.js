@@ -16,7 +16,7 @@ module.exports = function(host,name){
     equalTeams: false,
     worldSeed: "",
     worldGenerator: "berge",
-    fixedBases: false
+    bases: "free"
   }
 
   this.game = null;
@@ -60,7 +60,7 @@ module.exports = function(host,name){
     });
     if(ready && this.clients.length > 1){ //for debugging. In real situation only "> 1"
       if(this.game == null){
-        this.game = new Game(this,{gamemode: this.gamemode});
+        this.game = new Game(this);
         this.allAreReady = true;
         this.countdown = 5;
       }

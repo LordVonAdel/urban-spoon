@@ -26,6 +26,12 @@ function Terrain(seed, generator){
     return (node1+((l/this.ppn) * (node2 - node1)))*this.amplitude;
   }
 
+  this.getSlope = function(){
+    var node1 = this.nodes[Math.floor(x/this.ppn)]*this.amplitude;
+    var node2 = this.nodes[Math.ceil(x/this.ppn)]*this.amplitude;
+    return (node2-node1)/this.ppn;
+  }
+
   this.setHeightRegion = function(xMin, xMax, height) {
     for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
       this.setNode(i,height);
@@ -69,7 +75,7 @@ generators = {
     var h = Math.random()*0.5+0.25;
     var s = Math.random()*0.05-0.025;
     for(var i=0; i<terrain.length; i++){
-      terrain.setNode(i,h);
+      terrain.setNode(i,h*0.5+0.5);
       var v = h-0.5;
       s+=Math.random()*0.01-0.005-(0.01*(Math.sign(v)*Math.sqrt(Math.abs(v))));
       s=Math.min(0.03,Math.max(s,-0.03));

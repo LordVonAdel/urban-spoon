@@ -1,21 +1,15 @@
 //Game controls the game actions. What player is next and how projectiles fly and this stuff
 World = require('./world.js');
 
-module.exports = function(lobby, settings){
+module.exports = function(lobby){
   this.nextEntId = 0;
   this.lobby = lobby;
-  this.settings = settings; //gamemode, and other stuff
+  this.settings = this.lobby.settings; //gamemode, and other stuff
   this.ents =  [];
   console.log("Start Game from lobby "+this.lobby.name);
   this.lobby.broadcast("start",{});
   this.world = new World(lobby.settings.worldSeed,lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
-  this.phase = 0; //0: Base placing; 1: ingame
-  if (this.settings.fixedBases){
-    this.phase = 1;
-  }else{
-    this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"})
-  }
 
   this.place = function(client,x,y,type){
     var preset = buildings[type];
@@ -27,6 +21,20 @@ module.exports = function(lobby, settings){
     }
     this.lobby.broadcast('build',{x: x, y: this.world.terrain.getY(x), sprite: preset.sprite, id: this.nextEntId, team: client.team});
     this.nextEntId += 1;
+  }
+
+  if (this.settings.bases == "auto"){
+    //auto place bases
+    var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
+    for(var i=0; i<this.lobby.teams.length; i++){
+      this.place(this.lobby.teams[i][0], b*i+b/2,0,"base");
+    }
+  }else{
+    if (this.settings.bases == "free"){ //let the user place the base
+      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"})
+    }else{
+      //no bases
+    }
   }
 }
 
@@ -42,6 +50,7 @@ function Building(x,y,type,team,id){
   this.id = id;
   var preset = buildings[type];
   this.width = preset.width;
+  this.hp = preset.health;
 
 }
 
@@ -50,6 +59,7 @@ buildings = {
     width: 128,
     name: "Base",
     sprite: "sprites/base.png",
-    unique: true
+    unique: true,
+    health: 500
   }
 }
