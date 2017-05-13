@@ -12,9 +12,9 @@ module.exports = function(lobby){
   this.world.sync(this.lobby);
 
   this.place = function(client,x,y,type){
-    var preset = buildings[type];
+    var preset = entities[type];
     this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x));
-    this.ents[this.nextEntId] = new Building(x,this.world.terrain.getY(x),type,client.team,this.nextEntId);
+    this.ents[this.nextEntId] = new Entity(x,this.world.terrain.getY(x),type,client.team,this.nextEntId,this);
     this.world.sync(this.lobby);
     if (preset.unique){
       this.lobby.broadcastTeam('placement',null,client.team);
@@ -38,9 +38,9 @@ module.exports = function(lobby){
   }
 }
 
-function Building(x,y,type,team,id){
-  if (buildings[type] == undefined){
-    console.log("Unknown building: "+type);
+function Entity(x,y,type,team,id,game){
+  if (entities[type] == undefined){
+    console.log("Unknown entity: "+type);
     return false;
   }
   this.team = team;
@@ -48,18 +48,38 @@ function Building(x,y,type,team,id){
   this.y = y;
   this.type = type;
   this.id = id;
-  var preset = buildings[type];
+  this.game = game;
+  var preset = entities[type];
   this.width = preset.width;
   this.hp = preset.health;
-
+  this.event = function(event,data){
+    if (preset.events != undefined){
+      var ev = preset.events[event];
+      if (ev != undefined){
+        ev(this,data);
+      }
+    }
+  }
+  this.event("spawn");
 }
 
-buildings = {
+entities = {
   base: {
     width: 128,
     name: "Base",
     sprite: "sprites/base.png",
     unique: true,
-    health: 500
+    health: 500,
+    events: { 
+      spawn: function(ent){
+        ent.game.place({team: ent.team},ent.x+128,ent.y,"vehicle");
+      }
+    }
+  },
+  vehicle: {
+    width: 64,
+    name: "Vehicle",
+    sprite: "sprites/vehicleBase.png",
+    health: 80
   }
 }
