@@ -8,6 +8,7 @@ Lobby = {
   show: function(){
     $('.panel').slideUp(100);
     $('#panelLobby').slideDown(100);
+    $('.loginError').html("");
   },
   init: function(){
     socket.on('lobby',function(data){

@@ -20,7 +20,10 @@ module.exports = function(socket,name){
       if(lobbies[data.lobby] == undefined){ 
         lobbies[data.lobby] = new Lobby(client,data.lobby); //if the lobby does not exists create a new one and set the player as the host
       }else{
-        lobbies[data.lobby].addClient(client); //else add the player to the existing lobby
+        var err = lobbies[data.lobby].addClient(client); //else add the player to the existing lobby
+        if (err){
+          client.socket.emit('loginError',err);
+        }
       }
     }
   });

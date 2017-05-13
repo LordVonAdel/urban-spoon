@@ -48,9 +48,17 @@
       socket.on('build',function(data){
         ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite};
       });
+      socket.on('loginError',function(data){
+        $('.loginError').html(data);
+      });
 
       $(function(){
         Lobby.init(); //init lobby stuff (see lobby.js)
+        $("#inId").on('keyup', function (e) {
+          if (e.keyCode == 13) {
+            login();
+          }
+        });
       })
       
     </script>
@@ -60,6 +68,7 @@
       <h2>Login</h2>
       <label>Playername:</label><input type="text" id="inName"><br><br>
       <label>Lobby:</label><input type="text" id="inId">
+      <span class='loginError'></span>
       <br><br><button onclick='login()'>Play</button>
     </div>
     <div class="panel" id="panelLobby" style="display: none">

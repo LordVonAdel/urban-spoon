@@ -50,6 +50,9 @@ a{
   box-shadow: 4px 4px black;
   border: lime 1px solid;
 }
+.loginError{
+  color: darkred;
+}
 #panelLobby{
   width: 1000px;
 }

@@ -26,13 +26,13 @@ module.exports = function(host,name){
 
   this.addClient = function(client){ //Add a client to the lobby
     if (this.game != null){
-      return false; //if a game is currently running
+      return "The game is already running!"; //if a game is currently running
     }
     if (this.clients.length >= this.settings.maxClients){
-      return false; //if the lobby is already full
+      return "The lobby is full!"; //if the lobby is already full
     }
     if (!this.clients.every(function(element){return (element.name != client.name);})){ //If name is already in use
-      return false;
+      return "Someone with this name is already in the lobby!";
     }
     this.clients.push(client);
     client.lobby = this;
