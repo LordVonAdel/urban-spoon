@@ -26,3 +26,13 @@ io.on('connection', function (socket) {
 
   console.log("Connection opened!");
 });
+
+secondLoop = function(){
+
+  for(l in lobbies){
+    lobbies[l].second();
+  }
+
+  setTimeout(secondLoop,1000)
+}
+secondLoop();

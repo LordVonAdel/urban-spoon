@@ -6,7 +6,14 @@ module.exports = function(host,name){
   this.host = host; //host of the lobby (client object)
   this.name = name; //name of the lobby
 
-  this.countdown = 5;
+  this.issues = { //start game only when all issues are false
+    emptyTeams: false,
+    inGame: false,
+    ready: true,
+    onePlayer: true
+  };
+
+  this.countdown = Infinity;
   this.allAreReady = false;
 
   this.settings = {
@@ -54,18 +61,49 @@ module.exports = function(host,name){
     }
   }
 
+  this.setInfo = function(text){ //gives the status of the lobby to all players. Errors and things
+    this.broadcast('lobbyStatus',text);
+  }
+
+  this.reportIssues = function(){
+    if(this.clients.length == 1){ //check if more than one player is in the lobby
+      this.issues["onePlayer"] = true;
+    }else{
+      this.issues["onePlayer"] = false;
+    }
+    var found = false;
+    var text = { //text for the clients
+      emptyTeams: "Empty teams are not allowed!",
+      onePlayer: "A round with only one player is stupid!"
+    }
+    var html = "";
+    for(var i in this.issues){ //itterate through every issue
+      if(this.issues[i] == true){
+        found = true;
+        var txt = text[i];
+        if(txt != undefined){
+          html += "<br>"+text[i];
+        }
+      }
+    }
+    this.setInfo(html);
+
+    return found;
+
+  }
+
   this.checkReady = function(){
     var ready = this.clients.every(function(index){
       return (index.isReady);
     });
-    if(ready && this.clients.length > 1){ //for debugging. In real situation only "> 1"
-      if(this.game == null){
-        this.game = new Game(this);
-        this.allAreReady = true;
+    if(ready){
+      this.issues["ready"] = false;
+      if (!this.reportIssues()){
         this.countdown = 5;
       }
     }else{
-      this.countdown = 5;
+      this.issues["ready"] = true;
+      this.countdown = Infinity;
     }
   }
 
@@ -128,6 +166,38 @@ module.exports = function(host,name){
         team = 0;
       }
       this.teams[team].push(client);
+    }
+    if (this.teams.some(t => t.length == 0)){
+      this.issues.emptyTeams = true;
+      return false;
+    }
+    this.issues.emptyTeams = false;
+    return true;
+  }
+
+  this.second = function(){ //called every second
+    if (this.countdown != Infinity){
+      this.countdown --;
+      if (this.reportIssues()){
+        countdown = Infinity;
+      }else{
+        this.setInfo("Game starts in "+this.countdown);
+      }
+      if(this.countdown <= 0){
+        this.startGame();
+      }
+    }
+  }
+
+  this.startGame = function(){ //starts the game
+    var issueIsFound = this.reportIssues();
+    if (issueIsFound){
+      this.countdown = Infinity;
+    }
+
+    if (issueIsFound==false){
+      this.game = new Game(this);
+      this.issues.inGame = true;
     }
   }
 

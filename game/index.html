@@ -51,6 +51,9 @@
       socket.on('loginError',function(data){
         $('.loginError').html(data);
       });
+      socket.on('lobbyStatus',function(data){
+        $('#lobbyStatus').html(data);
+      });
 
       $(function(){
         Lobby.init(); //init lobby stuff (see lobby.js)
@@ -96,6 +99,7 @@
       </div>
       <br>
       <button onclick="leave()">Leave</button>
+      <span id="lobbyStatus"></span>
       <button onclick="ready()">Ready</button>
     </div>
     <div id="game" style="display: none">
