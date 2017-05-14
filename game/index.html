@@ -6,15 +6,14 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/gameClient.js"></script>
     <script src="/lobby.js"></script>
+    <script src="/clientNetworking.js"></script>
     <script>
-      var socket = io();
       isInLobby = false;
       isReady = false;
       isHost = false;
       me = { //object with information about the own player
         name: "unnamed"
       };
-
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
         me.name =  $('#inName').val().replace(/>/g, '&gt').replace(/</g, '&lt');
@@ -26,34 +25,6 @@
         isReady = !isReady;
         socket.emit('ready',isReady);
       }
-
-      socket.on('leave',function(){ //show the login thing again
-        $('.panel').slideUp(100);
-        $('#panelLogin').slideDown(100);
-        isInLobby = false;
-      });
-
-      socket.on('start',function(){
-        $('.panel').slideUp(100);
-        $('#game').slideDown(100);
-        gameStart();
-      });
-      socket.on('world',function(data){
-        console.log('Got world data',data);
-        terrain.nodes = data.nodes;
-      });
-      socket.on('placement',function(data){
-        placement = data;
-      });
-      socket.on('build',function(data){
-        ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite, team: data.team};
-      });
-      socket.on('loginError',function(data){
-        $('.loginError').html(data);
-      });
-      socket.on('lobbyStatus',function(data){
-        $('#lobbyStatus').html(data);
-      });
 
       $(function(){
         Lobby.init(); //init lobby stuff (see lobby.js)
