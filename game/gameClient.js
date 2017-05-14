@@ -88,10 +88,34 @@ function draw(){
   ctx.fillStyle = "#ff0000"
   drawCircle(mouseX,terrain.getY(mouseX),4);
 
-  //ents
+  //entities
   for(var k in ents){
     var ent = ents[k];
-    drawBuilding(ent.x,canvas.height-ent.y,ent.sprite,ent.team);
+    var yy = canvas.height-ent.y;
+    var x = ent.x;
+    var sprite = ent.sprite;
+    var team = ent.team;
+
+    if (sprites[sprite] == undefined){
+      sprites[sprite] = new Image();
+      sprites[sprite].src = sprite;
+    }
+
+    var img = sprites[sprite];
+    ent.w = img.width;
+    ent.h = img.height;
+
+    ctx.lineWidth = 1;
+    if (mouseOver(ent.x-ent.w/2,yy-ent.h,ent.x+ent.w/2,yy,ent)){
+      ctx.strokeStyle = "#00ff00";
+      drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
+      drawHealthbar(ent.x-ent.w/2,yy+2,ent.w,ent.hp,ent.hpMax); //ToDo: replace 100 with max
+    }else{
+      ctx.strokeStyle = "#0000ff";
+      drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
+    }
+
+    drawSpriteColor(x-img.width/2,yy-img.height,sprite,teamColors[team]);
   }
 
   //placement
@@ -168,6 +192,8 @@ var mouseX = 0;
 var mouseY = 0;
 var mouseVX = 0;
 var mouseVY = 0;
+var inputHlast = null;
+var inputHover = null;
 
 function keyCheckDown(code){
   if(inputDownKeys[code] != undefined){
@@ -193,9 +219,21 @@ function keyCheckReleased(code){
   }
 }
 
+function mouseOver(x1,y1,x2,y2,id){
+  if (mouseX > x1 && mouseY > y1 && mouseX < x2 && mouseY < y2){
+    inputHover = id;
+    if (inputHlast == id){
+      return true;
+    }
+  }
+  return false;
+}
+
 function inputNext(){
   inputPressKeys = {};
   inputReleaseKeys = {};
+  inputHlast = inputHover;
+  inputHover = null;
 }
 
 //extra draw stuff
@@ -207,12 +245,23 @@ function drawCircle(x,y,radius){
   ctx.fill();
 }
 
+function drawRectangle(x,y,width,height){
+  ctx.fillRect(x-camX,y-camY,width,height)
+}
+function drawRectangleStroke(x,y,width,height){
+  ctx.strokeRect(x-camX,y-camY,width,height)
+}
+
 function drawSprite(x,y,sprite){
   if (sprites[sprite] == undefined){
     sprites[sprite] = new Image();
     sprites[sprite].src = sprite;
   }
   ctx.drawImage(sprites[sprite],x-camX,y-camY);
+}
+
+function drawText(text,x,y){
+  ctx.fillText(text,x-camX,y-camY);
 }
 
 function drawPlacement(x,y,sprite){
@@ -224,16 +273,6 @@ function drawPlacement(x,y,sprite){
   var img = sprites[sprite]
   ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
   ctx.globalAlpha = 1;
-}
-
-function drawBuilding(x,y,sprite,team){
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
-
-  var img = sprites[sprite];
-  drawSpriteColor(x-camX-img.width/2,y-camY-img.height,sprite,teamColors[team]);
 }
 
 function drawSpriteColor(x,y,sprite,color){
@@ -253,9 +292,25 @@ function drawSpriteColor(x,y,sprite,color){
   bx.globalCompositeOperation = "destination-atop";
   bx.drawImage(img,0,0);
 
-  ctx.drawImage(img,x,y);
+  ctx.drawImage(img,x-camX,y-camY);
   ctx.globalAlpha = 0.5;
-  ctx.drawImage(buffer,x,y);
+  ctx.drawImage(buffer,x-camX,y-camY);
   ctx.globalAlpha = 1;
 
+}
+
+function drawHealthbar(x,y,width,hp,max){
+  var per = hp/max;
+  ctx.fillStyle = "#ff0000";
+  drawRectangle(x,y,width,16);
+
+  ctx.fillStyle = "#00ff00";
+  drawRectangle(x,y,width*per,16);
+
+  ctx.fillStyle = "#000000";
+  ctx.font = "14px Verdana";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  drawText(hp+" / "+max,x+width/2,y);
+  ctx.textAlign = "left";
 }

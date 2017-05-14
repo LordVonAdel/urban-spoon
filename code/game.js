@@ -11,15 +11,18 @@ module.exports = function(lobby){
   this.world = new World(lobby.settings.worldSeed,lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
 
-  this.place = function(client,x,y,type){
+  this.place = function(client,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
     var preset = entities[type];
-    this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x));
+    if (preset.flat){
+      this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x)); //flat the ground under the ent
+      this.world.sync(this.lobby);
+    }
     this.ents[this.nextEntId] = new Entity(x,this.world.terrain.getY(x),type,client.team,this.nextEntId,this);
-    this.world.sync(this.lobby);
     if (preset.unique){
       this.lobby.broadcastTeam('placement',null,client.team);
+      //if the ent is unique send to the team members they don't need to place it because it already was placed
     }
-    this.lobby.broadcast('build',{x: x, y: this.world.terrain.getY(x), sprite: preset.sprite, id: this.nextEntId, team: client.team});
+    this.lobby.broadcast('build',{x: x, y: this.world.terrain.getY(x), sprite: preset.sprite, id: this.nextEntId, team: client.team, hp: preset.health, hpMax: preset.health});
     this.nextEntId += 1;
   }
 
@@ -61,6 +64,9 @@ function Entity(x,y,type,team,id,game){
     }
   }
   this.event("spawn");
+  this.sync = function(){ //send array with entity information for synchronisation
+    this.game.lobby.broadcast(1,[this.id,this.x,this.y,this.hp]);
+  }
 }
 
 entities = {
@@ -69,6 +75,7 @@ entities = {
     name: "Base",
     sprite: "sprites/base.png",
     unique: true,
+    flat: true,
     health: 500,
     events: { 
       spawn: function(ent){
