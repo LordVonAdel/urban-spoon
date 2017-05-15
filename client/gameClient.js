@@ -41,6 +41,7 @@ function gameStart(){
   $(canvas).on('mousemove',function(e){
     mouseVX = e.clientX;
     mouseVY = e.clientY;
+    e.preventDefault();
   });
   document.getElementById("gameCanvas").addEventListener('contextmenu', function(evt) { 
     evt.preventDefault();

@@ -205,14 +205,15 @@ module.exports = function(host,name){
     }
     var that = this;
     var checkers = { //functions to check that values are in the right range
-      teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data},
-      maxClients: function(data){return Math.min(Math.max(data,2),100)}
-    };
+      teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data;},
+      maxClients: function(data){return Math.min(Math.max(data,2),100);},
+      bases: function(data){if (["free","auto","none"].indexOf(data) == -1){return "free";}else{return data;}}
+    }
     if (this.game == null){ //can't change settings in game
       for(var k in data){
         var fun = checkers[k];
         if(fun == undefined){
-          this.settings[k] = data[k]
+          this.settings[k] = data[k];
         }else{
           this.settings[k] = fun(data[k]);
         }
@@ -222,7 +223,7 @@ module.exports = function(host,name){
   }
 
   this.changeTeam = function(client,team){ //change the team of a player
-    if(this.game == null){
+    if (this.game == null){
       if (team <= this.settings.teamNumber && team >= 0){
         client.team = team;
         this.checkTeams();
