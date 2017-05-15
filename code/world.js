@@ -9,7 +9,6 @@ function Terrain(seed, generator){
   this.length = 500;
   this.nodes = [];
   this.ppn = 8; //Pixel per node
-  this.height = 0;
   this.amplitude = 400;
 
   this.getHeight = function(x) {
@@ -50,7 +49,7 @@ function Terrain(seed, generator){
   this.addHeightRegion = function(xMin, xMax, height) {
     for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
       this.addNode(i,height);
-    }     
+    }
   }
 
   this.setYRegion = function(xMin, xMax, height) {

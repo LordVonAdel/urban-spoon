@@ -33,6 +33,6 @@ secondLoop = function(){
     lobbies[l].second();
   }
 
-  setTimeout(secondLoop,1000)
+  setTimeout(secondLoop,1000);
 }
 secondLoop();
