@@ -26,9 +26,18 @@ function Terrain(seed, generator){
     return (node1+((l/this.ppn) * (node2 - node1)))*this.amplitude;
   }
 
-  this.getSlope = function(){
-    var node1 = this.nodes[Math.floor(x/this.ppn)]*this.amplitude;
-    var node2 = this.nodes[Math.ceil(x/this.ppn)]*this.amplitude;
+  this.getSlope = function(x){
+    var n1x = Math.floor(x/this.ppn);
+    var n2x = Math.ceil(x/this.ppn);
+    if (n1x == n2x){ //if the position is perfect on the node
+      if(n1x == 0){ //go right when at 0 insted of left, because we don't want to go outside the bounds!
+        n2x = 1;
+      }else{
+        n1x -= 1;
+      }
+    }
+    var node1 = this.nodes[n1x]*this.amplitude;
+    var node2 = this.nodes[n2x]*this.amplitude;
     return (node2-node1)/this.ppn;
   }
 

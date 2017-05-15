@@ -19,7 +19,7 @@ socket.on('placement',function(data){
   placement = data;
 });
 socket.on('build',function(data){
-  ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite, team: data.team, hp: data.hp, hpMax: data.hpMax};
+  ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite, team: data.team, hp: data.hp, hpMax: data.hpMax, angle: data.angle};
 });
 socket.on('loginError',function(data){
   $('.loginError').html(data);
@@ -27,11 +27,18 @@ socket.on('loginError',function(data){
 socket.on('lobbyStatus',function(data){
   $('#lobbyStatus').html(data);
 });
+socket.on('selDat',function(data){ //data from selected object
+  selectedEntUI = data;
+});
 socket.on(1,function(data){ //entity change
-  var ent = ents[data[0]]
+  var ent = ents[data[0]];
   if(ent != undefined){
     ent.x = data[1];
     ent.y = data[2];
     ent.hp = data[3];
   }
+});
+socket.on(2,function(data){ //entity angle
+  var ent = ents[data[0]];
+  ent.angle = data[1];
 });

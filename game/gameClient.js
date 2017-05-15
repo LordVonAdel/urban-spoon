@@ -12,6 +12,8 @@ placement = null;
 animationTick = 0;
 
 ents = {};
+selectedEnt = null;
+selectedEntUI = null;
 
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
@@ -83,8 +85,6 @@ function draw(){
   ctx.fillStyle = grd;
   ctx.fill();
 
-  //ctx.fillStyle = "#121250";
-
   ctx.fillStyle = "#ff0000"
   drawCircle(mouseX,terrain.getY(mouseX),4);
 
@@ -106,16 +106,31 @@ function draw(){
     ent.h = img.height;
 
     ctx.lineWidth = 1;
-    if (mouseOver(ent.x-ent.w/2,yy-ent.h,ent.x+ent.w/2,yy,ent)){
+
+    var hover = mouseOver(ent.x-ent.w/2,yy-ent.h,ent.x+ent.w/2,yy,ent)
+
+    if (ent == selectedEnt && !hover){
       ctx.strokeStyle = "#00ff00";
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
-      drawHealthbar(ent.x-ent.w/2,yy+2,ent.w,ent.hp,ent.hpMax); //ToDo: replace 100 with max
-    }else{
+    }
+    if (hover){
+      if (keyCheckPressed("M0")){
+        selectedEnt = ent; //select this entity
+        socket.emit('sel',k);
+        console.log("Select "+k);
+      }
       ctx.strokeStyle = "#0000ff";
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
     }
+    if (hover || ent == selectedEnt){
+      drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,ent.hp,ent.hpMax);
 
-    drawSpriteColor(x-img.width/2,yy-img.height,sprite,teamColors[team]);
+    }
+    if (ent.angle == 0){
+      drawSpriteColor(x-img.width/2,yy-img.height,sprite,teamColors[team]);
+    }else{
+      drawSpriteAngleColor(x,yy,sprite,-ent.angle,ent.w/2,ent.h,teamColors[team]);
+    }
   }
 
   //placement
@@ -129,6 +144,15 @@ function draw(){
       socket.emit('place',{x: mouseX, y: 0, type: placement.type})
       placement = null;
     }
+  }
+
+  //UI
+  if (selectedEntUI != null){
+    ctx.font = "24px Verdana";
+    ctx.fillStyle = "#ffffff";
+    ctx.textBaseline="top";
+    ctx.fillText(selectedEntUI.name,10,10);
+    ctx.fillText("HP: "+selectedEntUI.hp+" / "+selectedEntUI.hpMax,10,44);
   }
 }
 
@@ -148,11 +172,15 @@ function gameLoop(){
   if(keyCheckDown(37)){
     camX -= 3;
   }
-  if(keyCheckPressed("M2")){ //right click
+  if (keyCheckDown("M2")){
+    selectedEnt = null;
+    selectedEntUI = null;
+  }
+  if(keyCheckPressed("M1")){ //right click
     camDrag = true;
     camDragX = mouseX;
   }
-  if(keyCheckReleased("M2")){ //right click
+  if(keyCheckReleased("M1")){ //right click
     camDrag = false;
   }
   if(camDrag){
@@ -169,6 +197,7 @@ function gameLoop(){
   inputNext();
   requestAnimationFrame(gameLoop);
 }
+
 terrain = {
   nodes: [],
   ppn: 8, //pixel per node
@@ -282,7 +311,7 @@ function drawSpriteColor(x,y,sprite,color){
   }
   var img = sprites[sprite];
   
-  buffer = document.createElement('canvas'); //yes. every tick a buffer is created... will be changed in the future
+  var buffer = document.createElement('canvas'); //yes. every tick a buffer is created... will be changed in the future
   buffer.width = img.width;
   buffer.height = img.height;
 
@@ -297,6 +326,52 @@ function drawSpriteColor(x,y,sprite,color){
   ctx.drawImage(buffer,x-camX,y-camY);
   ctx.globalAlpha = 1;
 
+}
+
+function drawSpriteAngle(x,y,sprite,angle,px,py){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+
+  var xx = x-camX;
+  var yy = y-camY;
+
+  ctx.translate(xx,yy);
+  ctx.rotate(angle);
+  ctx.drawImage(sprites[sprite],-px,-py);
+  ctx.rotate(-angle);
+  ctx.translate(-xx,-yy);
+}
+
+function drawSpriteAngleColor(x,y,sprite,angle,px,py,color){
+  if (sprites[sprite] == undefined){
+    sprites[sprite] = new Image();
+    sprites[sprite].src = sprite;
+  }
+
+  var img = sprites[sprite];
+  var xx = x-camX;
+  var yy = y-camY;
+
+  var buffer = document.createElement('canvas');
+  buffer.width = img.width;
+  buffer.height = img.height;
+
+  bx = buffer.getContext('2d');
+  bx.fillStyle = color;
+  bx.fillRect(0,0,buffer.width,buffer.height);
+  bx.globalCompositeOperation = "destination-atop";
+  bx.drawImage(img,0,0);
+
+  ctx.translate(xx,yy);
+  ctx.rotate(angle);
+  ctx.drawImage(sprites[sprite],-px,-py);
+  ctx.globalAlpha = 0.5;
+  ctx.drawImage(buffer,-px,-py);
+  ctx.globalAlpha = 1;
+  ctx.rotate(-angle);
+  ctx.translate(-xx,-yy);
 }
 
 function drawHealthbar(x,y,width,hp,max){

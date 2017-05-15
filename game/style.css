@@ -72,6 +72,9 @@ a{
 #lobbySettings table{
   width: 100%;
 }
+#lobbyStatus{
+  width: 100%;
+}
 #lobbyTable{
   float: left;
   width: 70%;

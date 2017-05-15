@@ -62,6 +62,13 @@ module.exports = function(socket,name){
       }
     }
   });
+  socket.on('sel',function(data){
+    if(client.lobby != null){
+      if(client.lobby.game != false){
+        client.lobby.game.playerSelect(client,data);
+      }
+    }
+  });
 
   this.disconnect = function(){ //when the player disconnect by timeout or something else
     if(this.lobby != null){

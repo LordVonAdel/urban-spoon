@@ -138,13 +138,13 @@ module.exports = function(host,name){
     }
   }
 
-  this.broadcast = function(msg,data){ //send a message to everyone in the lobby
+  this.broadcast = function(msg,data){ //sends a message to everyone in the lobby
     for(var i=0; i<this.clients.length; i++){
       this.clients[i].socket.emit(msg,data);
     }
   }
 
-  this.broadcastTeam = function(msg,data,team){
+  this.broadcastTeam = function(msg,data,team){ //sends a message to everyone in the lobby in specific team
     for(var i=0; i<this.clients.length; i++){
       var cl = this.clients[i];
       if (cl.team == team){
@@ -225,10 +225,12 @@ module.exports = function(host,name){
 
   this.changeTeam = function(client,team){ //change the team of a player
     if(this.game == null){
-      client.team = team;
+      if (team <= this.settings.teamNumber && team >= 0){
+        client.team = team;
+        this.checkTeams();
+        this.sync();
+      }
     }
-    this.checkTeams();
-    this.sync();
   }
 
   this.addClient(host); //add the host to the lobby, so he know he is in this lobby
