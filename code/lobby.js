@@ -24,7 +24,7 @@ module.exports = function(host,name){
     worldSeed: "",
     worldGenerator: "berge",
     bases: "free"
-  }
+  };
 
   this.game = null;
 
@@ -193,9 +193,7 @@ module.exports = function(host,name){
     var issueIsFound = this.reportIssues();
     if (issueIsFound){
       this.countdown = Infinity;
-    }
-
-    if (issueIsFound==false){
+    }else{
       this.game = new Game(this);
       this.issues.inGame = true;
     }
@@ -209,7 +207,7 @@ module.exports = function(host,name){
     var checkers = { //functions to check that values are in the right range
       teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data},
       maxClients: function(data){return Math.min(Math.max(data,2),100)}
-    }
+    };
     if (this.game == null){ //can't change settings in game
       for(var k in data){
         var fun = checkers[k];
