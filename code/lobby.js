@@ -24,7 +24,7 @@ module.exports = function(host,name){
     worldSeed: "",
     worldGenerator: "berge",
     bases: "free"
-  }
+  };
 
   this.game = null;
 
@@ -193,9 +193,7 @@ module.exports = function(host,name){
     var issueIsFound = this.reportIssues();
     if (issueIsFound){
       this.countdown = Infinity;
-    }
-
-    if (issueIsFound==false){
+    }else{
       this.game = new Game(this);
       this.issues.inGame = true;
     }
