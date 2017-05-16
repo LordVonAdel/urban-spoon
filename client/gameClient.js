@@ -15,6 +15,8 @@ ents = {};
 selectedEnt = null;
 selectedEntUI = null;
 
+var drawBuffer = document.createElement('canvas');
+
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
@@ -312,7 +314,7 @@ function drawSpriteColor(x,y,sprite,color){
   }
   var img = sprites[sprite];
   
-  var buffer = document.createElement('canvas'); //yes. every tick a buffer is created... will be changed in the future
+  var buffer = drawBuffer;
   buffer.width = img.width;
   buffer.height = img.height;
 
@@ -355,7 +357,7 @@ function drawSpriteAngleColor(x,y,sprite,angle,px,py,color){
   var xx = x-camX;
   var yy = y-camY;
 
-  var buffer = document.createElement('canvas');
+  var buffer = drawBuffer;
   buffer.width = img.width;
   buffer.height = img.height;
 
