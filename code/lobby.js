@@ -28,8 +28,8 @@ module.exports = function(host,name){
 
   this.game = null;
 
-  //this.teams = [["Spieler A","Spieler B"],["Spieler C","Spieler D"],["Spieler E","Spieler F"]]; //for debugging
-  this.teams = [[]];
+  //this.teams = [{clients: ["Spieler A","Spieler B"], score:0},[clients: ["Spieler C","Spieler D"], score: 0},{clients: ["Spieler E","Spieler F"], score: 0}]; //for debugging
+  this.teams = [{clients:[]}];
 
   this.addClient = function(client){ //Add a client to the lobby
     if (this.game != null){
@@ -156,7 +156,7 @@ module.exports = function(host,name){
   this.checkTeams = function(){ //refreshes the teams array
     this.teams = [];
     for(var i=0; i<this.settings.teamNumber; i++){
-      this.teams[i] = [];
+      this.teams[i] = {clients:[], score: 0, money: 0};
     }
     for(var i=0; i<this.clients.length; i++){
       var client = this.clients[i];
@@ -165,9 +165,9 @@ module.exports = function(host,name){
         client.team = 0;
         team = 0;
       }
-      this.teams[team].push(client);
+      this.teams[team].clients.push(client);
     }
-    if (this.teams.some(t => t.length == 0)){
+    if (this.teams.some(t => t.clients.length == 0)){
       this.issues.emptyTeams = true;
       return false;
     }
