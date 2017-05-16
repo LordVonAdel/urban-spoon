@@ -10,7 +10,7 @@ server.listen(PORT,function(){
   console.log("Server runs on Port "+PORT)
 });
 
-app.use(express.static('game'));
+app.use(express.static('client'));
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
