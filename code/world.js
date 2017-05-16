@@ -80,15 +80,40 @@ generators = {
     }
   },
   berge: function(terrain){
-    var h = Math.random()*0.5+0.25;
-    var s = Math.random()*0.05-0.025;
-    for(var i=0; i<terrain.length; i++){
-      terrain.setNode(i,h*0.5+0.5);
-      var v = h-0.5;
-      s+=Math.random()*0.01-0.005-(0.01*(Math.sign(v)*Math.sqrt(Math.abs(v))));
-      s=Math.min(0.03,Math.max(s,-0.03));
-      h+=s;
-      h=Math.min(0.95,Math.max(h,0.05));
-    }
+    generateTerrainSin(500, 20, 0.6, terrain);
+    shrink(terrain);
+    roughness(0.003, terrain);
+  }
+}
+
+function generateTerrainSin(width, parts, heightdiff, terrain) {
+  var w = width/parts;
+  var lastHeight = Math.random() * 0.5 + 0.25;
+
+  for(var i=0; i<parts; i++){
+    var newHeight = lastHeight + (Math.random() * heightdiff - (lastHeight*heightdiff));
+    terrain.nodes = terrain.nodes.concat(generatePartSin(lastHeight, w, newHeight));
+    lastHeight = newHeight;
+  }
+}
+
+function generatePartSin(startY, width, endY){
+  var strip = [];
+  var height = endY - startY;
+  for(var i=0; i<width; i++){
+    strip[i] = -height/2 * (Math.cos(Math.PI*i/(width-1)) - 1) + startY;
+  }
+  return strip;
+}
+
+function roughness(roughness, terrain) {
+  for(var i=0; i<terrain.nodes.length-1; i++){
+    terrain.nodes[i] = terrain.nodes[i] + Math.random() * roughness;
+  }
+}
+
+function shrink(terrain) {
+  for(var i=0; i<terrain.nodes.length; i++){
+    terrain.nodes[i] = terrain.nodes[i] * 0.8 + 0.1;
   }
 }
