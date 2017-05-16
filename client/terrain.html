@@ -11,8 +11,9 @@
       mDown=false;
       terrain = [];
       function loaded(){
-        generate(200, 10, 0.6);
-        roughness(0.005);
+        generate(240, 10, 0.6);
+        shrink();
+        roughness(0.003);
         draw();
         var canvas = document.getElementById('terrain');
         canvas.addEventListener('mousemove',modify);
@@ -34,6 +35,12 @@
         }
       }
 
+      function shrink() {
+        for(var i=0; i<terrain.length; i++){
+          terrain[i] = terrain[i] * 0.8 + 0.1;
+        }
+      }
+
       function generate(width, parts, heightdiff) {
         var w = width/parts;
         var lastHeight = Math.random() * 0.5 + 0.25;
@@ -46,7 +53,7 @@
       }
 
       function draw(){
-        var tHeight = 1000;
+        var tHeight = 950;
 
         var canvas = document.getElementById('terrain');
         canvas.width = window.innerWidth;
