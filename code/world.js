@@ -29,7 +29,7 @@ function Terrain(seed, generator){
     var n1x = Math.floor(x/this.ppn);
     var n2x = Math.ceil(x/this.ppn);
     if (n1x == n2x){ //if the position is perfect on the node
-      if(n1x == 0){ //go right when at 0 insted of left, because we don't want to go outside the bounds!
+      if(n1x == 0){ //go right when at 0 instead of left, because we don't want to go outside the bounds!
         n2x = 1;
       }else{
         n1x -= 1;
