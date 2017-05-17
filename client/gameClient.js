@@ -50,6 +50,7 @@ function gameStart(){
   }, false);
 
 }
+
 function draw(){
 
   canvas.height = window.innerHeight;
@@ -139,24 +140,12 @@ function draw(){
   //placement
   if(placement != null){
     drawPlacement(mouseX,mouseH,placement.sprite)
-    ctx.font = "30px Verdana";
-    ctx.fillStyle = "#ffffff";
-    ctx.textBaseline="top";
-    ctx.fillText(placement.text,10,10);
     if (keyCheckPressed("M0")){
       socket.emit('place',{x: mouseX, y: 0, type: placement.type})
       placement = null;
     }
   }
-
-  //UI
-  if (selectedEntUI != null){
-    ctx.font = "24px Verdana";
-    ctx.fillStyle = "#ffffff";
-    ctx.textBaseline="top";
-    ctx.fillText(selectedEntUI.name,10,10);
-    ctx.fillText("HP: "+selectedEntUI.hp+" / "+selectedEntUI.hpMax,10,44);
-  }
+  drawUI();
 }
 
 function gameLoop(){

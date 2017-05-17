@@ -39,7 +39,7 @@ module.exports = function(lobby){
     //auto place bases
     var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
     for(var i=0; i<this.lobby.teams.length; i++){
-      this.place(this.lobby.teams[i][0], b*i+b/2,0,"base");
+      this.place(this.lobby.teams[i].clients[0], b*i+b/2,0,"base");
     }
   }else{
     if (this.settings.bases == "free"){ //let the user place the base
