@@ -96,7 +96,24 @@ function Entity(x,y,type,team,id,game){
     return {
       name: this.preset.name,
       hp: this.hp,
-      hpMax: this.hpMax
+      hpMax: this.hpMax,
+      options: [
+        {
+          type: "vehicle",
+          costs: 100,
+          name: "Builder"
+        },
+        {
+          type: "vehicle",
+          costs: 50,
+          name: "Tank"
+        },
+        {
+          type: "ability",
+          costs: 200,
+          name: "Shield"
+        }
+      ]
     }
   }
 

@@ -29,6 +29,12 @@ socket.on('lobbyStatus',function(data){
 });
 socket.on('selDat',function(data){ //data from selected object
   selectedEntUI = data;
+  if (selectedEntUI.options == undefined){
+    selectedEntUI.options = [];
+  }
+  selectedEntUI.options.forEach(function(option){
+    option.hoverFrame = 0;
+  });
 });
 socket.on(1,function(data){ //entity change
   var ent = ents[data[0]];

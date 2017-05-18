@@ -250,6 +250,16 @@ function mouseOver(x1,y1,x2,y2,id){
   return false;
 }
 
+function mouseOverUI(x1,y1,x2,y2,id){
+  if (mouseVX > x1 && mouseVY > y1 && mouseVX < x2 && mouseVY < y2){
+    inputHover = id;
+    if (inputHlast == id){
+      return true;
+    }
+  }
+  return false;
+}
+
 function inputNext(){
   inputPressKeys = {};
   inputReleaseKeys = {};
@@ -291,7 +301,7 @@ function drawPlacement(x,y,sprite){
     sprites[sprite] = new Image();
     sprites[sprite].src = sprite;
   }
-  var img = sprites[sprite]
+  var img = sprites[sprite];
   ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
   ctx.globalAlpha = 1;
 }
