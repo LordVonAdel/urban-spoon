@@ -32,7 +32,14 @@ module.exports = function(lobby){
     if (ent == undefined){
       return false;
     }
+    client.selectedEnt = ent;
     client.socket.emit('selDat',ent.getSelectData());
+  }
+
+  this.playerAction = function(client,actionIndex){
+    if (client.selectedEnt != null){
+      //do something with the entity
+    }
   }
 
   if (this.settings.bases == "auto"){
@@ -97,23 +104,7 @@ function Entity(x,y,type,team,id,game){
       name: this.preset.name,
       hp: this.hp,
       hpMax: this.hpMax,
-      options: [
-        {
-          type: "vehicle",
-          costs: 100,
-          name: "Builder"
-        },
-        {
-          type: "vehicle",
-          costs: 50,
-          name: "Tank"
-        },
-        {
-          type: "ability",
-          costs: 200,
-          name: "Shield"
-        }
-      ]
+      options: this.preset.actions
     }
   }
 
@@ -129,17 +120,41 @@ entities = {
     unique: true,
     flat: true,
     health: 500,
-    events: { 
+    events: {
       spawn: function(ent){
         ent.game.place({team: ent.team},ent.x+256,ent.y,"vehicle");
       }
-    }
+    },
+    actions: [
+      {
+        type: "vehicle",
+        costs: 100,
+        name: "Builder"
+      },
+      {
+        type: "vehicle",
+        costs: 50,
+        name: "Tank"
+      },
+      {
+        type: "ability",
+        costs: 200,
+        name: "Shield"
+      }
+    ]
   },
   vehicle: {
     width: 64,
     name: "Vehicle",
     sprite: "sprites/vehicleBase.png",
     health: 80,
-    angleToGround: true
+    angleToGround: true,
+    actions: [
+      {
+        type: "ability",
+        costs: 0,
+        name: "Target"
+      }
+    ]
   }
 }

@@ -49,6 +49,9 @@ function drawUI(){
       //hover animation for options
       if (mouseOverUI(x,y,x+256,y+64,option)){
         option.hoverFrame = transitionLinear(option.hoverFrame,1,0.1);
+        if (keyCheckPressed("M0")){//left click on option
+          socket.emit('a',i);
+        }
       }else{
         option.hoverFrame = transitionLinear(option.hoverFrame,0,0.1);
       }

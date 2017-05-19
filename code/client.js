@@ -6,6 +6,7 @@ module.exports = function(socket,name){
   this.isReady = false;
   this.team = 0;
   this.name = "";
+  this.selectedEnt = null;
   var client = this;
 
   socket.on('login',function(data){
@@ -69,6 +70,9 @@ module.exports = function(socket,name){
       }
     }
   });
+  socket.on('a',function(data){ //click on option of selected entity
+    client.lobby.game.playerAction(client,data);
+  })
 
   this.disconnect = function(){ //when the player disconnect by timeout or something else
     if(this.lobby != null){
