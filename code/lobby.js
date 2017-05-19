@@ -175,6 +175,10 @@ module.exports = function(host,name){
     return true;
   }
 
+  this.getTeam = function(teamIndex){
+    return this.teams[teamIndex];
+  }
+
   this.second = function(){ //called every second
     if (this.countdown != Infinity){
       this.countdown --;
@@ -186,6 +190,12 @@ module.exports = function(host,name){
       if(this.countdown <= 0){
         this.startGame();
       }
+    }
+  }
+
+  this.tick = function(){ //called every tick from the tickloop in app.js
+    if (this.game != null){
+      this.game.tick();
     }
   }
 

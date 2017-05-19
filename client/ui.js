@@ -96,8 +96,13 @@ function drawUI(){
       //hover animation for options
       if (mouseOverUI(x,y,x+256,y+64,option)){
         option.hoverFrame = transitionLinear(option.hoverFrame,1,0.1);
-        if (keyCheckPressed("M0")){//left click on option
-          socket.emit('a',i);
+        if (keyCheckReleased("M0")){//left click on option
+          currentAction = option;
+          currentAction.index = i;
+          if (currentAction.client == "click"){
+            socket.emit('a',{index: i, extra: {}});
+            currentAction = null;
+          }
         }
       }else{
         option.hoverFrame = transitionLinear(option.hoverFrame,0,0.1);

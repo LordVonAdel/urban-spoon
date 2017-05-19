@@ -15,6 +15,10 @@ ents = {};
 selectedEnt = null;
 selectedEntUI = null;
 
+worldHeight = 1000;
+
+currentAction = null; //target, drive, place...
+
 var drawBuffer = document.createElement('canvas');
 
 function gameStart(){
@@ -55,6 +59,7 @@ function draw(){
 
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
+  worldHeight = canvas.height;
 
   camW = canvas.width;
 
@@ -89,13 +94,13 @@ function draw(){
   ctx.fillStyle = grd;
   ctx.fill();
 
-  ctx.fillStyle = "#ff0000"
-  drawCircle(mouseX,terrain.getY(mouseX),4);
+  /*ctx.fillStyle = "#ff0000" //debug point on landscape
+  drawCircle(mouseX,terrain.getY(mouseX),4);*/
 
   //entities
   for(var k in ents){
     var ent = ents[k];
-    var yy = canvas.height-ent.y;
+    var yy = worldHeight-ent.y;
     var x = ent.x;
     var sprite = ent.sprite;
     var team = ent.team;
@@ -120,6 +125,7 @@ function draw(){
     if (hover){
       if (keyCheckPressed("M0")){
         selectedEnt = ent; //select this entity
+        currentAction = null;
         socket.emit('sel',k);
       }
       ctx.strokeStyle = "#0000ff";
@@ -127,7 +133,24 @@ function draw(){
     }
     if (hover || ent == selectedEnt){
       drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,ent.hp,ent.hpMax);
-
+    }
+    if (ent == selectedEnt){
+      if (currentAction != null){ //draw helpers for the current action. (target, drive...)
+        switch (currentAction.client){
+          case "target":
+            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = "#ffffff";
+            drawCircle(ent.x,worldHeight-ent.y,256);
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = "#000000";
+            drawLine(ent.x,worldHeight-ent.y, mouseX, mouseY);
+          break;
+          case "drive":
+            ctx.strokeStyle = "#ff0000";
+            drawLine(ent.x,worldHeight - ent.y, mouseX ,terrain.getY(mouseX));
+          break;
+        }
+      }
     }
     if (ent.angle == 0){
       drawSpriteColor(x-img.width/2,yy-img.height,sprite,teamColors[team]);
@@ -163,15 +186,19 @@ function gameLoop(){
   if(keyCheckDown(37)){
     camX -= 3;
   }
-  if (keyCheckDown("M2")){
-    selectedEnt = null;
-    selectedEntUI = null;
+  if (keyCheckPressed("M2")){ //right click
+    if (currentAction != null){ //first abort action
+      currentAction = null;
+    }else{ //then deselect when right click again
+      selectedEnt = null;
+      selectedEntUI = null;
+    }
   }
-  if(keyCheckPressed("M1")){ //right click
+  if(keyCheckPressed("M1")){ //middle click
     camDrag = true;
     camDragX = mouseX;
   }
-  if(keyCheckReleased("M1")){ //right click
+  if(keyCheckReleased("M1")){ //middle click
     camDrag = false;
   }
   if(camDrag){
@@ -184,6 +211,19 @@ function gameLoop(){
   camX = Math.min(Math.max(camX,0),(terrain.nodes.length*terrain.ppn)-camW);
 
   draw();
+
+  if (currentAction != null && keyCheckPressed("M0")){ //on left click
+    switch (currentAction.client){
+      case "target":
+        socket.emit('a',{index: currentAction.index, extra: {dx: 0, dy: 0}}); //delta x, delta y 
+        currentAction = null;
+      break;
+      case "drive":
+        socket.emit('a',{index: currentAction.index, extra: {x: mouseX}});
+        currentAction = null;
+      break;
+    }
+  }
 
   inputNext();
   requestAnimationFrame(gameLoop);
@@ -200,7 +240,7 @@ terrain = {
     return node1+((l/8) * (node2 - node1));
   },
   getY: function(x){
-    return canvas.height - (terrain.getHeight(x))*terrain.amplitude;
+    return worldHeight - (terrain.getHeight(x))*terrain.amplitude;
   }
 }
 
@@ -389,4 +429,11 @@ function drawHealthbar(x,y,width,hp,max){
   ctx.textBaseline = "top";
   drawText(hp+" / "+max,x+width/2,y);
   ctx.textAlign = "left";
+}
+
+function drawLine(x1,y1,x2,y2){
+  ctx.beginPath();
+  ctx.moveTo(x1 - camX, y1 - camY);
+  ctx.lineTo(x2 - camX, y2 - camY);
+  ctx.stroke();
 }

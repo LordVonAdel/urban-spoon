@@ -28,11 +28,16 @@ io.on('connection', function (socket) {
 });
 
 secondLoop = function(){
-
   for(l in lobbies){
     lobbies[l].second();
   }
-
   setTimeout(secondLoop,1000);
 }
+tickLoop = function(){
+  for(l in lobbies){
+    lobbies[l].tick();
+  }
+  setTimeout(tickLoop,1000/30);
+}
 secondLoop();
+tickLoop();
