@@ -27,6 +27,9 @@ socket.on('loginError',function(data){
 socket.on('lobbyStatus',function(data){
   $('#lobbyStatus').html(data);
 });
+socket.on('t',function(data){ //team data
+  Object.assign(myTeam,data);
+});
 socket.on('selDat',function(data){ //data from selected object
   selectedEntUI = data;
   if (selectedEntUI.options == undefined){

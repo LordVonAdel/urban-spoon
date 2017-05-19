@@ -42,6 +42,12 @@ module.exports = function(lobby){
     }
   }
 
+  this.syncTeams = function(){ //sends every player information about their team
+    for(var i=0; i<this.lobby.teams.length; i++){
+      this.lobby.broadcastTeam('t',{energy: this.lobby.teams[i].energy, id: i},i);
+    }
+  }
+
   if (this.settings.bases == "auto"){
     //auto place bases
     var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
@@ -50,11 +56,14 @@ module.exports = function(lobby){
     }
   }else{
     if (this.settings.bases == "free"){ //let the user place the base
-      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"})
+      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
     }else{
       //no bases
     }
   }
+
+  this.syncTeams();
+
 }
 
 function Entity(x,y,type,team,id,game){

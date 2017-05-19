@@ -121,7 +121,6 @@ function draw(){
       if (keyCheckPressed("M0")){
         selectedEnt = ent; //select this entity
         socket.emit('sel',k);
-        console.log("Select "+k);
       }
       ctx.strokeStyle = "#0000ff";
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);

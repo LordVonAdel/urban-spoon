@@ -156,7 +156,7 @@ module.exports = function(host,name){
   this.checkTeams = function(){ //refreshes the teams array
     this.teams = [];
     for(var i=0; i<this.settings.teamNumber; i++){
-      this.teams[i] = {clients:[], score: 0, money: 0};
+      this.teams[i] = {clients:[], score: 0, energy: 100};
     }
     for(var i=0; i<this.clients.length; i++){
       var client = this.clients[i];

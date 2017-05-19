@@ -2,29 +2,76 @@ uiEntAlpha = 0;
 
 function drawUI(){
 
+  //placement text
   if (placement != null){
     drawPlacement(mouseX,mouseH,placement.sprite);
     ctx.font = "30px Verdana";
     ctx.fillStyle = "#ffffff";
     ctx.textBaseline="top";
-    ctx.fillText(placement.text,10,10);
+    ctx.fillText(placement.text,10,96);
     if (keyCheckPressed("M0")){
       socket.emit('place',{x: mouseX, y: 0, type: placement.type});
       placement = null;
     }
   }
 
+  //team info
+  ctx.globalAlpha = 1;
+  var x = 0;
+  var y = 0;
+  ctx.font = "24px Verdana";
+  ctx.textBaseline="top";
+  ctx.fillStyle = teamColors[myTeam.id];
+  ctx.fillText(teamNames[myTeam.id],x,y);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("Energy: "+myTeam.energy,x,y+32);
+
   ctx.globalAlpha = uiEntAlpha;
   ctx.fillStyle = "#232323";
-  ctx.fillRect(0,0,window.innerWidth,64);
+  switch (entUIPosition){
+    case "top":
+      ctx.fillRect(0,0,canvas.width,64);
+    break;
+    case "left":
+      ctx.fillRect(0,0,256,canvas.height);
+    break;
+    case "bottom":
+      ctx.fillRect(0,canvas.height-64,canvas.width,64);
+    break;
+  }
 
+  //entity selected
   if (selectedEntUI != null){
-    var x = 10;
-    var y = 0;
+    switch (entUIPosition){
+      case "top":
+        var x = 10;
+        var y = 0;
+      break;
+      case "left":
+        var x = 10;
+        var y = 0;
+      break;
+      case "bottom":
+        var x = 10;
+        var y = canvas.height-64;
+      break;
+    }
 
     function nextBlock(){
-      x += 256;
-      y = 0;
+      switch (entUIPosition){
+        case "top":
+          x += 256;
+          y = 0;
+        break;
+        case "left":
+          x = 0;
+          y += 64;
+        break;
+        case "bottom":
+          x += 256;
+          y = canvas.height-64;
+        break;
+      }
     }
 
     uiEntAlpha = transitionLinear(uiEntAlpha,1,0.1);

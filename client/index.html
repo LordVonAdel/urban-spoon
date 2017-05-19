@@ -15,6 +15,13 @@
       me = { //object with information about the own player
         name: "unnamed"
       };
+      myTeam = { //object with information about the players team
+        id: 0,
+        energy: 0
+      }
+
+      entUIPosition = "bottom"; //top | left | bottom
+
       function login(){
         socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
         me.name =  $('#inName').val().replace(/>/g, '&gt').replace(/</g, '&lt');
