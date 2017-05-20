@@ -16,14 +16,23 @@ module.exports = function(socket,name){
     data.name = client.saveString(data.name);
     data.lobby = client.saveString(data.lobby);
     if(client.lobby == null && data.name && data.lobby){  //if player is not in a lobby and has the player give a name / lobby
-      client.name = data.name;
-      //console.log("Player: "+data.name+" connected into lobby: "+data.lobby);
-      if(lobbies[data.lobby] == undefined){ 
-        lobbies[data.lobby] = new Lobby(client,data.lobby); //if the lobby does not exists create a new one and set the player as the host
+      if (data.lobby.length <= config.maxLobbyChars && data.name.length <= config.maxNameChars){
+        client.name = data.name;
+        //console.log("Player: "+data.name+" connected into lobby: "+data.lobby);
+        if(lobbies[data.lobby] == undefined){ 
+          lobbies[data.lobby] = new Lobby(client,data.lobby); //if the lobby does not exists create a new one and set the player as the host
+        }else{
+          var err = lobbies[data.lobby].addClient(client); //else add the player to the existing lobby
+          if (err){
+            client.socket.emit('loginError',err);
+          }
+        }
       }else{
-        var err = lobbies[data.lobby].addClient(client); //else add the player to the existing lobby
-        if (err){
-          client.socket.emit('loginError',err);
+        if (data.lobby.length >= config.maxLobbyChars){
+          client.socket.emit('loginError',"The lobby name is to long! Allowed are "+config.maxLobbyChars+" chars!");
+        }
+        if (data.name.length >= config.maxNameChars){
+          client.socket.emit('loginError',"Your player name is to long! Allowed are "+config.maxNameChars+" chars!");
         }
       }
     }

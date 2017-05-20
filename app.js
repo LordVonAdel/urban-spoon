@@ -1,13 +1,13 @@
-const PORT = 4217;
-
 var express = require('express');
 app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var Client = require('./code/client.js');
 
-server.listen(PORT,function(){
-  console.log("Server runs on Port "+PORT)
+config = require('./config.json');
+
+server.listen(config.port,function(){
+  console.log("Server runs on Port "+config.port)
 });
 
 app.use(express.static('client'));
