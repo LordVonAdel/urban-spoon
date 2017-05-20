@@ -26,6 +26,7 @@ function drawUI(){
   ctx.fillText(teamNames[myTeam.id],x,y);
   ctx.fillStyle = "#ffffff";
   ctx.fillText("Energy: "+myTeam.energy,x,y+32);
+  ctx.fillText("Units: "+myTeam.units+" / "+myTeam.maxUnits,x,y+64);
 
   ctx.globalAlpha = uiEntAlpha;
   ctx.fillStyle = "#232323";

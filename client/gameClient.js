@@ -1,3 +1,13 @@
+me = { //object with information about the own player
+  name: "unnamed"
+};
+myTeam = { //object with information about the players team
+  id: 0,
+  energy: 0,
+  units: 0,
+  maxUnits: 0
+}
+
 canvas = null;
 ctx = null;
 camX = 0;

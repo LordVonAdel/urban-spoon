@@ -68,7 +68,7 @@ module.exports = function(socket,name){
   socket.on('place',function(data){
     if(client.lobby != null){
       if(client.lobby.game != false){
-        client.lobby.game.place(client,data.x,data.y,data.type);
+        client.lobby.game.place(client.team,data.x,data.y,data.type);
       }
     }
   });

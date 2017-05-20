@@ -18,12 +18,12 @@ module.exports = function(host,name){
 
   this.settings = {
     maxClients: 2,
-    teamNumber: 1,
-    gamemode: "DM",
-    equalTeams: false,
-    worldSeed: "",
+    teamNumber: 2,
     worldGenerator: "berge",
-    bases: "free"
+    bases: "free",
+    friendlyFire: false,
+    public: false,
+    maxUnitsPerTeam: 6
   };
 
   this.game = null;
@@ -156,7 +156,7 @@ module.exports = function(host,name){
   this.checkTeams = function(){ //refreshes the teams array
     this.teams = [];
     for(var i=0; i<this.settings.teamNumber; i++){
-      this.teams[i] = {clients:[], score: 0, energy: 100};
+      this.teams[i] = {clients:[]};
     }
     for(var i=0; i<this.clients.length; i++){
       var client = this.clients[i];
@@ -217,7 +217,10 @@ module.exports = function(host,name){
     var checkers = { //functions to check that values are in the right range
       teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data;},
       maxClients: function(data){return Math.min(Math.max(data,2),100);},
-      bases: function(data){if (["free","auto","none"].indexOf(data) == -1){return "free";}else{return data;}}
+      bases: function(data){if (["free","auto","none"].indexOf(data) == -1){return "free";}else{return data;}},
+      friendyFire: function(data){if (typeof data != typeof true){return false}; return data;},
+      public: function(data){if (typeof data != typeof true){return false}; return data;},
+      maxUnitsPerTeam: function(data){return Math.max(1,data)}
     }
     if (this.game == null){ //can't change settings in game
       for(var k in data){

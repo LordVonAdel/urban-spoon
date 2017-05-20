@@ -42,6 +42,9 @@ socket.on('selDat',function(data){ //data from selected object
 socket.on('x',function(data){ //destroy entity
   delete ents[data];
 });
+socket.on('e',function(data){ //show effect
+  spawnEffect(data[0],worldHeight-data[1],data[2],data[3]);
+})
 socket.on(1,function(data){ //entity change
   var ent = ents[data[0]];
   if(ent != undefined){

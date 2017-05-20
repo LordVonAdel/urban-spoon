@@ -1,5 +1,5 @@
-module.exports = function(seed, generator){
-  this.terrain = new Terrain(seed, generator);
+module.exports = function(generator){
+  this.terrain = new Terrain(generator);
   this.gravity = 0.3;
   this.height = 1000;
   this.sync = function(lobby){
@@ -7,7 +7,7 @@ module.exports = function(seed, generator){
   }
 }
 
-function Terrain(seed, generator){
+function Terrain(generator){
   this.length = 500;
   this.nodes = [];
   this.ppn = 8; //Pixel per node
@@ -77,7 +77,7 @@ function Terrain(seed, generator){
 
   }
 
-  generators["berge"](this);
+  generators[generator](this);
 }
 
 generators = {

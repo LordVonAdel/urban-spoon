@@ -8,10 +8,17 @@ module.exports = function(lobby){
   this.ents = {};
   console.log("Start Game from lobby "+this.lobby.name);
   this.lobby.broadcast("start",{});
-  this.world = new World(lobby.settings.worldSeed,lobby.settings.worldGenerator);
+  this.world = new World(lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
 
-  this.place = function(client,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
+  this.lobby.teams.forEach(function(team){
+    team.energy = 100;
+    team.unitNumber = 0;
+    team.maxUnits = 0;
+    team.score = 0;
+  });
+
+  this.place = function(team,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
     this.nextEntId += 1;
     var preset = entities[type];
     if (preset != undefined){
@@ -23,11 +30,19 @@ module.exports = function(lobby){
       if (preset.grounded == false){
         yy = y;
       }
-      var ent = new Entity(x,yy,type,client.team,this.nextEntId,this);
+      var ent = new Entity(x,yy,type,team,this.nextEntId,this);
       if (preset.unique){
-        this.lobby.broadcastTeam('placement',null,client.team);
+        this.lobby.broadcastTeam('placement',null,team);
         //if the ent is unique send to the team members they don't need to place it because it already was placed
       }
+      var t = this.lobby.teams[team];
+      if (preset.unitCosts != undefined){
+         t.unitNumber += preset.unitCosts;
+      }
+      if (preset.unitCapacity != undefined){
+         t.maxUnits += preset.unitCapacity;
+      }
+      this.syncTeams(team);
       ent.sync();
       return ent;
     }else{
@@ -35,26 +50,38 @@ module.exports = function(lobby){
     }
   }
 
-  this.playerSelect = function(client,entID){ //when a player selects an entity
+  this.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
     //send him information about the entity back
     var ent = this.ents[entID];
     if (ent == undefined){
       return false;
     }
     client.selectedEnt = ent;
-    client.socket.emit('selDat',ent.getSelectData());
+    client.socket.emit('selDat',ent.getSelectData(client.team == ent.team));
   }
 
-  this.playerAction = function(client,data){
+  this.playerAction = function(client,data){ //when a player clicks on an action. This function is called at client.js too!
     var actionIndex = data.index;
     var extra = data.extra;
-    if (client.selectedEnt != null){
-      var costs = client.selectedEnt.preset.actions[actionIndex].costs;
-      var team = this.lobby.getTeam(client.team);
-      if (team.energy >= costs){
-        team.energy -= costs;
-        client.selectedEnt.event("a"+actionIndex,extra);
-        this.syncTeams(client.team);
+    var ent = client.selectedEnt
+    if (ent != null){
+      if (ent.team == client.team){
+        var costs = ent.preset.actions[actionIndex].costs;
+        var type = ent.preset.actions[actionIndex].type;
+        var team = this.lobby.getTeam(client.team);
+        if (type == "vehicle"){
+          var preset = entities[ent.preset.actions[actionIndex].ent];
+          if (preset != undefined){
+            if (team.unitNumber + preset.unitCosts > team.maxUnits){
+              return false; //unit limit reached!
+            }
+          }
+        }
+        if (team.energy >= costs){
+          team.energy -= costs;
+          client.selectedEnt.event("a"+actionIndex,extra);
+          this.syncTeams(client.team);
+        }
       }
     }
   }
@@ -62,10 +89,12 @@ module.exports = function(lobby){
   this.syncTeams = function(team){ //sends every player information about their team
     if (team == undefined){
       for(var i=0; i<this.lobby.teams.length; i++){
-        this.lobby.broadcastTeam('t',{energy: this.lobby.teams[i].energy, id: i},i);
+        var t = this.lobby.teams[i];
+        this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits},i);
       }
     }else{
-      this.lobby.broadcastTeam('t',{energy: this.lobby.teams[team].energy, id: team},team);
+      var t = this.lobby.teams[team];
+      this.lobby.broadcastTeam('t',{energy: t.energy, id: team, units: t.unitNumber, maxUnits: t.maxUnits},team);
     }
   }
 
@@ -80,7 +109,7 @@ module.exports = function(lobby){
     //auto place bases
     var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
     for(var i=0; i<this.lobby.teams.length; i++){
-      this.place(this.lobby.teams[i].clients[0], b*i+b/2,0,"base");
+      this.place(i, b*i+b/2,0,"base");
     }
   }else{
     if (this.settings.bases == "free"){ //let the user place the base
@@ -88,6 +117,10 @@ module.exports = function(lobby){
     }else{
       //no bases
     }
+  }
+
+  this.showEffect = function(x,y,sprite,duration){
+    this.lobby.broadcast('e',[x,y,sprite,duration]);
   }
 
   this.syncTeams();
@@ -145,12 +178,21 @@ function Entity(x,y,type,team,id,game){
     }
   }
 
-  this.getSelectData = function(){
-    return {
-      name: this.preset.name,
-      hp: this.hp,
-      hpMax: this.hpMax,
-      options: this.preset.actions
+  this.getSelectData = function(ownTeam){
+    if (ownTeam){
+      return {
+        name: this.preset.name,
+        hp: this.hp,
+        hpMax: this.hpMax,
+        options: this.preset.actions
+      }
+    }else{
+      return {
+        name: this.preset.name,
+        hp: this.hp,
+        hpMax: this.hpMax,
+        options: []
+      }
     }
   }
 
@@ -173,6 +215,11 @@ function Entity(x,y,type,team,id,game){
         this.vspeed += (this.game.world.gravity * this.preset.gravity);
       }
       this.y -= this.vspeed;
+      if (this.y < this.game.world.terrain.getY(this.x)){
+        this.event("worldCollision");
+        this.vspeed = 0;
+        this.hspeed = 0;
+      }
     }
     if (this.hspeed != undefined){
       this.x += this.hspeed;
@@ -188,6 +235,14 @@ function Entity(x,y,type,team,id,game){
   this.destroy = function(){
     this.game.lobby.broadcast('x',this.id);
     delete this.game.ents[this.id];
+
+    var team = this.game.lobby.teams[this.team];
+    if (this.preset.unitCosts != undefined){
+      team.unitNumber -= this.preset.unitCosts;
+    }
+    if (this.preset.unitCapacity != undefined){
+      team.unitCapacity -= this.preset.unitCapacity;
+    }
   }
 
   this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0, grounded: this.preset.grounded});
@@ -204,15 +259,16 @@ entities = {
     flat: true,
     health: 500,
     grounded: true,
+    unitCapacity: 2,
     events: {
       spawn: function(ent){
-        ent.game.place({team: ent.team},ent.x+256,ent.y,"tank");
+        ent.game.place(ent.team,ent.x+256,ent.y,"tank");
       },
       a0: function(ent){
-        ent.game.place({team: ent.team},ent.x,ent.y,"builder");
+        ent.game.place(ent.team,ent.x,ent.y,"builder");
       },
       a1: function(ent){
-        ent.game.place({team: ent.team},ent.x,ent.y,"tank");
+        ent.game.place(ent.team,ent.x,ent.y,"tank");
       },
     },
     actions: [
@@ -220,13 +276,15 @@ entities = {
         type: "vehicle",
         costs: 100,
         name: "Builder",
-        client: "click"
+        client: "click",
+        ent: "builder"
       },
       {
         type: "vehicle",
         costs: 50,
         name: "Tank",
-        client: "click"
+        client: "click",
+        ent: "tank"
       },
       {
         type: "ability",
@@ -244,6 +302,7 @@ entities = {
     health: 80,
     angleToGround: true,
     grounded: true,
+    unitCosts: 1,
     events: {
       spawn: function(ent){
         ent.dx = 0; //delta x
@@ -255,7 +314,7 @@ entities = {
         ent.sync();
       },
       a1: function(ent){
-        var bullet = ent.game.place({team: ent.team},ent.x,ent.y-1,"bullet");
+        var bullet = ent.game.place(ent.team,ent.x,ent.y-1,"bullet");
         bullet.hspeed = (ent.dx / 256)*20;
         bullet.vspeed = (ent.dy / 256)*20;
       },
@@ -289,6 +348,12 @@ entities = {
   bullet: {
     sprite: "sprites/bullet.png",
     grounded: false,
-    gravity: 1
+    gravity: 1,
+    events: {
+      worldCollision: function(ent){
+        ent.destroy();
+        ent.game.showEffect(ent.x-16,ent.y+16,"sprites/effectSmoke.png",1);
+      }
+    }
   }
 }
