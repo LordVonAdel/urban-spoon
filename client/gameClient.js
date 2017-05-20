@@ -15,6 +15,8 @@ ents = {};
 selectedEnt = null;
 selectedEntUI = null;
 
+effects = [];
+
 worldHeight = 1000;
 
 currentAction = null; //target, drive, place...
@@ -24,6 +26,7 @@ var drawBuffer = document.createElement('canvas');
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
+  ctx.font = "24px Verdana";
 
   gameLoop();
 
@@ -148,6 +151,7 @@ function draw(){
           case "drive":
             ctx.strokeStyle = "#ff0000";
             drawLine(ent.x,worldHeight - ent.y, mouseX ,terrain.getY(mouseX));
+            drawSprite(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png");
           break;
         }
       }
@@ -167,6 +171,21 @@ function draw(){
       placement = null;
     }
   }
+
+  var res = [];
+  for(var i=0; i<effects.length; i++){
+    var effect = effects[i];
+    var per = effect.time / effect.duration;
+    ctx.globalAlpha = per;
+    drawSprite(effect.x,effect.y,effect.sprite);
+    ctx.globalAlpha = 1;
+    effect.time --;
+    if (effect.time > 0){
+      res.push(effect);
+    }
+  }
+  effects = res;
+
   drawUI();
 }
 
@@ -221,6 +240,7 @@ function gameLoop(){
       case "drive":
         socket.emit('a',{index: currentAction.index, extra: {x: mouseX}});
         currentAction = null;
+        spawnEffect(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png",1);
       break;
     }
   }
@@ -436,4 +456,14 @@ function drawLine(x1,y1,x2,y2){
   ctx.moveTo(x1 - camX, y1 - camY);
   ctx.lineTo(x2 - camX, y2 - camY);
   ctx.stroke();
+}
+
+function spawnEffect(x,y,sprite,duration){
+  effects.push({
+    x: x,
+    y: y,
+    sprite: sprite,
+    duration: duration * 60,
+    time: duration * 60
+  })
 }

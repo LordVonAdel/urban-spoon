@@ -2,10 +2,11 @@ uiEntAlpha = 0;
 
 function drawUI(){
 
+  ctx.font = "24px Verdana";
+
   //placement text
   if (placement != null){
     drawPlacement(mouseX,mouseH,placement.sprite);
-    ctx.font = "30px Verdana";
     ctx.fillStyle = "#ffffff";
     ctx.textBaseline="top";
     ctx.fillText(placement.text,10,96);
@@ -75,7 +76,7 @@ function drawUI(){
     }
 
     uiEntAlpha = transitionLinear(uiEntAlpha,1,0.1);
-    ctx.font = "24px Verdana";
+    //ctx.font = "24px Verdana";
     ctx.textBaseline="top";
     ctx.fillStyle = teamColors[selectedEnt.team];
     ctx.fillText(teamNames[selectedEnt.team],x,y);
