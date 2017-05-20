@@ -29,10 +29,10 @@ module.exports = function(socket,name){
         }
       }else{
         if (data.lobby.length >= config.maxLobbyChars){
-          client.socket.emit('loginError',"The lobby name is to long! Allowed are "+config.maxLobbyChars+" chars!");
+          client.socket.emit('loginError',"The lobby name is to long! Allowed are "+config.maxLobbyChars+" characters!");
         }
         if (data.name.length >= config.maxNameChars){
-          client.socket.emit('loginError',"Your player name is to long! Allowed are "+config.maxNameChars+" chars!");
+          client.socket.emit('loginError',"Your player name is to long! Allowed are "+config.maxNameChars+" characters!");
         }
       }
     }

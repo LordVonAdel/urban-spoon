@@ -106,7 +106,19 @@ function draw(){
     var yy = worldHeight-ent.y;
     var x = ent.x;
     var sprite = ent.sprite;
+    var spriteSec = null; //secondary sprite
+    var imgSec = null;
     var team = ent.team;
+
+    if (typeof ent.sprite == typeof []){
+      sprite = ent.sprite[0];
+      spriteSec = ent.sprite[1];
+      if (sprites[spriteSec] == undefined){
+        sprites[spriteSec] = new Image();
+        sprites[spriteSec].src = spriteSec;
+      }
+      imgSec = sprites[spriteSec];
+    }
 
     if (sprites[sprite] == undefined){
       sprites[sprite] = new Image();
@@ -156,10 +168,13 @@ function draw(){
         }
       }
     }
+    if (spriteSec){
+      drawSpriteAngleColor(x,yy-img.height+16,spriteSec,-ent.target,0,imgSec.height/2,teamColors[team]);
+    }
     if (ent.angle == 0){
       drawSpriteColor(x-img.width/2,yy-img.height,sprite,teamColors[team]);
     }else{
-      drawSpriteAngleColor(x,yy,sprite,-ent.angle,ent.w/2,ent.h,teamColors[team]);
+      drawSpriteAngleColor(x,yy,sprite,ent.angle,ent.w/2,ent.h,teamColors[team]);
     }
   }
 
@@ -234,7 +249,9 @@ function gameLoop(){
   if (currentAction != null && keyCheckPressed("M0")){ //on left click
     switch (currentAction.client){
       case "target":
-        socket.emit('a',{index: currentAction.index, extra: {dx: 0, dy: 0}}); //delta x, delta y 
+        var deltaX = mouseX - selectedEnt.x;
+        var deltaY = mouseY - (worldHeight - selectedEnt.y);
+        socket.emit('a',{index: currentAction.index, extra: {dx: deltaX, dy: deltaY}}); //delta x, delta y 
         currentAction = null;
       break;
       case "drive":
@@ -399,9 +416,9 @@ function drawSpriteAngle(x,y,sprite,angle,px,py){
   var yy = y-camY;
 
   ctx.translate(xx,yy);
-  ctx.rotate(angle);
-  ctx.drawImage(sprites[sprite],-px,-py);
   ctx.rotate(-angle);
+  ctx.drawImage(sprites[sprite],-px,-py);
+  ctx.rotate(angle);
   ctx.translate(-xx,-yy);
 }
 
@@ -426,12 +443,12 @@ function drawSpriteAngleColor(x,y,sprite,angle,px,py,color){
   bx.drawImage(img,0,0);
 
   ctx.translate(xx,yy);
-  ctx.rotate(angle);
+  ctx.rotate(-angle);
   ctx.drawImage(sprites[sprite],-px,-py);
   ctx.globalAlpha = 0.5;
   ctx.drawImage(buffer,-px,-py);
   ctx.globalAlpha = 1;
-  ctx.rotate(-angle);
+  ctx.rotate(angle);
   ctx.translate(-xx,-yy);
 }
 

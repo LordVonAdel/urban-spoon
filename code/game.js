@@ -15,16 +15,21 @@ module.exports = function(lobby){
     this.nextEntId += 1;
     var preset = entities[type];
     if (preset != undefined){
+      var yy = this.world.terrain.getY(x);
       if (preset.flat){
         this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x)); //flat the ground under the ent
         this.world.sync(this.lobby);
       }
-      var ent = new Entity(x,this.world.terrain.getY(x),type,client.team,this.nextEntId,this);
+      if (preset.grounded == false){
+        yy = y;
+      }
+      var ent = new Entity(x,yy,type,client.team,this.nextEntId,this);
       if (preset.unique){
         this.lobby.broadcastTeam('placement',null,client.team);
         //if the ent is unique send to the team members they don't need to place it because it already was placed
       }
       ent.sync();
+      return ent;
     }else{
       console.error("[Error]Unknown entity: "+type);
     }
@@ -107,7 +112,6 @@ function Entity(x,y,type,team,id,game){
   this.hp = this.preset.health;
   this.hpMax = this.preset.health;
   this.speed = 2;
-  this.targetX = this.x;
 
   this.event = function(event,data){
     if (this.preset.events != undefined){
@@ -124,13 +128,21 @@ function Entity(x,y,type,team,id,game){
     if (this.preset.angleToGround){
       this.game.lobby.broadcast(2,[this.id,this.angle]);
     }
+    if (this.vspeed != undefined || this.xspeed != undefined){
+      this.game.lobby.broadcast(3,[this.id,this.hspeed,this.vspeed]);
+    }
+    if (this.dx != undefined){
+      this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx)]);
+    }
   }
 
   this.update = function(){
     if (this.preset.angleToGround){
       this.angle = Math.atan2(this.game.world.terrain.getSlope(this.x),1);
     }
-    this.y = this.game.world.terrain.getY(this.x);
+    if (this.preset.grounded != false){
+      this.y = this.game.world.terrain.getY(this.x);
+    }
   }
 
   this.getSelectData = function(){
@@ -148,17 +160,37 @@ function Entity(x,y,type,team,id,game){
 
   this.tick = function(){
     var xpre = this.x;
-    if (Math.abs(this.x - this.targetX)>this.speed){
-      this.x += Math.sign(this.targetX - this.x)*this.speed;
-    }else{
-      this.x = this.targetX;
+    var ypre = this.y;
+    if (this.targetX != undefined){
+      if (Math.abs(this.x - this.targetX)>this.speed){
+        this.x += Math.sign(this.targetX - this.x)*this.speed;
+      }else{
+        this.x = this.targetX;
+      }
     }
-    if (this.x != xpre){
+    if (this.vspeed != undefined){
+      if (this.preset.gravity != undefined){
+        this.vspeed += (this.game.world.gravity * this.preset.gravity);
+      }
+      this.y -= this.vspeed;
+    }
+    if (this.hspeed != undefined){
+      this.x += this.hspeed;
+    }
+    if (this.x != xpre || this.y != ypre){
       this.sync();
+      if (this.x < 0 || this.x > this.game.world.terrain.getWidth()){
+        this.destroy();
+      }
     }
   }
 
-  this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0})
+  this.destroy = function(){
+    this.game.lobby.broadcast('x',this.id);
+    delete this.game.ents[this.id];
+  }
+
+  this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0, grounded: this.preset.grounded});
   this.event("spawn");
 }
 
@@ -171,6 +203,7 @@ entities = {
     unique: true,
     flat: true,
     health: 500,
+    grounded: true,
     events: {
       spawn: function(ent){
         ent.game.place({team: ent.team},ent.x+256,ent.y,"tank");
@@ -207,11 +240,26 @@ entities = {
     type: "vehicle",
     width: 64,
     name: "Tank",
-    sprite: "sprites/vehicleBase.png",
+    sprite: ["sprites/vehicleBase.png","sprites/tankCannon.png"],
     health: 80,
     angleToGround: true,
+    grounded: true,
     events: {
-      a1: function(ent,data){
+      spawn: function(ent){
+        ent.dx = 0; //delta x
+        ent.dy = 0; //delta y
+      },
+      a0: function(ent,data){
+        ent.dx = data.dx || 0;
+        ent.dy = data.dy || 0;
+        ent.sync();
+      },
+      a1: function(ent){
+        var bullet = ent.game.place({team: ent.team},ent.x,ent.y-1,"bullet");
+        bullet.hspeed = (ent.dx / 256)*20;
+        bullet.vspeed = (ent.dy / 256)*20;
+      },
+      a2: function(ent,data){
         if (data.x != undefined){
           ent.driveTo(data.x);
         }
@@ -227,9 +275,20 @@ entities = {
       {
         type: "ability",
         costs: 0,
+        name: "Shoot",
+        client: "click"
+      },
+      {
+        type: "ability",
+        costs: 0,
         name: "Drive",
         client: "drive"
       }
     ]
+  },
+  bullet: {
+    sprite: "sprites/bullet.png",
+    grounded: false,
+    gravity: 1
   }
 }

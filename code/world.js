@@ -1,5 +1,7 @@
 module.exports = function(seed, generator){
   this.terrain = new Terrain(seed, generator);
+  this.gravity = 0.3;
+  this.height = 1000;
   this.sync = function(lobby){
     lobby.broadcast('world',{nodes: this.terrain.nodes});
   }
@@ -10,6 +12,11 @@ function Terrain(seed, generator){
   this.nodes = [];
   this.ppn = 8; //Pixel per node
   this.amplitude = 400;
+  this.height = 1000;
+
+  this.getWidth = function(){
+    return this.nodes.length * this.ppn;
+  }
 
   this.getHeight = function(x) {
     var node1 = this.nodes[Math.floor(x/this.ppn)];
