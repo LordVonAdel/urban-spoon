@@ -21,7 +21,7 @@ module.exports = function(host,name){
     teamNumber: 2,
     worldGenerator: "berge",
     bases: "free",
-    friendlyFire: false,
+    friendlyFire: 1,
     public: false,
     maxUnitsPerTeam: 6
   };

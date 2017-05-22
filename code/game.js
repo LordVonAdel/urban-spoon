@@ -4,11 +4,10 @@ World = require('./world.js');
 module.exports = function(lobby){
   this.nextEntId = 0;
   this.lobby = lobby;
-  this.settings = this.lobby.settings; //gamemode, and other stuff
   this.ents = {};
   console.log("Start Game from lobby "+this.lobby.name);
   this.lobby.broadcast("start",{});
-  this.world = new World(lobby.settings.worldGenerator);
+  this.world = new World(this.lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
 
   this.lobby.teams.forEach(function(team){
@@ -48,6 +47,18 @@ module.exports = function(lobby){
     }else{
       console.error("[Error]Unknown entity: "+type);
     }
+  }
+
+  this.getCollisions = function(x,hy){
+    var res = [];
+    for (var k in this.ents){
+      var ent = this.ents[k];
+      //hy does nothing yet
+      if (x > ent.x - ent.width / 2 && x < ent.x + ent.width / 2){
+        res.push(ent);
+      }
+    }
+    return res; //returns array with colliding objects
   }
 
   this.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
@@ -105,14 +116,14 @@ module.exports = function(lobby){
     }
   }
 
-  if (this.settings.bases == "auto"){
+  if (this.lobby.settings.bases == "auto"){
     //auto place bases
     var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
     for(var i=0; i<this.lobby.teams.length; i++){
       this.place(i, b*i+b/2,0,"base");
     }
   }else{
-    if (this.settings.bases == "free"){ //let the user place the base
+    if (this.lobby.settings.bases == "free"){ //let the user place the base
       this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
     }else{
       //no bases
@@ -245,6 +256,18 @@ function Entity(x,y,type,team,id,game){
     }
   }
 
+  this.damage = function(damage){
+    this.hp -= damage;
+    if (this.hp <= 0){
+      this.destroy();
+      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2+10,this.y-2);
+      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2-10,this.y+2);
+      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2,this.y-8);
+    }else{
+      this.sync();
+    }
+  }
+
   this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0, grounded: this.preset.grounded});
   this.event("spawn");
 }
@@ -353,6 +376,14 @@ entities = {
       worldCollision: function(ent){
         ent.destroy();
         ent.game.showEffect(ent.x-16,ent.y+16,"sprites/effectSmoke.png",1);
+        var hits = ent.game.getCollisions(ent.x,ent.y);
+        hits.forEach(function(hit){
+          var dmg = 10; //damage
+          if (hit.team == ent.team){
+            dmg *= ent.game.lobby.settings.friendlyFire;
+          }
+          hit.damage(dmg);
+        });
       }
     }
   }
