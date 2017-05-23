@@ -118,21 +118,29 @@ module.exports = function(lobby){
     var ent = client.selectedEnt
     if (ent != null){
       if (ent.team == client.team){
-        var costs = ent.preset.actions[actionIndex].costs;
-        var type = ent.preset.actions[actionIndex].type;
+        var action = ent.preset.actions[actionIndex]
+        var costs = action.costs;
+        var type = action.type;
         var team = this.lobby.getTeam(client.team);
         if (type == "vehicle"){
           var preset = entities[ent.preset.actions[actionIndex].ent];
           if (preset != undefined){
             if (team.unitNumber + preset.unitCosts > team.maxUnits){
-              return false; //unit limit reached!
+              return "action.unitLimitReached"; //unit limit reached!
             }
           }
+        }
+        if (ent.actionTimers[actionIndex].t > 0){
+          return "action.cooldownActive";
         }
         if (team.energy >= costs){
           team.energy -= costs;
           client.selectedEnt.fire("a"+actionIndex,extra);
           this.syncTeams(client.team);
+          if (action.cooldown){
+            ent.actionTimers[actionIndex].t = action.cooldown;
+            ent.syncTimers();
+          }
         }
       }
     }
@@ -197,6 +205,16 @@ function Entity(x,y,type,team,id,game){
   this.hp = this.preset.health;
   this.hpMax = this.preset.health;
   this.speed = 2;
+  this.actionTimers = [];
+
+  for (var i=0; i<this.preset.actions.length; i++){
+    var action = this.preset.actions[i];
+    if (action.cooldown){
+      this.actionTimers.push({t: 0, m: action.cooldown});
+    }else{
+      this.actionTimers.push({t: 0, m: 0});
+    }
+  }
 
   this.fire = function(event,data){
     if (this.preset.events != undefined){
@@ -219,6 +237,14 @@ function Entity(x,y,type,team,id,game){
     if (this.dx != undefined){
       this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx)]);
     }
+  }
+
+  this.syncTimers = function(){
+    var res = [];
+    this.actionTimers.forEach(function(timer){
+      res.push(timer.t);
+    });
+    this.game.lobby.broadcastTeam(5,[this.id, res],this.team);
   }
 
   this.update = function(){
@@ -282,6 +308,12 @@ function Entity(x,y,type,team,id,game){
         this.destroy();
       }
     }
+
+    for (var i=0; i<this.actionTimers.length; i++){
+      if (this.actionTimers[i].t > 0){
+        this.actionTimers[i].t -= 1/60;
+      }
+    }
   }
 
   this.destroy = function(){
@@ -311,7 +343,19 @@ function Entity(x,y,type,team,id,game){
     }
   }
 
-  this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0, grounded: this.preset.grounded});
+  this.game.lobby.broadcast('build',{
+    x: this.x,
+    y: this.y,
+    sprite: this.preset.sprite,
+    id: this.id,
+    team: this.team,
+    hp: this.health,
+    hpMax: this.preset.health,
+    angle: 0,
+    grounded: this.preset.grounded,
+    timers: this.actionTimers
+  });
+
   this.fire("spawn");
 }
 
@@ -409,7 +453,8 @@ entities = {
         type: "ability",
         costs: 0,
         name: "Shoot",
-        client: "click"
+        client: "click",
+        cooldown: 5
       },
       {
         type: "ability",
@@ -437,5 +482,13 @@ entities = {
         });
       }
     }
+  }
+}
+
+//check entities json object
+for (var k in entities){
+  var preset = entities[k];
+  if (preset.actions == undefined){
+    preset.actions = [];
   }
 }

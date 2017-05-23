@@ -123,6 +123,12 @@ function drawUI(){
       else if (option.type == "ability"){
         drawSpriteUI(x+256-32,y,"sprites/ui/iconEffect.png");
       }
+      var timer = selectedEnt.timers[i];
+      if (timer.m > 0){
+        var per = timer.t / timer.m;
+        ctx.fillStyle = "#0000ff";
+        ctx.fillRect(x,y+48,256*per,16);
+      }
 
       nextBlock();
 

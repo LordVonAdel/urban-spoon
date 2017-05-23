@@ -37,7 +37,7 @@ tickLoop = function(){
   for(l in lobbies){
     lobbies[l].tick();
   }
-  setTimeout(tickLoop,1000/30);
+  setTimeout(tickLoop,1000/60);
 }
 secondLoop();
 tickLoop();

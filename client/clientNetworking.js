@@ -16,7 +16,17 @@ socket.on('placement',function(data){
   placement = data;
 });
 socket.on('build',function(data){
-  ents[data.id] = {x: data.x, y: data.y, sprite: data.sprite, team: data.team, hp: data.hp, hpMax: data.hpMax, angle: data.angle, grounded: data.grounded};
+  ents[data.id] = {
+    x: data.x,
+    y: data.y, 
+    sprite: data.sprite, 
+    team: data.team, 
+    hp: data.hp, 
+    hpMax: data.hpMax, 
+    angle: data.angle, 
+    grounded: data.grounded,
+    timers: data.timers
+};
 });
 socket.on('loginError',function(data){
   $('.loginError').html(data);
@@ -111,6 +121,16 @@ socket.on(4,function(data){ //entity target
     var ent = ents[data[0]];
     if(ent != undefined){
       ent.target = data[1];
+    }
+  }
+});
+socket.on(5,function(data){ //timers
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      for (var i=0; i<data[1].length; i++){
+        ent.timers[i].t = data[1][i];
+      }
     }
   }
 });

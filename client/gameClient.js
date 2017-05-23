@@ -146,6 +146,13 @@ function draw(){
       sprites[sprite].src = sprite;
     }
 
+    for (var j=0; j<ent.timers.length; j++){
+      var timer = ent.timers[j];
+      if (timer.m != 0 && timer.t > 0){
+        timer.t -= 1/60;
+      }
+    }
+
     var img = sprites[sprite];
     ent.w = img.width;
     ent.h = img.height;
@@ -168,7 +175,7 @@ function draw(){
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
     }
     if (hover || ent == selectedEnt){
-      drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,ent.hp,ent.hpMax);
+      drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,ent.hp,ent.hpMax,"#ff0000","#00ff00","#000000");
     }
     if (ent == selectedEnt){
       if (currentAction != null){ //draw helpers for the current action. (target, drive...)
@@ -197,6 +204,14 @@ function draw(){
     }else{
       drawSpriteAngleColor(x,yy,sprite,ent.angle,ent.w/2,ent.h,teamColors[team]);
     }
+    var hy = yy+8+20// healthbar Y;
+    for (var i=0; i<ent.timers.length; i++){
+      var timer = ent.timers[i];
+      if (timer.t > 0){
+        drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,timer.t,timer.m,"#002f7c","#4286f4","#000000")
+        hy += 20;
+      }
+    }
   }
 
   //placement
@@ -209,8 +224,8 @@ function draw(){
   }
 
   var res = [];
-  for(var i=0; i<effects.length; i++){
-    var effect = effects[i];
+  for(var j=0; j<effects.length; j++){
+    var effect = effects[j];
     var per = effect.time / effect.duration;
     ctx.globalAlpha = per;
     drawSprite(effect.x,effect.y,effect.sprite);
@@ -473,19 +488,19 @@ function drawSpriteAngleColor(x,y,sprite,angle,px,py,color){
   ctx.translate(-xx,-yy);
 }
 
-function drawHealthbar(x,y,width,hp,max){
+function drawHealthbar(x,y,width,hp,max,color1,color2,colorText){
   var per = hp/max;
-  ctx.fillStyle = "#ff0000";
+  ctx.fillStyle = color1;
   drawRectangle(x,y,width,16);
 
-  ctx.fillStyle = "#00ff00";
+  ctx.fillStyle = color2;
   drawRectangle(x,y,width*per,16);
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = colorText;
   ctx.font = "14px Verdana";
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
-  drawText(hp+" / "+max,x+width/2,y);
+  drawText(Math.round(hp)+" / "+Math.round(max),x+width/2,y);
   ctx.textAlign = "left";
 }
 
