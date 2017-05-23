@@ -74,13 +74,17 @@ module.exports = function(socket,name){
   });
   socket.on('sel',function(data){
     if(client.lobby != null){
-      if(client.lobby.game != false){
+      if(client.lobby.game != null){
         client.lobby.game.playerSelect(client,data);
       }
     }
   });
   socket.on('a',function(data){ //click on option of selected entity
-    client.lobby.game.playerAction(client,data);
+    if (client.lobby != null){
+      if (client.lobby.game != null){
+        client.lobby.game.playerAction(client,data);
+      }
+    }
   })
 
   this.disconnect = function(){ //when the player disconnect by timeout or something else

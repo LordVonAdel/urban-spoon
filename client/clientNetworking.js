@@ -1,18 +1,15 @@
 var socket = io();
 
 socket.on('leave',function(){ //show the login thing again
-  $('.panel').slideUp(100);
-  $('#panelLogin').slideDown(100);
+  showPanel('panelLogin');
   isInLobby = false;
 });
 
 socket.on('start',function(){
-  $('.panel').slideUp(100);
-  $('#game').slideDown(100);
+  showPanel('game');
   gameStart();
 });
 socket.on('world',function(data){
-  console.log('Got world data',data);
   terrain.nodes = data.nodes;
 });
 socket.on('placement',function(data){
@@ -30,6 +27,39 @@ socket.on('lobbyStatus',function(data){
 socket.on('t',function(data){ //team data
   Object.assign(myTeam,data);
 });
+socket.on('end',function(data){
+  isInGame = false;
+  console.log("Game ends!",data);
+
+  function insertTeams(attr){
+    for(var i=0; i<teams.length; i++){
+      html += "<th>"+teams[i][attr]+"</th>";
+    }
+  };
+
+  var html = "<tr><th>Teams</th>"
+  var teams = data.teams;
+  for(var i=0; i<teams.length; i++){
+    html += "<th>"+teamNames[i]+"</th>";
+  }
+  html+="</tr>";
+  html+="<tr><th>Biggest Army</th>"
+  insertTeams("biggestArmy");
+  html+="</tr>";
+  html+="<tr><th>Highest Energy Level</th>"
+  insertTeams("highEnergy");
+  html+="</tr>";
+  html+="<tr><th>Damage Dealt</th>"
+  insertTeams("damageDealt");
+  html+="</tr>";
+  html+="<tr><th>Damage Collected</th>"
+  insertTeams("damageCollected")
+  html+="</tr>";
+  $('#statsTable').html(html);
+
+  showPanel('panelStats');
+
+});
 socket.on('selDat',function(data){ //data from selected object
   selectedEntUI = data;
   if (selectedEntUI.options == undefined){
@@ -40,29 +70,47 @@ socket.on('selDat',function(data){ //data from selected object
   });
 });
 socket.on('x',function(data){ //destroy entity
-  delete ents[data];
+  if (isInGame){
+    delete ents[data];
+  }
 });
 socket.on('e',function(data){ //show effect
-  spawnEffect(data[0],worldHeight-data[1],data[2],data[3]);
+  if (isInGame){
+    spawnEffect(data[0],worldHeight-data[1],data[2],data[3]);
+  }
 })
 socket.on(1,function(data){ //entity change
-  var ent = ents[data[0]];
-  if(ent != undefined){
-    ent.x = data[1];
-    ent.y = data[2];
-    ent.hp = data[3];
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.x = data[1];
+      ent.y = data[2];
+      ent.hp = data[3];
+    }
   }
 });
 socket.on(2,function(data){ //entity angle
-  var ent = ents[data[0]];
-  ent.angle = data[1];
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.angle = data[1];
+    }
+  }
 });
 socket.on(3,function(data){ //entity velocity
-  var ent = ents[data[0]];
-  ent.hspeed = data[1];
-  ent.vspeed = data[2];
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.hspeed = data[1];
+      ent.vspeed = data[2];
+    }
+  }
 });
 socket.on(4,function(data){ //entity target
-  var ent = ents[data[0]];
-  ent.target = data[1];
-})
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.target = data[1];
+    }
+  }
+});

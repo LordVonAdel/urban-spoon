@@ -8,6 +8,11 @@ myTeam = { //object with information about the players team
   maxUnits: 0
 }
 
+isInLobby = false;
+isReady = false;
+isHost = false;
+isInGame = false;
+
 canvas = null;
 ctx = null;
 camX = 0;
@@ -33,10 +38,16 @@ currentAction = null; //target, drive, place...
 
 var drawBuffer = document.createElement('canvas');
 
+function showPanel(panel){
+  $('.panel, #game').slideUp(100);
+  $('#'+panel).slideDown(100);
+}
+
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
   ctx.font = "24px Verdana";
+  isInGame = true;
 
   gameLoop();
 

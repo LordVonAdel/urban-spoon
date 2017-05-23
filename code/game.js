@@ -15,7 +15,48 @@ module.exports = function(lobby){
     team.unitNumber = 0;
     team.maxUnits = 0;
     team.score = 0;
+    team.base = null;
+    team.stats = {
+      biggestArmy: 0,
+      highEnergy: 0,
+      damageDealt: 0,
+      damageCollected: 0
+    }
   });
+
+  this.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+
+    switch (this.lobby.settings.goal){
+      case "bases":
+        var bases = 0;
+        var winner = -1;
+        this.lobby.teams.forEach(function(team, i){
+          if (team.base != null){
+            bases ++;
+            winner = i;
+          }
+        });
+        if (bases == 1){
+          this.end(team);
+        }
+        if (bases == 0){
+          
+        }
+      break;
+      default:
+        this.end(); //unkown goal
+      break;
+    }
+  }
+
+  this.end = function(winner){ //ends the game
+    this.lobby.game = null;
+    var teams = [];
+    for(var i=0; i<this.lobby.teams.length; i++){
+      teams.push(this.lobby.teams[i].stats);
+    }
+    this.lobby.broadcast('end',{teams: teams, winner: winner});
+  }
 
   this.place = function(team,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
     this.nextEntId += 1;
@@ -90,7 +131,7 @@ module.exports = function(lobby){
         }
         if (team.energy >= costs){
           team.energy -= costs;
-          client.selectedEnt.event("a"+actionIndex,extra);
+          client.selectedEnt.fire("a"+actionIndex,extra);
           this.syncTeams(client.team);
         }
       }
@@ -157,7 +198,7 @@ function Entity(x,y,type,team,id,game){
   this.hpMax = this.preset.health;
   this.speed = 2;
 
-  this.event = function(event,data){
+  this.fire = function(event,data){
     if (this.preset.events != undefined){
       var ev = this.preset.events[event];
       if (ev != undefined){
@@ -227,7 +268,7 @@ function Entity(x,y,type,team,id,game){
       }
       this.y -= this.vspeed;
       if (this.y < this.game.world.terrain.getY(this.x)){
-        this.event("worldCollision");
+        this.fire("worldCollision");
         this.vspeed = 0;
         this.hspeed = 0;
       }
@@ -254,6 +295,8 @@ function Entity(x,y,type,team,id,game){
     if (this.preset.unitCapacity != undefined){
       team.unitCapacity -= this.preset.unitCapacity;
     }
+
+    this.fire('destroy');
   }
 
   this.damage = function(damage){
@@ -269,7 +312,7 @@ function Entity(x,y,type,team,id,game){
   }
 
   this.game.lobby.broadcast('build',{x: this.x, y: this.y, sprite: this.preset.sprite, id: this.id, team: this.team, hp: this.health, hpMax: this.preset.health, angle: 0, grounded: this.preset.grounded});
-  this.event("spawn");
+  this.fire("spawn");
 }
 
 entities = {
@@ -286,6 +329,14 @@ entities = {
     events: {
       spawn: function(ent){
         ent.game.place(ent.team,ent.x+256,ent.y,"tank");
+        ent.game.lobby.teams[ent.team].base = ent;
+      },
+      destroy: function(ent){
+        ent.game.lobby.teams[ent.team].base = null;
+        ent.game.checkWin();
+      },
+      second: function(ent){
+        ent.game.lobby.teams[ent.team].energy += 5;
       },
       a0: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"builder");
