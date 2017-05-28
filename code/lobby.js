@@ -99,7 +99,7 @@ module.exports = function(host,name){
     if(ready){
       this.issues["ready"] = false;
       if (!this.reportIssues()){
-        this.countdown = 5;
+        this.countdown = config.lobbyCooldown;
       }
     }else{
       this.issues["ready"] = true;
@@ -191,6 +191,9 @@ module.exports = function(host,name){
         this.startGame();
       }
     }
+    if (this.game){
+      this.game.second();
+    }
   }
 
   this.tick = function(){ //called every tick from the tickloop in app.js
@@ -218,7 +221,8 @@ module.exports = function(host,name){
       teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data;},
       maxClients: function(data){return Math.min(Math.max(data,2),100);},
       bases: function(data){if (["free","auto","none"].indexOf(data) == -1){return "free";}else{return data;}},
-      friendyFire: function(data){if (typeof data != typeof true){return false}; return data;},
+      worldGenerator: function(data){if (["berge","random","flat"].indexOf(data) == -1){return "berge";}else{return data;}},
+      friendyFire: function(data){return Math.min(Math.max(data,0),10)},
       public: function(data){if (typeof data != typeof true){return false}; return data;},
       maxUnitsPerTeam: function(data){return Math.max(1,data)}
     }

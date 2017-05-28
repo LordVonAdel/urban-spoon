@@ -125,7 +125,7 @@ function drawUI(){
       }
       var timer = selectedEnt.timers[i];
       if (timer.m > 0){
-        var per = timer.t / timer.m;
+        var per = Math.max(timer.t,0) / timer.m;
         ctx.fillStyle = "#0000ff";
         ctx.fillRect(x,y+48,256*per,16);
       }

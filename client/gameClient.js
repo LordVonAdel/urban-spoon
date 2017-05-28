@@ -208,7 +208,7 @@ function draw(){
     for (var i=0; i<ent.timers.length; i++){
       var timer = ent.timers[i];
       if (timer.t > 0){
-        drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,timer.t,timer.m,"#002f7c","#4286f4","#000000")
+        drawHealthbar(ent.x-ent.w/2,hy,ent.w,timer.t,timer.m,"#002f7c","#4286f4","#000000")
         hy += 20;
       }
     }

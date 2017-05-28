@@ -86,6 +86,11 @@ generators = {
       terrain.setNode(i,Math.random());
     }
   },
+  flat: function(terrain){
+    for(var i=0; i<terrain.length; i++){
+      terrain.setNode(i,0.5);
+    }
+  },
   berge: function(terrain){
     generateTerrainSin(500, 20, 0.6, terrain);
     shrink(terrain);

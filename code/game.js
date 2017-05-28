@@ -5,7 +5,7 @@ module.exports = function(lobby){
   this.nextEntId = 0;
   this.lobby = lobby;
   this.ents = {};
-  console.log("Start Game from lobby "+this.lobby.name);
+  console.log("Start game from lobby "+this.lobby.name+" !");
   this.lobby.broadcast("start",{});
   this.world = new World(this.lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
@@ -56,6 +56,7 @@ module.exports = function(lobby){
       teams.push(this.lobby.teams[i].stats);
     }
     this.lobby.broadcast('end',{teams: teams, winner: winner});
+    console.log("End game from lobby "+this.lobby.name+"!");
   }
 
   this.place = function(team,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
@@ -163,6 +164,14 @@ module.exports = function(lobby){
       var ent = this.ents[k];
       ent.tick();
     }
+  }
+
+  this.second = function(){ //called every second from the lobby
+    for(var k in this.ents){
+      var ent = this.ents[k];
+      ent.fire("second",null);
+    }
+    this.syncTeams();
   }
 
   if (this.lobby.settings.bases == "auto"){

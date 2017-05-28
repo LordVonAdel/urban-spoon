@@ -24,7 +24,7 @@ io.on('connection', function (socket) {
   var client = new Client(socket); //create the client instance for the player
   clients.push(client);
 
-  console.log("Connection opened!");
+  //console.log("Connection opened!");
 });
 
 secondLoop = function(){
