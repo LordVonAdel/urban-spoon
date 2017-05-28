@@ -176,6 +176,10 @@ function draw(){
     }
     if (hover || ent == selectedEnt){
       drawHealthbar(ent.x-ent.w/2,yy+8,ent.w,ent.hp,ent.hpMax,"#ff0000","#00ff00","#000000");
+      if (ent.target != undefined){
+        ctx.strokeStyle = "#ff0000";
+        drawLine(ent.x,worldHeight-ent.y,ent.x+ent.tpower * Math.cos(ent.target),worldHeight-ent.y+ent.tpower * Math.sin(ent.target))
+      }
     }
     if (ent == selectedEnt){
       if (currentAction != null){ //draw helpers for the current action. (target, drive...)

@@ -120,7 +120,8 @@ socket.on(4,function(data){ //entity target
   if (isInGame){
     var ent = ents[data[0]];
     if(ent != undefined){
-      ent.target = data[1];
+      ent.target = data[1]; //target angle
+      ent.tpower = data[2]; //target power
     }
   }
 });

@@ -244,7 +244,7 @@ function Entity(x,y,type,team,id,game){
       this.game.lobby.broadcast(3,[this.id,this.hspeed,this.vspeed]);
     }
     if (this.dx != undefined){
-      this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx)]);
+      this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx),Math.sqrt(this.dx*this.dx + this.dy*this.dy)]);
     }
   }
 
