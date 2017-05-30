@@ -23,7 +23,8 @@ module.exports = function(host,name){
     bases: "free",
     friendlyFire: 1,
     public: false,
-    maxUnitsPerTeam: 6
+    maxUnitsPerTeam: 6,
+    startEnergy: 500
   };
 
   this.game = null;
@@ -224,7 +225,8 @@ module.exports = function(host,name){
       worldGenerator: function(data){if (["berge","random","flat"].indexOf(data) == -1){return "berge";}else{return data;}},
       friendyFire: function(data){return Math.min(Math.max(data,0),10)},
       public: function(data){if (typeof data != typeof true){return false}; return data;},
-      maxUnitsPerTeam: function(data){return Math.max(1,data)}
+      maxUnitsPerTeam: function(data){return Math.max(1,data)},
+      startEnergy: function(data){return Math.max(100,Math.min(1000,data))},
     }
     if (this.game == null){ //can't change settings in game
       for(var k in data){

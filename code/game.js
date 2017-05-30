@@ -9,9 +9,10 @@ module.exports = function(lobby){
   this.lobby.broadcast("start",{});
   this.world = new World(this.lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
+  var that = this;
 
   this.lobby.teams.forEach(function(team){
-    team.energy = 100;
+    team.energy = that.lobby.settings.startEnergy;
     team.unitNumber = 0;
     team.maxUnits = 0;
     team.score = 0;
@@ -114,6 +115,9 @@ module.exports = function(lobby){
   }
 
   this.playerAction = function(client,data){ //when a player clicks on an action. This function is called at client.js too!
+    if (data == undefined){
+      return false;
+    }
     var actionIndex = data.index;
     var extra = data.extra;
     var ent = client.selectedEnt
@@ -421,6 +425,79 @@ entities = {
       }
     ]
   },
+  powerplant: {
+    flat: true,
+    type: "building",
+    width: 64,
+    name: "Power Plant",
+    sprite: "sprites/powerplant.png",
+    health: 30,
+    grounded: true,
+    events: {
+      second: function(ent){
+        ent.game.lobby.teams[ent.team].energy += 10;
+      }
+    }
+  },
+  hangar: {
+    flat: true,
+    type: "building",
+    width: 64,
+    name: "Hangar",
+    sprite: "sprites/hangar.png",
+    health: 30,
+    grounded: true,
+    unitCapacity: 3
+  },
+  builder: {
+    type: "vehicle",
+    width: 48,
+    name: "Builder",
+    sprite: ["sprites/vehicleBuilder.png"],
+    health: 40,
+    angleToGround: true,
+    grounded: true,
+    unitCosts: 1,
+    events:{
+      a0: function(ent,data){
+        if (data.x != undefined){
+          ent.driveTo(data.x);
+        }
+      },
+      a1: function(ent,data){
+        if (data.x != undefined){
+          ent.game.place(ent.team,data.x,ent.y,"hangar");
+        }
+      },
+      a2: function(ent,data){
+        if (data.x != undefined){
+          ent.game.place(ent.team,data.x,ent.y,"powerplant");
+        }
+      }
+    },
+    actions: [
+      {
+        type: "ability",
+        costs: 0,
+        name: "Move",
+        client: "drive"
+      },
+      {
+        type: "build",
+        costs: 250,
+        name: "Build Hangar",
+        client: "build",
+        sprite: "sprites/hangar.png"
+      },
+      {
+        type: "build",
+        costs: 400,
+        name: "Build Powerplant",
+        client: "build",
+        sprite: "sprites/powerplant.png"
+      }
+    ]
+  },
   tank: {
     type: "vehicle",
     width: 64,
@@ -468,7 +545,7 @@ entities = {
       {
         type: "ability",
         costs: 0,
-        name: "Drive",
+        name: "Move",
         client: "drive"
       }
     ]

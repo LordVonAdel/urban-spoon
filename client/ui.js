@@ -93,6 +93,8 @@ function drawUI(){
       }
       else if (option.type == "ability"){
         ctx.fillStyle = "#00ff00";
+      }else if (option.type == "build"){
+        ctx.fillStyle = "#f4d742";
       }
 
       //hover animation for options
@@ -119,15 +121,19 @@ function drawUI(){
 
       if (option.type == "vehicle"){
         drawSpriteUI(x+256-32,y,"sprites/ui/iconVehicle.png");
-      }
-      else if (option.type == "ability"){
+      }else if (option.type == "ability"){
         drawSpriteUI(x+256-32,y,"sprites/ui/iconEffect.png");
+      }else if (option.type == "build"){
+        drawSpriteUI(x+256-32,y,"sprites/ui/iconBuild.png");
       }
+
       var timer = selectedEnt.timers[i];
-      if (timer.m > 0){
-        var per = Math.max(timer.t,0) / timer.m;
-        ctx.fillStyle = "#0000ff";
-        ctx.fillRect(x,y+48,256*per,16);
+      if (timer != undefined){
+        if (timer.m > 0){
+          var per = Math.max(timer.t,0) / timer.m;
+          ctx.fillStyle = "#0000ff";
+          ctx.fillRect(x,y+48,256*per,16);
+        }
       }
 
       nextBlock();

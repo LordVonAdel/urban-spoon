@@ -43,6 +43,17 @@ function showPanel(panel){
   $('#'+panel).slideDown(100);
 }
 
+function getCollisionArea(x1,x2){
+  var res = [];
+  for (var k in ents){
+    var ent = ents[k];
+    if (x2 > (ent.x - ent.width / 2) && x1 < (ent.x + ent.width / 2)){
+      res.push(ent);
+    }
+  }
+  return res; //returns array with colliding objects
+}
+
 function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
@@ -197,6 +208,9 @@ function draw(){
             drawLine(ent.x,worldHeight - ent.y, mouseX ,terrain.getY(mouseX));
             drawSprite(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png");
           break;
+          case "build":
+            drawPlacement(mouseX,mouseH,currentAction.sprite)
+          break;
         }
       }
     }
@@ -298,6 +312,10 @@ function gameLoop(){
         socket.emit('a',{index: currentAction.index, extra: {x: mouseX}});
         currentAction = null;
         spawnEffect(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png",1);
+      break;
+      case "build":
+        socket.emit('a',{index: currentAction.index, extra: {x: mouseX}}); //delta x, delta y 
+        currentAction = null;
       break;
     }
   }
@@ -419,6 +437,12 @@ function drawPlacement(x,y,sprite){
   }
   var img = sprites[sprite];
   ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
+  ctx.fillStyle = "#00ff00";
+  var col = getCollisionArea(x-img.width/2,x+img.width/2);
+  if (col.length > 0){
+    ctx.fillStyle = "#ff0000";
+  }
+  drawRectangle(x-img.width/2,y,img.width,8);
   ctx.globalAlpha = 1;
 }
 
