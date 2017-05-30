@@ -47,7 +47,9 @@ function getCollisionArea(x1,x2){
   var res = [];
   for (var k in ents){
     var ent = ents[k];
-    if (x2 > (ent.x - ent.width / 2) && x1 < (ent.x + ent.width / 2)){
+    var l = ent.x - ent.w / 2;
+    var r = ent.x + ent.w / 2;
+    if (!(x1 > r || l > x2)){
       res.push(ent);
     }
   }

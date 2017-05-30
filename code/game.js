@@ -103,6 +103,18 @@ module.exports = function(lobby){
     }
     return res; //returns array with colliding objects
   }
+  this.getCollisionArea = function(){
+    var res = [];
+    for (var k in ents){
+      var ent = this.ents[k];
+      var l = ent.x - ent.width / 2;
+      var r = ent.x + ent.width / 2;
+      if (!(x1 > r || l > x2)){
+        res.push(ent);
+      }
+    }
+  return res; //returns array with colliding objects
+  }
 
   this.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
     //send him information about the entity back
@@ -119,7 +131,7 @@ module.exports = function(lobby){
       return false;
     }
     var actionIndex = data.index;
-    var extra = data.extra;
+    var extra = data.extra || {};
     var ent = client.selectedEnt
     if (ent != null){
       if (ent.team == client.team){
@@ -132,6 +144,16 @@ module.exports = function(lobby){
           if (preset != undefined){
             if (team.unitNumber + preset.unitCosts > team.maxUnits){
               return "action.unitLimitReached"; //unit limit reached!
+            }
+          }
+        }
+        if (type == "build"){
+          var preset = entities[ent.preset.actions[actionIndex].ent];
+          if (preset != undefined){
+            if (extra.x != undefined){
+              if (this.getCollisionArea(extra.x-preset.width/2, extra.x+preset.width/2)){
+                return "action.positionBlocked";
+              }
             }
           }
         }
