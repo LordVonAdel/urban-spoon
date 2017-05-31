@@ -25,8 +25,10 @@ socket.on('build',function(data){
     hpMax: data.hpMax, 
     angle: data.angle, 
     grounded: data.grounded,
-    timers: data.timers
-};
+    timers: data.timers,
+    id: data.id
+  };
+  refreshRenderOrder();
 });
 socket.on('loginError',function(data){
   $('.loginError').html(data);
@@ -83,6 +85,7 @@ socket.on('x',function(data){ //destroy entity
   if (isInGame){
     delete ents[data];
   }
+  refreshRenderOrder();
 });
 socket.on('e',function(data){ //show effect
   if (isInGame){

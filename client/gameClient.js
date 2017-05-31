@@ -7,6 +7,13 @@ myTeam = { //object with information about the players team
   units: 0,
   maxUnits: 0
 }
+buildingSprites = [
+  "sprites/base.png",
+  "sprites/hangar.png",
+  "sprites/powerplant.png",
+  "sprites/construction64.png"
+];
+entRenderOrder = [];
 
 isInLobby = false;
 isReady = false;
@@ -41,6 +48,21 @@ var drawBuffer = document.createElement('canvas');
 function showPanel(panel){
   $('.panel, #game').slideUp(100);
   $('#'+panel).slideDown(100);
+}
+
+function refreshRenderOrder(){
+  entRenderOrder = [];
+  for (var k in ents){
+    var spr = ents[k].sprite;
+    if (typeof spr == typeof []){
+      spr = spr[0];
+    }
+    if (buildingSprites.indexOf(spr) != -1){
+      entRenderOrder.unshift(ents[k]);
+    }else{
+      entRenderOrder.push(ents[k]);
+    }
+  }
 }
 
 function getCollisionArea(x1,x2){
@@ -135,8 +157,10 @@ function draw(){
   drawCircle(mouseX,terrain.getY(mouseX),4);*/
 
   //entities
-  for(var k in ents){
-    var ent = ents[k];
+  for(var i=0; i<entRenderOrder.length; i++){
+    var ent = entRenderOrder[i];
+  //for(var k in ents){
+    //var ent = ents[k];
     var yy = worldHeight-ent.y;
     var x = ent.x;
     var sprite = ent.sprite;
@@ -182,7 +206,7 @@ function draw(){
       if (keyCheckPressed("M0")){
         selectedEnt = ent; //select this entity
         currentAction = null;
-        socket.emit('sel',k);
+        socket.emit('sel',ent.id);
       }
       ctx.strokeStyle = "#0000ff";
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
@@ -225,8 +249,8 @@ function draw(){
       drawSpriteAngleColor(x,yy,sprite,ent.angle,ent.w/2,ent.h,teamColors[team]);
     }
     var hy = yy+8+20// healthbar Y;
-    for (var i=0; i<ent.timers.length; i++){
-      var timer = ent.timers[i];
+    for (var j=0; j<ent.timers.length; j++){
+      var timer = ent.timers[j];
       if (timer.t > 0){
         drawHealthbar(ent.x-ent.w/2,hy,ent.w,timer.t,timer.m,"#002f7c","#4286f4","#000000")
         hy += 20;

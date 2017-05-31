@@ -103,17 +103,18 @@ module.exports = function(lobby){
     }
     return res; //returns array with colliding objects
   }
-  this.getCollisionArea = function(){
+
+  this.getCollisionArea = function(x1,x2){
     var res = [];
-    for (var k in ents){
+    for (var k in this.ents){
       var ent = this.ents[k];
       var l = ent.x - ent.width / 2;
       var r = ent.x + ent.width / 2;
-      if (!(x1 > r || l > x2)){
+      if (x1 <= r && l <= x2){
         res.push(ent);
       }
     }
-  return res; //returns array with colliding objects
+    return res; //returns array with colliding objects
   }
 
   this.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
@@ -349,6 +350,17 @@ function Entity(x,y,type,team,id,game){
         this.actionTimers[i].t -= 1/60;
       }
     }
+    var collisions = this.game.getCollisionArea(this.x-this.width/2,this.x+this.width/2);
+    if (collisions.length > 1){
+      for (var i=0; i<collisions.length; i++){
+        var ent = collisions[i];
+        if (ent.team == this.team && ent.type == "builder"){
+          this.fire("builder");
+        }
+      }
+    }
+
+    this.fire('tick');
   }
 
   this.destroy = function(){
@@ -378,20 +390,20 @@ function Entity(x,y,type,team,id,game){
     }
   }
 
+  this.fire("spawn");
+
   this.game.lobby.broadcast('build',{
     x: this.x,
     y: this.y,
     sprite: this.preset.sprite,
     id: this.id,
     team: this.team,
-    hp: this.health,
+    hp: this.hp,
     hpMax: this.preset.health,
     angle: 0,
     grounded: this.preset.grounded,
     timers: this.actionTimers
   });
-
-  this.fire("spawn");
 }
 
 entities = {
@@ -471,6 +483,39 @@ entities = {
     grounded: true,
     unitCapacity: 3
   },
+  construction: {
+    flat: false,
+    health: 100,
+    name: "Construction",
+    sprite: "sprites/construction64.png",
+    grounded: true,
+    width: 64,
+    events: {
+      spawn: function(ent){
+        ent.buildEnt = null;
+        ent.hp = 1;
+      },
+      builder: function(ent){
+        if (ent.hp >= 100){
+          if (ent.buildEnt != null){
+            ent.game.place(ent.team,ent.x,ent.y,ent.buildEnt);
+            ent.destroy();
+          }
+        }
+        ent.hp += 1;
+        ent.sync();
+      },
+      setBuilding: function(ent,building){
+        var preset = entities[building];
+        if (preset == undefined){
+          ent.destroy();
+        }else{
+          ent.buildPreset = preset;
+          ent.buildEnt = building;
+        }
+      }
+    }
+  },
   builder: {
     type: "vehicle",
     width: 48,
@@ -488,12 +533,18 @@ entities = {
       },
       a1: function(ent,data){
         if (data.x != undefined){
-          ent.game.place(ent.team,data.x,ent.y,"hangar");
+          //ent.game.place(ent.team,data.x,ent.y,"hangar");
+          var construction = ent.game.place(ent.team,data.x,ent.y,"construction");
+          construction.fire("setBuilding","hangar");
+          ent.driveTo(data.x);
         }
       },
       a2: function(ent,data){
         if (data.x != undefined){
-          ent.game.place(ent.team,data.x,ent.y,"powerplant");
+          //ent.game.place(ent.team,data.x,ent.y,"powerplant");
+          var construction = ent.game.place(ent.team,data.x,ent.y,"construction");
+          construction.fire("setBuilding","powerplant");
+          ent.driveTo(data.x);
         }
       }
     },
