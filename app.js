@@ -15,6 +15,18 @@ app.use(express.static('client'));
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
+app.get('/lobbies', function(req, res){
+  var obj = {lobbies:[]};
+  for (k in lobbies){
+    var lobby = lobbies[k];
+    if (lobby.settings.public){
+      obj.lobbies.push({name: lobby.name, players: lobby.clients.length, playersMax: lobby.settings.maxClients});
+    }
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(obj));
+});
 
 clients = [];
 lobbies = {};
