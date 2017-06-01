@@ -190,6 +190,13 @@ function draw(){
       }
     }
 
+    if (ent.source != undefined){
+      if ((animationTick % 4) == 1){
+        var sent = ents[ent.source];
+        sent.trace.push({x: ent.x, y: ent.y});
+      }
+    }
+
     var img = sprites[sprite];
     ent.w = img.width;
     ent.h = img.height;
@@ -216,6 +223,15 @@ function draw(){
       if (ent.target != undefined){
         ctx.strokeStyle = "#ff0000";
         drawLine(ent.x,worldHeight-ent.y,ent.x+ent.tpower * Math.cos(ent.target),worldHeight-ent.y+ent.tpower * Math.sin(ent.target))
+      }
+      if (ent.trace != undefined){
+        for(var j=0; j<ent.trace.length; j++){
+          var p = ent.trace[j];
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = "#fafafa";
+          drawCircle(p.x,worldHeight-p.y,3);
+          ctx.globalAlpha = 1;
+        }
       }
     }
     if (ent == selectedEnt){

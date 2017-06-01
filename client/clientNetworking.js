@@ -138,3 +138,13 @@ socket.on(5,function(data){ //timers
     }
   }
 });
+socket.on(6,function(data){ //source (for trace)
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.source = data[1];
+      var src = ents[data[1]];
+      src.trace = [];
+    }
+  }
+});

@@ -274,6 +274,11 @@ function Entity(x,y,type,team,id,game){
       this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx),Math.sqrt(this.dx*this.dx + this.dy*this.dy)]);
     }
   }
+  this.syncSource = function(){
+    if (this.source != undefined){
+      this.game.lobby.broadcast(6,[this.id,this.source]);
+    }
+  }
 
   this.syncTimers = function(){
     var res = [];
@@ -586,14 +591,23 @@ entities = {
         ent.dy = 0; //delta y
       },
       a0: function(ent,data){
-        ent.dx = data.dx || 0;
-        ent.dy = data.dy || 0;
+        data.dx = data.dx || 0;
+        data.dy = data.dy || 0;
+
+        var angle = Math.atan2(data.dy,data.dx);
+        var distance = Math.min(Math.sqrt(data.dx*data.dx + data.dy*data.dy),256); //cap shoot power
+
+        ent.dx = Math.cos(angle)*distance;
+        ent.dy = Math.sin(angle)*distance;
+
         ent.sync();
       },
       a1: function(ent){
         var bullet = ent.game.place(ent.team,ent.x,ent.y-1,"bullet");
         bullet.hspeed = (ent.dx / 256)*20;
         bullet.vspeed = (ent.dy / 256)*20;
+        bullet.source = ent.id;
+        bullet.syncSource();
       },
       a2: function(ent,data){
         if (data.x != undefined){
