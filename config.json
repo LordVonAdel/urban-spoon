@@ -2,5 +2,6 @@
   "port": 4217,
   "maxLobbyChars": 32,
   "maxNameChars": 32,
-  "lobbyCooldown": 2
+  "lobbyCooldown": 2,
+  "maxLobbies": 100
 }
