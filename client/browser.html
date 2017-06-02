@@ -26,9 +26,10 @@
           url: "/lobbies",
           success: function(data){
             console.log(data);
-            $("#browserTable").html("<tr><th>Name</th><th>Players</th></tr>");
+            $("#browserTable").html("<tr><th>Name</th><th>Players</th><th>Connect</th></tr>");
             data.lobbies.forEach(function(lobby){
-              $("#browserTable").append($("<tr><td>"+lobby.name+"</td><td>"+lobby.players+"/"+lobby.playersMax+"</td></tr>"));
+              var playername = $('#playername').val();
+              $("#browserTable").append($("<tr><td>"+lobby.name+"</td><td>"+lobby.players+"/"+lobby.playersMax+"</td><td><a href='/?"+playername+"?"+lobby.name+"?1'>Connect</a></td></tr>"));
             });
           }
         });
@@ -36,8 +37,8 @@
     </script>
   </head>
   <body onload="refreshLobbies();">
-    <div class="panel" style="width: 1000px">
-      <h1>Lobby Browser</h1>
+    <div class="panel" style="width: 1000px; padding-top: 30px">
+      <h1 style="float: left; margin: 0">Lobby Browser</h1><span style="float: right; width: 500px">Playername: <input style="float: right" type="text" id="playername"></span>
       <button onclick="refreshLobbies();">Refresh</button>
       <table id="browserTable">
         <th>Lobby Name</th><th>Playernumber</th>

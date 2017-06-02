@@ -31,7 +31,17 @@
             login();
           }
         });
-      })
+        var url = window.location.href;
+        var blocks = url.split('?');
+        if (blocks.length > 2){
+          $('#inName').val(blocks[1]);
+          $("#inId").val(blocks[2]);
+        }
+        if (blocks.length > 3){
+          login();
+        }
+      });
+
       
     </script>
   </head>
