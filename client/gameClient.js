@@ -33,9 +33,17 @@ camDragY = 0;
 placement = null;
 animationTick = 0;
 
+isMouseOverUI = false;
+
 ents = {};
 selectedEnt = null;
 selectedEntUI = null;
+rClickOption = null;
+preventSelect = false;
+dragTarget = false;
+dragTargetX = 0;
+dragTargetY = 0;
+targetOption = null;
 
 effects = [];
 
@@ -204,9 +212,10 @@ function draw(){
     }
     if (hover){
       if (keyCheckPressed("M0")){
-        selectedEnt = ent; //select this entity
-        currentAction = null;
-        socket.emit('sel',ent.id);
+        if (currentAction == null){
+          selectedEnt = ent; //select this entity
+          socket.emit('sel',ent.id);
+        }
       }
       ctx.strokeStyle = "#0000ff";
       drawRectangleStroke(ent.x-ent.w/2,yy-ent.h,ent.w,ent.h);
@@ -216,6 +225,10 @@ function draw(){
       if (ent.target != undefined){
         ctx.strokeStyle = "#ff0000";
         drawLine(ent.x,worldHeight-ent.y,ent.x+ent.tpower * Math.cos(ent.target),worldHeight-ent.y+ent.tpower * Math.sin(ent.target))
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = "#ffffff";
+        drawCircle(ent.x,worldHeight-ent.y,256);
+        ctx.globalAlpha = 1;
       }
       if (ent.trace != undefined){
         for(var j=0; j<ent.trace.length; j++){
@@ -231,22 +244,53 @@ function draw(){
       if (currentAction != null){ //draw helpers for the current action. (target, drive...)
         switch (currentAction.client){
           case "target":
-            ctx.globalAlpha = 0.2;
+            /*ctx.globalAlpha = 0.2;
             ctx.fillStyle = "#ffffff";
             drawCircle(ent.x,worldHeight-ent.y,256);
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = 1;*/
             ctx.strokeStyle = "#000000";
             drawLine(ent.x,worldHeight-ent.y, mouseX, mouseY);
           break;
           case "drive":
             ctx.strokeStyle = "#ff0000";
             drawLine(ent.x,worldHeight - ent.y, mouseX ,terrain.getY(mouseX));
-            drawSprite(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png");
+            drawSprite(mouseX-16,terrain.getY(mouseX)-64,"sprites/effectArrow.png");
           break;
           case "build":
             drawPlacement(mouseX,mouseH,currentAction.sprite)
           break;
         }
+      }
+      if (ent.target != undefined && targetOption != null){
+        var deltaX = ent.tpower * Math.cos(ent.target);
+        var deltaY = ent.tpower * Math.sin(ent.target);
+        var cx = ent.x+deltaX;
+        var cy = worldHeight-ent.y+deltaY;
+        var hover = mouseOver(cx-8,cy-8,cx+8,cy+8,'target');
+        if (hover || dragTarget){
+          ctx.fillStyle = "#565656";
+          preventSelect = true;
+          if (keyCheckPressed("M0")){
+            dragTarget = true;
+            dragTargetX = cx - mouseX;
+            dragTargetY = cy - mouseY;
+          }
+        }else{
+          ctx.fillStyle = "#121212";
+        }
+        if (dragTarget){
+          var newDx = (mouseX + dragTargetX) - ent.x;
+          var newDy = (mouseY + dragTargetY) - (worldHeight - ent.y);
+          ent.tpower = Math.min(Math.sqrt(newDx*newDx+newDy*newDy),256);
+          ent.target = Math.atan2(newDy,newDx);
+          if (keyCheckReleased("M0")){
+            dragTarget = false;
+            socket.emit('a',{index: targetOption.index, extra: {dx: newDx, dy: newDy}}); //delta x, delta y 
+          };
+        }
+        ctx.globalAlpha = 0.8;
+        drawCircle(cx,cy,8);
+        ctx.globalAlpha = 1;
       }
     }
     if (spriteSec){
@@ -295,6 +339,18 @@ function draw(){
 
 function gameLoop(){
 
+  function actionDrive(index){
+    socket.emit('a',{index: index, extra: {x: mouseX}});
+    currentAction = null;
+    spawnEffect(mouseX-16,terrain.getY(mouseX)-64,"sprites/effectArrow.png",1);
+  }
+  function actionTarget(index){
+    var deltaX = mouseX - selectedEnt.x;
+    var deltaY = mouseY - (worldHeight - selectedEnt.y);
+    socket.emit('a',{index: currentAction.index, extra: {dx: deltaX, dy: deltaY}}); //delta x, delta y 
+    currentAction = null;
+  }
+
   animationTick ++;
   if (animationTick >= 60){
     animationTick = 0;
@@ -309,12 +365,23 @@ function gameLoop(){
   if(keyCheckDown(37)){
     camX -= 3;
   }
-  if (keyCheckPressed("M2")){ //right click
-    if (currentAction != null){ //first abort action
-      currentAction = null;
-    }else{ //then deselect when right click again
+  if (keyCheckPressed("M0")){ //left click
+    if (!preventSelect && currentAction == null){
       selectedEnt = null;
       selectedEntUI = null;
+    }
+  }
+  if (keyCheckPressed("M2") && selectedEnt != null){ //right click
+    if (currentAction != null){ //first abort action
+      currentAction = null;
+    }else{
+      if (rClickOption != null){
+        switch (rClickOption.client){
+          case "drive": //drive by right click
+            actionDrive(rClickOption.index);
+          break;
+        };
+      }
     }
   }
   if(keyCheckPressed("M1")){ //middle click
@@ -327,6 +394,7 @@ function gameLoop(){
   if(camDrag){
     camX = camDragX - (mouseX - camX); //drag view
   }
+  preventSelect = false;
 
   mouseX = mouseVX + camX;
   mouseH = terrain.getY(mouseX);
@@ -338,15 +406,10 @@ function gameLoop(){
   if (currentAction != null && keyCheckPressed("M0")){ //on left click
     switch (currentAction.client){
       case "target":
-        var deltaX = mouseX - selectedEnt.x;
-        var deltaY = mouseY - (worldHeight - selectedEnt.y);
-        socket.emit('a',{index: currentAction.index, extra: {dx: deltaX, dy: deltaY}}); //delta x, delta y 
-        currentAction = null;
+        actionTarget(currentAction.index);
       break;
       case "drive":
-        socket.emit('a',{index: currentAction.index, extra: {x: mouseX}});
-        currentAction = null;
-        spawnEffect(mouseX-32,terrain.getY(mouseX)-64,"sprites/effectArrow.png",1);
+        actionDrive(currentAction.index);
       break;
       case "build":
         socket.emit('a',{index: currentAction.index, extra: {x: mouseX}}); //delta x, delta y 
@@ -421,6 +484,9 @@ function mouseOver(x1,y1,x2,y2,id){
 
 function mouseOverUI(x1,y1,x2,y2,id){
   if (mouseVX > x1 && mouseVY > y1 && mouseVX < x2 && mouseVY < y2){
+    if (id == undefined){
+      return true;
+    }
     inputHover = id;
     if (inputHlast == id){
       return true;

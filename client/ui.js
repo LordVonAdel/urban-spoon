@@ -33,12 +33,15 @@ function drawUI(){
   switch (entUIPosition){
     case "top":
       ctx.fillRect(0,0,canvas.width,64);
+      if (mouseOverUI(0,0,canvas.width,64)){preventSelect = true};
     break;
     case "left":
       ctx.fillRect(0,0,256,canvas.height);
+       if (mouseOverUI(0,0,256,canvas.height)){preventSelect = true};
     break;
     case "bottom":
       ctx.fillRect(0,canvas.height-64,canvas.width,64);
+      if (mouseOverUI(0,canvas.height-64,canvas.width,canvas.height)){preventSelect = true};
     break;
   }
 

@@ -73,12 +73,21 @@ socket.on('end',function(data){
 
 });
 socket.on('selDat',function(data){ //data from selected object
+  rClickOption = null;
+  targetOption = null;
   selectedEntUI = data;
   if (selectedEntUI.options == undefined){
     selectedEntUI.options = [];
   }
-  selectedEntUI.options.forEach(function(option){
+  selectedEntUI.options.forEach(function(option,i){
     option.hoverFrame = 0;
+    if (option.client == "drive"){
+      rClickOption = option;
+      rClickOption.index = i;
+    }else if(option.client == "target"){
+      targetOption = option;
+      targetOption.index = i;
+    }
   });
 });
 socket.on('x',function(data){ //destroy entity

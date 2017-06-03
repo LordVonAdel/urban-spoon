@@ -174,13 +174,13 @@ module.exports = function(lobby){
           }
         }
         if (type == "build"){
-          var preset = entities[ent.preset.actions[actionIndex].ent];
-          if (preset != undefined){
-            if (extra.x != undefined){
-              if (this.getCollisionArea(extra.x-preset.width/2, extra.x+preset.width/2)){
-                return "action.positionBlocked";
-              }
+          var preset = entities[action.ent];
+          if (preset != undefined && extra.x != undefined){
+            if (this.getCollisionArea(extra.x-preset.width/2, extra.x+preset.width/2).length > 0){
+              return "action.positionBlocked";
             }
+          }else{
+            return "missing preset";
           }
         }
         if (ent.actionTimers[actionIndex].t > 0){
@@ -583,14 +583,16 @@ entities = {
         costs: 250,
         name: "Build Hangar",
         client: "build",
-        sprite: "sprites/hangar.png"
+        sprite: "sprites/hangar.png",
+        ent: "hangar"
       },
       {
         type: "build",
         costs: 400,
         name: "Build Powerplant",
         client: "build",
-        sprite: "sprites/powerplant.png"
+        sprite: "sprites/powerplant.png",
+        ent: "powerplant"
       }
     ]
   },
@@ -605,10 +607,10 @@ entities = {
     unitCosts: 1,
     events: {
       spawn: function(ent){
-        ent.dx = 0; //delta x
-        ent.dy = 0; //delta y
+        ent.dx = 100; //delta x
+        ent.dy = 100; //delta y
       },
-      a0: function(ent,data){
+      a1: function(ent,data){
         data.dx = data.dx || 0;
         data.dy = data.dy || 0;
 
@@ -620,20 +622,26 @@ entities = {
 
         ent.sync();
       },
-      a1: function(ent){
+      a2: function(ent){
         var bullet = ent.game.place(ent.team,ent.x,ent.y-1,"bullet");
         bullet.hspeed = (ent.dx / 256)*20;
         bullet.vspeed = (ent.dy / 256)*20;
         bullet.source = ent.id;
         bullet.syncSource();
       },
-      a2: function(ent,data){
+      a0: function(ent,data){
         if (data.x != undefined){
           ent.driveTo(data.x);
         }
       }
     },
     actions: [
+      {
+        type: "ability",
+        costs: 0,
+        name: "Move",
+        client: "drive"
+      },
       {
         type: "ability",
         costs: 0,
@@ -646,12 +654,6 @@ entities = {
         name: "Shoot",
         client: "click",
         cooldown: 5
-      },
-      {
-        type: "ability",
-        costs: 0,
-        name: "Move",
-        client: "drive"
       }
     ]
   },
