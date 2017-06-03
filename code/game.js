@@ -44,6 +44,13 @@ module.exports = function(lobby){
           
         }
       break;
+      case "energy10000":
+        this.lobby.teams.forEach(function(team, i){
+          if (team.energy >= 10000){
+            that.end(i); //if multiple win at once the team with the lower index wins!
+          }
+        });
+      break;
       default:
         this.end(); //unkown goal
       break;
@@ -199,6 +206,7 @@ module.exports = function(lobby){
       ent.fire("second",null);
     }
     this.syncTeams();
+    this.checkWin();
   }
 
   if (this.lobby.settings.bases == "auto"){

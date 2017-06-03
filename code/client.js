@@ -74,7 +74,7 @@ module.exports = function(socket,name){
   });
   socket.on('place',function(data){
     if(client.lobby != null){
-      if(client.lobby.game != false){
+      if(client.lobby.game != null){
         client.lobby.game.place(client.team,data.x,data.y,data.type); //potential security issue!!
       }
     }
