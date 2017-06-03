@@ -9,6 +9,8 @@ module.exports = function(lobby){
   this.lobby.broadcast("start",{});
   this.world = new World(this.lobby.settings.worldGenerator);
   this.world.sync(this.lobby);
+  this.goalReady = false;
+
   var that = this;
 
   this.lobby.teams.forEach(function(team){
@@ -25,40 +27,56 @@ module.exports = function(lobby){
     }
   });
 
-  this.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+  if (this.lobby.settings.bases == "auto"){
+    //auto place bases
+    var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
+    for(var i=0; i<this.lobby.teams.length; i++){
+      this.place(i, b*i+b/2,0,"base");
+    }
+  }else{
+    if (this.lobby.settings.bases == "free"){ //let the user place the base
+      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
+    }else{
+      this.goalReady = true;
+    }
+  }
 
-    switch (this.lobby.settings.goal){
-      case "bases":
-        var bases = 0;
-        var winner = -1;
-        this.lobby.teams.forEach(function(team, i){
-          if (team.base != null){
-            bases ++;
-            winner = i;
+  this.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+    if(this.goalReady){
+      switch (this.lobby.settings.goal){
+        case "bases":
+          var bases = 0;
+          var winner = -1;
+          this.lobby.teams.forEach(function(team, i){
+            if (team.base != null){
+              bases ++;
+              winner = i;
+            }
+          });
+          if (bases == 1){
+            this.end(winner);
           }
-        });
-        if (bases == 1){
-          this.end(team);
-        }
-        if (bases == 0){
-          
-        }
-      break;
-      case "energy10000":
-        this.lobby.teams.forEach(function(team, i){
-          if (team.energy >= 10000){
-            that.end(i); //if multiple win at once the team with the lower index wins!
+          if (bases == 0){
+            
           }
-        });
-      break;
-      default:
-        this.end(); //unkown goal
-      break;
+        break;
+        case "energy10000":
+          this.lobby.teams.forEach(function(team, i){
+            if (team.energy >= 10000){
+              that.end(i); //if multiple win at once the team with the lower index wins!
+            }
+          });
+        break;
+        default:
+          this.end(); //unkown goal
+        break;
+      }
     }
   }
 
   this.end = function(winner){ //ends the game
     this.lobby.game = null;
+    this.lobby.issues.inGame = false;
     var teams = [];
     for(var i=0; i<this.lobby.teams.length; i++){
       teams.push(this.lobby.teams[i].stats);
@@ -209,25 +227,17 @@ module.exports = function(lobby){
     this.checkWin();
   }
 
-  if (this.lobby.settings.bases == "auto"){
-    //auto place bases
-    var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
-    for(var i=0; i<this.lobby.teams.length; i++){
-      this.place(i, b*i+b/2,0,"base");
-    }
-  }else{
-    if (this.lobby.settings.bases == "free"){ //let the user place the base
-      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
-    }else{
-      //no bases
-    }
-  }
-
   this.showEffect = function(x,y,sprite,duration){
     this.lobby.broadcast('e',[x,y,sprite,duration]);
   }
 
   this.syncTeams();
+
+  if (!this.goalReady){
+    if (this.lobby.teams.every(function(t){return t.base != null})){
+      this.goalReady = true;
+    }
+  }
 
 }
 

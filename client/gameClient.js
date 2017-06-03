@@ -171,17 +171,11 @@ function draw(){
     if (typeof ent.sprite == typeof []){
       sprite = ent.sprite[0];
       spriteSec = ent.sprite[1];
-      if (sprites[spriteSec] == undefined){
-        sprites[spriteSec] = new Image();
-        sprites[spriteSec].src = spriteSec;
-      }
-      imgSec = sprites[spriteSec];
+
+      var imgSec = getSprite(spriteSec);
     }
 
-    if (sprites[sprite] == undefined){
-      sprites[sprite] = new Image();
-      sprites[sprite].src = sprite;
-    }
+    var img = getSprite(sprite);
 
     for (var j=0; j<ent.timers.length; j++){
       var timer = ent.timers[j];
@@ -197,7 +191,6 @@ function draw(){
       }
     }
 
-    var img = sprites[sprite];
     ent.w = img.width;
     ent.h = img.height;
 
@@ -460,10 +453,8 @@ function drawRectangleStroke(x,y,width,height){
 }
 
 function drawSprite(x,y,sprite){
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
+  var img = getSprite(sprite);
+
   ctx.drawImage(sprites[sprite],x-camX,y-camY);
 }
 
@@ -473,11 +464,8 @@ function drawText(text,x,y){
 
 function drawPlacement(x,y,sprite){
   ctx.globalAlpha = (Math.sin((animationTick/60)*Math.PI*2)+1)/4+0.5;
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
-  var img = sprites[sprite];
+  var img = getSprite(sprite);
+
   ctx.drawImage(img,x-camX-img.width/2,y-camY-img.height);
   ctx.fillStyle = "#00ff00";
   var col = getCollisionArea(x-img.width/2,x+img.width/2);
@@ -489,11 +477,7 @@ function drawPlacement(x,y,sprite){
 }
 
 function drawSpriteColor(x,y,sprite,color){
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
-  var img = sprites[sprite];
+  var img = getSprite(sprite);
   
   var buffer = drawBuffer;
   buffer.width = img.width;
@@ -513,10 +497,7 @@ function drawSpriteColor(x,y,sprite,color){
 }
 
 function drawSpriteAngle(x,y,sprite,angle,px,py){
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
+  var img = getSprite(sprite);
 
   var xx = x-camX;
   var yy = y-camY;
@@ -529,12 +510,8 @@ function drawSpriteAngle(x,y,sprite,angle,px,py){
 }
 
 function drawSpriteAngleColor(x,y,sprite,angle,px,py,color){
-  if (sprites[sprite] == undefined){
-    sprites[sprite] = new Image();
-    sprites[sprite].src = sprite;
-  }
+  var img = getSprite(sprite);
 
-  var img = sprites[sprite];
   var xx = x-camX;
   var yy = y-camY;
 
@@ -590,3 +567,19 @@ function spawnEffect(x,y,sprite,duration){
     time: duration * 60
   })
 }
+
+function getSprite(path){
+  if (path == undefined){
+    debugger;
+  }
+  if (sprites[path] == undefined){
+    sprites[path] = new Image();
+    sprites[path].src = path;
+  }
+  return sprites[path];
+}
+
+//preload sprites
+['base','bullet','construction64','effectArrow','effectSmoke','hangar','powerplant','tankCannon','vehicleBase','vehicleBuilder'].forEach(function(name){
+  getSprite('sprites/'+name+'.png');
+})
