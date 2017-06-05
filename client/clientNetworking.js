@@ -8,6 +8,7 @@ socket.on('leave',function(){ //show the login thing again
 socket.on('start',function(){
   showPanel('game');
   gameStart();
+  isReady = false;
 });
 socket.on('world',function(data){
   terrain.nodes = data.nodes;
@@ -45,7 +46,7 @@ socket.on('end',function(data){
 
   function insertTeams(attr){
     for(var i=0; i<teams.length; i++){
-      html += "<th>"+teams[i][attr]+"</th>";
+      html += "<th style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+"</th>";
     }
   };
 
@@ -55,17 +56,21 @@ socket.on('end',function(data){
     html += "<th>"+teamNames[i]+"</th>";
   }
   html+="</tr>";
-  html+="<tr><th>Biggest Army</th>"
-  insertTeams("biggestArmy");
+  html+="<tr><th>Units Build</th>"
+  insertTeams("unitsBuild");
   html+="</tr>";
-  html+="<tr><th>Highest Energy Level</th>"
-  insertTeams("highEnergy");
+  html+="<tr><th>Units Lost</th>"
+  insertTeams("unitsLost");
   html+="</tr>";
-  html+="<tr><th>Damage Dealt</th>"
-  insertTeams("damageDealt");
+  html+="<tr><th>Damage Done</th>"
+  insertTeams("damageDone");
   html+="</tr>";
-  html+="<tr><th>Damage Collected</th>"
-  insertTeams("damageCollected")
+  html+="<tr><th>Damage Get</th>"
+  insertTeams("damageGet")
+  html+="</tr>";
+  html+="<tr><th>Energy Collected</th>"
+  insertTeams("energyCollected");
+  
   html+="</tr>";
   $('#statsTable').html(html);
 

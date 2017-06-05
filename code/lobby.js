@@ -68,6 +68,7 @@ module.exports = function(host,name){
   }
 
   this.reportIssues = function(){
+    this.checkReady();
     if(this.clients.length == 1){ //check if more than one player is in the lobby
       this.issues["onePlayer"] = true;
     }else{
@@ -76,7 +77,8 @@ module.exports = function(host,name){
     var found = false;
     var text = { //text for the clients
       emptyTeams: "Empty teams are not allowed!",
-      onePlayer: "A round with only one player is stupid!"
+      onePlayer: "A round with only one player is stupid!",
+      ready: "Not everyone is ready yet!"
     }
     var html = "";
     for(var i in this.issues){ //itterate through every issue
@@ -90,8 +92,15 @@ module.exports = function(host,name){
     }
     this.setInfo(html);
 
-    return found;
+    if (found == false){
+     if (this.countdown == Infinity){
+        this.countdown = config.lobbyCooldown;
+      }
+    }else{
+      this.countdown = Infinity;
+    }
 
+    return found;
   }
 
   this.checkReady = function(){
@@ -100,9 +109,6 @@ module.exports = function(host,name){
     });
     if(ready){
       this.issues["ready"] = false;
-      if (!this.reportIssues()){
-        this.countdown = config.lobbyCooldown;
-      }
     }else{
       this.issues["ready"] = true;
       this.countdown = Infinity;
@@ -193,8 +199,10 @@ module.exports = function(host,name){
         this.startGame();
       }
     }
-    if (this.game){
+    if (this.game != null){
       this.game.second();
+    }else{
+      this.reportIssues();
     }
   }
 
@@ -211,6 +219,9 @@ module.exports = function(host,name){
     }else{
       this.game = new Game(this);
       this.issues.inGame = true;
+      this.clients.forEach(function(client){
+        client.isReady = false;
+      });
     }
   }
 

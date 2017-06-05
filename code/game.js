@@ -20,24 +20,28 @@ module.exports = function(lobby){
     team.score = 0;
     team.base = null;
     team.stats = {
-      biggestArmy: 0,
-      highEnergy: 0,
-      damageDealt: 0,
-      damageCollected: 0
+      damageGet: 0,
+      damageDone: 0,
+      unitsBuild: 0,
+      unitsLost: 0,
+      energyCollected: 0
     }
   });
 
-  if (this.lobby.settings.bases == "auto"){
-    //auto place bases
-    var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
-    for(var i=0; i<this.lobby.teams.length; i++){
-      this.place(i, b*i+b/2,0,"base");
-    }
-  }else{
-    if (this.lobby.settings.bases == "free"){ //let the user place the base
-      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
-    }else{
+  this.init = function(){
+    if (this.lobby.settings.bases == "auto"){
+      //auto place bases
+      var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
+      for(var i=0; i<this.lobby.teams.length; i++){
+        this.place(i, b*i+b/2,0,"base");
+      }
       this.goalReady = true;
+    }else{
+      if (this.lobby.settings.bases == "free"){ //let the user place the base
+        this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
+      }else{
+        this.goalReady = true;
+      }
     }
   }
 
@@ -57,7 +61,8 @@ module.exports = function(lobby){
             this.end(winner);
           }
           if (bases == 0){
-            
+            //both bases destroyed at the same time!
+            this.end(-1);
           }
         break;
         case "energy10000":
@@ -75,6 +80,7 @@ module.exports = function(lobby){
   }
 
   this.end = function(winner){ //ends the game
+    //if winner == -1 no one wins
     this.lobby.game = null;
     this.lobby.issues.inGame = false;
     var teams = [];
@@ -98,6 +104,7 @@ module.exports = function(lobby){
         yy = y;
       }
       var ent = new Entity(x,yy,type,team,this.nextEntId,this);
+      ent.teamData.stats.unitsBuild += 1;
       if (preset.unique){
         this.lobby.broadcastTeam('placement',null,team);
         //if the ent is unique send to the team members they don't need to place it because it already was placed
@@ -224,7 +231,15 @@ module.exports = function(lobby){
       ent.fire("second",null);
     }
     this.syncTeams();
+
+    if (!this.goalReady){
+      if (this.lobby.teams.every(function(t){return t.base != null})){
+        this.goalReady = true;
+      }
+    }
+
     this.checkWin();
+
   }
 
   this.showEffect = function(x,y,sprite,duration){
@@ -233,11 +248,7 @@ module.exports = function(lobby){
 
   this.syncTeams();
 
-  if (!this.goalReady){
-    if (this.lobby.teams.every(function(t){return t.base != null})){
-      this.goalReady = true;
-    }
-  }
+  this.init();
 
 }
 
@@ -260,6 +271,7 @@ function Entity(x,y,type,team,id,game){
   this.hpMax = this.preset.health;
   this.speed = 2;
   this.actionTimers = [];
+  this.teamData = this.game.lobby.teams[this.team];
 
   for (var i=0; i<this.preset.actions.length; i++){
     var action = this.preset.actions[i];
@@ -397,6 +409,7 @@ function Entity(x,y,type,team,id,game){
     if (this.preset.unitCapacity != undefined){
       team.unitCapacity -= this.preset.unitCapacity;
     }
+    team.stats.unitsLosts += 1;
 
     this.fire('destroy');
   }
@@ -405,9 +418,10 @@ function Entity(x,y,type,team,id,game){
     this.hp -= damage;
     if (this.hp <= 0){
       this.destroy();
-      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2+10,this.y-2);
-      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2-10,this.y+2);
-      this.game.showEffect("sprites/effectSmoke.png",this.x+this.width/2,this.y-8);
+      this.game.showEffect(this.x+this.width/2+10,this.y-2,"sprites/effectSmoke.png",1);
+      this.game.showEffect(this.x+this.width/2-10,this.y+2,"sprites/effectSmoke.png",1);
+      this.game.showEffect(this.x+this.width/2,this.y-8,"sprites/effectSmoke.png",1);
+      this.teamData.stats.unitsLost += 1;
     }else{
       this.sync();
     }
@@ -451,6 +465,7 @@ entities = {
       },
       second: function(ent){
         ent.game.lobby.teams[ent.team].energy += 5;
+        ent.teamData.stats.energyCollected += 5;
       },
       a0: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"builder");
@@ -492,7 +507,8 @@ entities = {
     grounded: true,
     events: {
       second: function(ent){
-        ent.game.lobby.teams[ent.team].energy += 10;
+        ent.teamData.energy += 10;
+        ent.teamData.stats.energyCollected += 10;
       }
     }
   },
@@ -608,7 +624,7 @@ entities = {
     events: {
       spawn: function(ent){
         ent.dx = 100; //delta x
-        ent.dy = 100; //delta y
+        ent.dy = -100; //delta y
       },
       a1: function(ent,data){
         data.dx = data.dx || 0;
@@ -672,6 +688,8 @@ entities = {
             dmg *= ent.game.lobby.settings.friendlyFire;
           }
           hit.damage(dmg);
+          hit.teamData.stats.damageGet += dmg;
+          ent.teamData.stats.damageDone += dmg;
         });
       }
     }
