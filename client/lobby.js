@@ -33,10 +33,7 @@ Lobby = {
           if (i<data.teams[j].length){
             var playerName = data.teams[j][i].name || "";
             var playerReady = data.teams[j][i].ready || "";
-            html+="<td>"+playerName
-            if(playerReady){
-              html += " - ready"
-            }
+            html+="<td><span class='icon-"+(playerReady ? "ready" : "not-ready")+"'></span>"+playerName;
             html+="</td>";
           }else{
             html+="<td></td>";

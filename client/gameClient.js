@@ -90,6 +90,7 @@ function gameStart(){
   canvas = document.getElementById("gameCanvas");
   ctx = canvas.getContext('2d');
   ctx.font = "24px Verdana";
+  ents = {};
   isInGame = true;
 
   gameLoop();
@@ -419,7 +420,9 @@ function gameLoop(){
   }
 
   inputNext();
-  requestAnimationFrame(gameLoop);
+  if (isInGame){
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 terrain = {

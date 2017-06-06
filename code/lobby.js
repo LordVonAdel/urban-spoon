@@ -81,16 +81,18 @@ module.exports = function(host,name){
       ready: "Not everyone is ready yet!"
     }
     var html = "";
+    var info = [];
     for(var i in this.issues){ //itterate through every issue
       if(this.issues[i] == true){
         found = true;
         var txt = text[i];
         if(txt != undefined){
+          info.push(text[i]);
           html += "<br>"+text[i];
         }
       }
     }
-    this.setInfo(html);
+    this.setInfo(info);
 
     if (found == false){
      if (this.countdown == Infinity){

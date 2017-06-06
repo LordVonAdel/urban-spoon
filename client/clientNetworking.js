@@ -35,7 +35,11 @@ socket.on('loginError',function(data){
   $('.loginError').html(data);
 });
 socket.on('lobbyStatus',function(data){
-  $('#lobbyStatus').html(data);
+  $("#lobbyStatus").html("");
+  data.forEach(function(text){
+    $("#lobbyStatus").append("<div class='lobbyError'><span class='lobbyErrorIcon'></span>"+text+"</div>")
+  });
+  //$('#lobbyStatus').html(data);
 });
 socket.on('t',function(data){ //team data
   Object.assign(myTeam,data);
