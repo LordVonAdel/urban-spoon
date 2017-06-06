@@ -168,7 +168,7 @@ module.exports = function(lobby){
     var ent = client.selectedEnt
     if (ent != null){
       if (ent.team == client.team){
-        var action = ent.preset.actions[actionIndex]
+        var action = ent.preset.actions[actionIndex];
         var costs = action.costs;
         var type = action.type;
         var team = this.lobby.getTeam(client.team);
@@ -201,6 +201,25 @@ module.exports = function(lobby){
             ent.actionTimers[actionIndex].t = action.cooldown;
             ent.syncTimers();
           }
+        }
+      }
+    }
+  }
+  this.playerAuto = function(client,data){
+    if (data == undefined){
+      return false;
+    }
+    if (data.index == undefined || data.auto == undefined){
+      return false;
+    }
+    var actionIndex = data.index;
+    var ent = client.selectedEnt
+    if (ent != null){
+      if (ent.team == client.team){
+        var action = ent.preset.actions[actionIndex];
+        if (action.auto){
+          ent.auto = data.auto;
+          ent.syncAuto();
         }
       }
     }
@@ -304,9 +323,16 @@ function Entity(x,y,type,team,id,game){
       this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx),Math.sqrt(this.dx*this.dx + this.dy*this.dy)]);
     }
   }
+
   this.syncSource = function(){
     if (this.source != undefined){
       this.game.lobby.broadcast(6,[this.id,this.source]);
+    }
+  }
+
+  this.syncAuto = function(){
+    if (this.auto != undefined){
+      this.game.lobby.broadcast(7,[this.id,this.auto]);
     }
   }
 
@@ -384,6 +410,11 @@ function Entity(x,y,type,team,id,game){
       if (this.actionTimers[i].t > 0){
         this.actionTimers[i].t -= 1/60;
       }
+      if (this.actionTimers[0].t <= 0){
+        if( this.preset.actions[i].auto && this.auto){
+          this.game.playerAction({selectedEnt: this, team: this.team},{index: i, extra:{}});
+        }
+      }
     }
     var collisions = this.game.getCollisionArea(this.x-this.width/2,this.x+this.width/2);
     if (collisions.length > 1){
@@ -402,7 +433,7 @@ function Entity(x,y,type,team,id,game){
     this.game.lobby.broadcast('x',this.id);
     delete this.game.ents[this.id];
 
-    var team = this.game.lobby.teams[this.team];
+    var team = this.teamData;
     if (this.preset.unitCosts != undefined){
       team.unitNumber -= this.preset.unitCosts;
     }
@@ -441,6 +472,7 @@ function Entity(x,y,type,team,id,game){
     grounded: this.preset.grounded,
     timers: this.actionTimers
   });
+  this.syncAuto();
 }
 
 entities = {
@@ -669,7 +701,8 @@ entities = {
         costs: 0,
         name: "Shoot",
         client: "click",
-        cooldown: 5
+        cooldown: 5,
+        auto: true
       }
     ]
   },

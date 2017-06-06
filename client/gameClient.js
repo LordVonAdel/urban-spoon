@@ -371,7 +371,7 @@ function gameLoop(){
       selectedEntUI = null;
     }
   }
-  if (keyCheckPressed("M2") && selectedEnt != null){ //right click
+  if (keyCheckPressed("M2") && selectedEnt != null && !preventSelect){ //right click
     if (currentAction != null){ //first abort action
       currentAction = null;
     }else{

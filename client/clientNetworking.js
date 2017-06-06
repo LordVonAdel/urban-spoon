@@ -162,3 +162,11 @@ socket.on(6,function(data){ //source (for trace)
     }
   }
 });
+socket.on(7,function(data){
+  if (isInGame){
+    var ent = ents[data[0]];
+    if(ent != undefined){
+      ent.auto = data[1];
+    }
+  }
+});

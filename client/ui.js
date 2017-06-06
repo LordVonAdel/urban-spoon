@@ -111,6 +111,14 @@ function drawUI(){
             currentAction = null;
           }
         }
+        if (keyCheckPressed("M2") && option.auto){//right click on option
+          if (selectedEnt.auto){
+            selectedEnt.auto = false;
+          }else{
+            selectedEnt.auto = true;
+          }
+          socket.emit('auto',{index: i, auto: selectedEnt.auto});
+        }
       }else{
         option.hoverFrame = transitionLinear(option.hoverFrame,0,0.1);
       }
@@ -120,7 +128,15 @@ function drawUI(){
       ctx.globalAlpha = 1;
       ctx.fillStyle = "#000000";
       ctx.fillText(option.name,x+2,y+2);
-      ctx.fillText(option.costs,x+2,y+32);
+      if (option.costs != 0){
+        ctx.fillText(option.costs,x+2,y+32);
+      }
+      if (option.auto){
+        ctx.fillStyle = selectedEnt.auto ? "#00ff00": "#ff0000";
+        ctx.fillRect(x,y+32,128,32);
+        ctx.fillStyle = "#000000";
+        ctx.fillText("Auto: "+(selectedEnt.auto ? "on" : "off"),x+2,y+32);
+      }
 
       if (option.type == "vehicle"){
         drawSpriteUI(x+256-32,y,"sprites/ui/iconVehicle.png");

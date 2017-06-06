@@ -92,7 +92,14 @@ module.exports = function(socket,name){
         client.lobby.game.playerAction(client,data);
       }
     }
-  })
+  });
+  socket.on('auto',function(data){ //player changes auto shooting
+    if (client.lobby != null){
+      if (client.lobby.game != null){
+        client.lobby.game.playerAuto(client,data);
+      }
+    }
+  });
 
   this.disconnect = function(){ //when the player disconnect by timeout or something else
     if(this.lobby != null){
