@@ -5,18 +5,29 @@ body{
   background: linear-gradient(0deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(90deg, #ffffff 0, #FFFFFF 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 100%), linear-gradient(0deg, rgba(255,255,255,0.29) 0, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 100%), linear-gradient(90deg, rgba(255,255,255,0.298039) 1px, rgba(0,0,0,0) 1px), rgba(0,0,0,1);
   background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
   background-size: 400px 400px, 400px 400px, 50px 50px, 50px 50px;
+  color: white;
 }
 input {
   width: 100%;
   padding: 10px;
   border: none;
   border-bottom: solid 2px #c9c9c9;
-  transition: border 0.3s;
+  transition: all 0.3s;
   font-size: 20px;
+  color: white;
+  border: 1px solid #222222;
+  background: #222222 url(ui/ui-bg_dots-small_20_333333_2x2.png) 100% 100% repeat;
+  background-color: #222222;
+  background-blend-mode: screen;
+}
+input:hover {
+  /*background: #333333 url(ui/ui-bg_dots-small_20_333333_2x2.png) 50% 50% repeat;*/
+  background-color: #333333;
 }
 input:focus {
+  /*background: #444444 url(ui/ui-bg_dots-small_20_333333_2x2.png) 50% 50% repeat;*/
+  background-color: #444444;
   outline: none;
-  border-bottom: solid 2px #969696;
 }
 button{
   border: none;
@@ -24,13 +35,19 @@ button{
   font-size: 20px;
   transition: background-color 0.3s;
   cursor: pointer;
-  margin: 4px;
+  color: white;
+  border: 1px solid #222222;
+  background-color: #222222;
+  background: #222222 url(ui/ui-bg_dots-small_20_333333_2x2.png) 100% 100% repeat;
+  background-blend-mode: luminosity;
 }
 button:focus{
   outline: none;
 }
 button:hover{
-  background-color: #00ff00;
+  border: 1px solid #222222;
+  /*background: #00498f url(ui/ui-bg_dots-small_20_333333_2x2.png) 50% 50% repeat;*/
+  background-color: #00498f;
 }
 table{
   border-collapse: collapse;
@@ -39,16 +56,27 @@ a{
   cursor: pointer;
 }
 .panel{
+  top: 300px;
   width: 400px;
-  margin: auto; 
-  background-color: #969696; 
-  margin-top:100px;
+  margin: auto;
+  background-color: #404040; 
+  box-shadow: 4px 4px black;
+  border: #0b3e6f 1px solid;
+  color: white;
+  margin-top: 200px;
+}
+.panelContent{
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 1px;
   padding-bottom: 20px;
-  box-shadow: 4px 4px black;
-  border: lime 1px solid;
+}
+.panel h2{
+  background: #0b3e6f url(ui/ui-bg_diagonals-thick_15_0b3e6f_40x40.png) 50% 50% repeat;
+  color: white;
+  padding: 3px;
+  margin: 0px;
+  margin-bottom: 20px;
 }
 .loginError{
   color: darkred;
@@ -62,6 +90,7 @@ a{
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 30vh;
+  color: white;
 }
 #lobbySettings input, #lobbySettings select{
   height: 20px;
@@ -83,21 +112,22 @@ a{
   max-height: 30vh;
 }
 #lobbySettings tr{
-  background: #606060;
+  background: #404040;
   padding: 0px;
   margin: 0px;
   border: none;
   height: 20px;
 }
 #lobbySettings tr:nth-child(even){
-  background: #505050;
+  background: #454545;
 }
 #lobbyTable table{
   width: 100%;
   table-layout: fixed;
 }
-#lobbyTable table th{
+#lobbyTable table tr:first-child{
   border-bottom: 1px solid white;
+  background: #0b3e6f url(ui/ui-bg_diagonals-thick_15_0b3e6f_40x40.png) 50% 50% repeat;
 }
 #lobbyTable table td:first-child{  /*alpha*/
   background: #5050dd;
