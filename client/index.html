@@ -1,111 +1,121 @@
 <html>
   <head>
-    <title>Urban-Spoon</title>
     <link rel="stylesheet" href="/lib/jquery-ui.min.css">
     <link href="style.css" rel="stylesheet">
     <script src="/lib/jquery-3.2.1.min.js"></script>
     <script src="/lib/jquery-ui.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/gameClient.js"></script>
-    <script src="/ui.js"></script>
-    <script src="/lobby.js"></script>
-    <script src="/clientNetworking.js"></script>
+    <style>
+      #browserTable tr{
+        border-bottom: solid 2px #bababa;
+        background-color: #808080;
+      }
+      #browserTable tr:nth-child(even){
+        background-color: #505050;
+      }
+      #browserTable tr:hover{
+        background-color: #ffa500;
+      }
+      #browserTable{
+        width: 100%;
+        table-layout: fixed;
+      }
+      .tab-menu-selected::before{
+        content: "[";
+      }
+      .tab-menu-selected::after{
+        content: "]";
+      }
+      .panelContent{
+        box-shadow: inset 0px 11px 8px -10px #000,
+                    inset 0px -11px 8px -10px #000; 
+      }
+      a.button{
+        text-decoration: none;
+      }
+    </style>
+    <title>Urban Spoon - Lobby Browser</title>
     <script>
-
-      entUIPosition = "bottom"; //top | left | bottom
-
-      function login(){
-        socket.emit('login',{name: $('#inName').val(), lobby: $('#inId').val()});
-        me.name =  $('#inName').val().replace(/>/g, '&gt').replace(/</g, '&lt');
-      }
-      function leave(){
-        socket.emit('leave');
-      }
-      function ready(){
-        isReady = !isReady;
-        socket.emit('ready',isReady);
-      }
-
-      $(function(){
-        Lobby.init(); //init lobby stuff (see lobby.js)
-        $("#inId").on('keyup', function (e) {
-          if (e.keyCode == 13) {
-            login();
+      function refreshLobbies(){
+        $.ajax({
+          dataType: "json",
+          url: "/lobbies",
+          success: function(data){
+            console.log(data);
+            $("#browserTable").html("<tr><th>Name</th><th>Players</th><th>Connect</th></tr>");
+            data.lobbies.forEach(function(lobby){
+              var playername = $('#playername').val();
+              $("#browserTable").append($("<tr><td>"+lobby.name+"</td><td>"+lobby.players+"/"+lobby.playersMax+"</td><td><a href='/direct?"+playername+"?"+lobby.name+"?1'>Connect</a></td></tr>"));
+            });
+            if (data.lobbies.length == 0){
+              $("#browserTable").append("<h1>No game is open!</h1>")
+            }
           }
         });
-        var url = window.location.href;
-        var blocks = url.split('?');
-        if (blocks.length > 2){
-          $('#inName').val(blocks[1]);
-          $("#inId").val(blocks[2]);
-        }
-        if (blocks.length > 3){
-          login();
-        }
-        //$("button").button();
-        //$("input").button();
-        //$("input[type='number']").spinner();
-        //$("select").selectmenu();
-        $(document).tooltip();
+      };
+      function showTab(id){
+        $(".tab").hide();
+        $("#"+id).show();
+        $(".menu-tab").removeClass("tab-menu-selected");
+        $("#menu-"+id).addClass("tab-menu-selected");
+      }
+      $(function(){
+        showTab('tab2');
       });
-
-      
     </script>
   </head>
-  <body>
-    <div class="panel" id="panelLogin">
-      <h2>Login</h2>
-      <div class="panelContent">
-        <label>Playername:</label><input type="text" id="inName"><br><br>
-        <label>Lobby:</label><input type="text" id="inId">
-        <span class='loginError'></span>
-        <br><br><button onclick='login()'>Play</button>
-      </div>
-    </div>
-    <div class="panel" id="panelLobby" style="display: none">
-      <h2 id="lobbyTitle"></h2>
-      <div class="panelContent">
-        <div id="lobbyTable">
-          <table><tr><th>Filler</th></tr></table>
+  <body onload="refreshLobbies();">
+    <div class="panel" style="width: 1000px;">
+      <h2>Urban - Spoon</h2>
+      <div style="padding: 2px"><a onclick="showTab('tab1');" id="menu-tab1" class="menu-tab">Introduction</a> <a onclick="showTab('tab2');" id="menu-tab2" class="menu-tab">Lobbies</a> <a onclick="showTab('tab3');" id="menu-tab3" class="menu-tab">Tutorial</a></div>
+      <div class="panelContent" style="height: 50vh; overflow: auto;">
+        <div class="tab" id="tab1">
+          <h3>Introduction</h3>
+          <p>
+            <strong>What is this?</strong><br>
+            This is Shellshock live as RTS-game!<br>
+            <br><strong>How can I play this?</strong><br>
+            Search for an open lobby and join. If no lobbies are open, open your own. But you need at least one other player to play this game!<br>
+            The game is tested and works with Chrome, Firefox, Edge and Opera. If you have any technical problems, which could be because this is game is an very early phase, please contact me!<br>
+            <br><strong>Why is it not working?</strong><br>
+            Maybe...<br>
+            ...JavaScript is deactivated. The game is based on JavaScript and can not work without.<br>
+            ...your browser is stupid. Try Chrome or Firefox.<br>
+            ...you don't have an internet connection. This website is not working offline.<br>
+            <br><strong>Why is the game lagging?</strong><br>
+            Maybe you have a weak machine, or you are using a bad browser. Also this game is hosted on a very weak server. <small>Or the game needs to be optimized more...</small>
+          </p>
         </div>
-        <div id="lobbySettings">
-          <h3>Settings</h3>
-          <table>
-            <tr><th colspan=2>Lobby</th></tr>
-            <tr><td>Max Players</td><td><input type="number" min=2 max=100 value=2 name="maxClients"></td></tr>
-            <tr><td>Teams</td><td><input type="number" min=1 max=26 value=1 name="teamNumber"></td></tr>
-            <tr><td>Public</td><td><input type="checkbox" min=1 max=26 value=1 name="public"></td></tr>
-            <tr><th colspan=2>Game</th></tr>
-            <tr><td>Start Energy</td><td><input type="number" min=100 max=1000 value=100 name="startEnergy"></td></tr>
-            <tr><td>Friendly Fire Multiplyer</td><td><input type="number" min=0 max=10 value=1 step=0.1 name="friendlyFire"></td></tr>
-            <tr><td>Bases</td><td><select name="bases"><option value="free">Free Placement</option><option value="auto">Auto start positions</option><option value="none">None</option></td></tr>
-            <tr><td>Goal</td><td><select name="goal"><option value="bases">Destroy Bases</option><option value="all">Destroy everything</option><option value="energy10000">Have 10 000 energy!</option></td></tr>
-            <!--<tr><td>(Unit Limit)</td><td><input type="number" min=1 max=20 value=1 name="maxUnitsPerTeam"></td></tr>-->
-            <tr><th colspan=2>World</th></tr>
-            <tr><td>Generator</td><td><select name="worldGenerator"><option value="berge">Hills</option><option value="flat">Flat</option><option value="random">Random</option></select></td></tr>
-            <!--<tr><td>(Spikes)</td><td><input type="checkbox" min=1 max=26 value=1 name="worldSpikes"></td></tr>-->
-            <!--<tr><td>(Noise)</td><td><input type="checkbox" min=1 max=26 value=1 name="worldNoise"></td></tr>-->
+        <div class="tab" id="tab2">
+          <br>
+          <h3 style="margin: 0">Lobby Browser</h3><br><span style="width: 500px">Playername: <input type="text" id="playername"></span>
+          <br><br>
+          <a onclick="refreshLobbies();" class="button">Refresh</a>
+          <a href="/direct" class="button">Open a lobby</a>
+          <br><br>
+          <table id="browserTable">
+            <th>Lobby Name</th><th>Playernumber</th>
           </table>
         </div>
-        <br>
-        <button onclick="ready()">Ready</button>
-        <div id="lobbyStatus"></div>
-        <hr>
-        <button onclick="leave()">Leave</button>
-      </div>
-    </div>
-    <div id="game" style="display: none">
-      <canvas id=gameCanvas>
-
-      </canvas>
-    </div>
-    <div class="panel" id="panelStats" style="display: none">
-      <h2>Stats</h2>
-      <div class="panelContent">
-        <table id="statsTable">
-        </table>
-        <br><br>
-        <button onclick='showPanel("panelLobby")'>Back to Lobby</button>
+        <div class="tab" id="tab3">
+          <h3>How to play</h3>
+          <p>
+            <strong>Controlling units</strong><br>
+            You can select a vehicle or building by clicking on it. If a unit is selected you see the actions you can do with it on the UI. With rightclick you can drive a vehicle to a position.
+             If the vehicle can target and shoot there is a ring you can drag to change the target direction and strength of the shot. Some actions have an auto mode, which you can toggle with a right click on them.<br>
+            <br><strong>Energy</strong><br>
+            Energy is a resource, you need to do stuff. You get every second 10 energy from a powerplant and 5 energy from your base if you have one. Energy is used up by actions. The costs are
+            written below the name of the action.<img src="images/action.png"><br>
+            <br><strong>Winning</strong><br>
+            You win when you reach the goal!<br>
+            Currently there are 3 goals:<br>
+            - Destroying the bases of all enemies<br>
+            - Destroying everything from all enemies<br>
+            - Get 10 000 Energy<br>
+            <br><strong>Unit Limit</strong><br>
+            Your team have a limit of units. It is displayed on the top left corner of the screen. The limit can be raised by building a hangar. Every hangar give 3 more slots.
+            The base gives 2 more slots.
+          </p>
+        </div>
       </div>
     </div>
   </body>

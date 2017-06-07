@@ -196,7 +196,9 @@ function draw(){
     if (ent.source != undefined){
       if ((animationTick % 4) == 1){
         var sent = ents[ent.source];
-        sent.trace.push({x: ent.x, y: ent.y});
+        if (sent != undefined){ //if the source gets destroyed mid-flight
+          sent.trace.push({x: ent.x, y: ent.y});
+        }
       }
     }
 

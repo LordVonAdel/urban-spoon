@@ -15,6 +15,9 @@ app.use(express.static('client'));
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
+app.get('/direct', function(req, res){
+  res.sendfile(__dirname + '/client/direct.html');
+});
 app.get('/lobbies', function(req, res){
   var obj = {lobbies:[]};
   for (k in lobbies){
