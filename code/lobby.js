@@ -87,7 +87,7 @@ module.exports = function(host,name){
         found = true;
         var txt = text[i];
         if(txt != undefined){
-          info.push(text[i]);
+          info.push({type: "error", msg: text[i]});
           html += "<br>"+text[i];
         }
       }
@@ -195,7 +195,7 @@ module.exports = function(host,name){
       if (this.reportIssues()){
         countdown = Infinity;
       }else{
-        this.setInfo("Game starts in "+this.countdown);
+        this.setInfo([{type:"info", msg: "Game starts in "+this.countdown}]);
       }
       if(this.countdown <= 0){
         this.startGame();
@@ -236,7 +236,7 @@ module.exports = function(host,name){
       teamNumber: function(data){data=Math.min(Math.max(data,1),26); that.settings.teamNumber = data; that.checkTeams(); return data;},
       maxClients: function(data){return Math.min(Math.max(data,2),100);},
       bases: function(data){if (["free","auto","none"].indexOf(data) == -1){return "free";}else{return data;}},
-      worldGenerator: function(data){if (["berge","random","flat"].indexOf(data) == -1){return "berge";}else{return data;}},
+      worldGenerator: function(data){if (["berge","random","flat","gauss"].indexOf(data) == -1){return "berge";}else{return data;}},
       goal: function(data){if (["bases","all","energy10000"].indexOf(data) == -1){return "bases";}else{return data;}},
       friendyFire: function(data){return Math.min(Math.max(data,0),10)},
       public: function(data){if (typeof data != typeof true){return false}; return data;},

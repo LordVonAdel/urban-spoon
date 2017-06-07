@@ -36,8 +36,8 @@ socket.on('loginError',function(data){
 });
 socket.on('lobbyStatus',function(data){
   $("#lobbyStatus").html("");
-  data.forEach(function(text){
-    $("#lobbyStatus").append("<div class='lobbyError'><span class='lobbyErrorIcon'></span>"+text+"</div>")
+  data.forEach(function(info){
+    $("#lobbyStatus").append("<div class='lobbyStat'><span class='lobby-icon-"+info.type+"'></span>"+info.msg+"</div>")
   });
   //$('#lobbyStatus').html(data);
 });

@@ -95,6 +95,13 @@ generators = {
     generateTerrainSin(500, 20, 0.6, terrain);
     shrink(terrain);
     roughness(0.003, terrain);
+  },
+  gauss: function(terrain){
+    for (var i=0; i<terrain.length; i++){
+      var x = -1+(i / terrain.length)*2;
+      terrain.setNode(i, 4 / Math.sqrt(Math.PI/0.2)*Math.pow(Math.E,-(x*x/0.2)));
+    }
+    //shrink(terrain);
   }
 }
 

@@ -78,18 +78,25 @@ a{
   margin: 0px;
   margin-bottom: 20px;
 }
-.loginError, .lobbyError{
+.loginError, .lobbyError, .lobbyStat{
   margin-top: 2px;
   border: 0px solid #cd0a0a;
   background: #a32d00 url(ui/ui-bg_dots-small_30_a32d00_2x2.png) 50% 50% repeat;
   color: #ffffff;
 }
-.lobbyErrorIcon{
+.lobby-icon-error{
   float: left;
   width: 16px;
   height: 16px;
   background-image: url(ui/ui-icons_ffffff_256x240.png);
   background-position: 0 -144px;
+}
+.lobby-icon-info{
+  float: left;
+  width: 16px;
+  height: 16px;
+  background-image: url(ui/ui-icons_ffffff_256x240.png);
+  background-position: -16px -144px;
 }
 .icon-ready{
   float: left;

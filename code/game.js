@@ -13,7 +13,9 @@ module.exports = function(lobby){
 
   var that = this;
 
-  this.lobby.teams.forEach(function(team){
+  this.teams = [];
+  for (var i=0; i<this.lobby.teams.length; i++){
+    team = {};
     team.energy = that.lobby.settings.startEnergy;
     team.unitNumber = 0;
     team.maxUnits = 0;
@@ -26,13 +28,14 @@ module.exports = function(lobby){
       unitsLost: 0,
       energyCollected: 0
     }
-  });
+    this.teams.push(team);
+  }
 
   this.init = function(){
     if (this.lobby.settings.bases == "auto"){
       //auto place bases
-      var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.lobby.teams.length);
-      for(var i=0; i<this.lobby.teams.length; i++){
+      var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.teams.length);
+      for(var i=0; i<this.teams.length; i++){
         this.place(i, b*i+b/2,0,"base");
       }
       this.goalReady = true;
@@ -51,7 +54,7 @@ module.exports = function(lobby){
         case "bases":
           var bases = 0;
           var winner = -1;
-          this.lobby.teams.forEach(function(team, i){
+          this.teams.forEach(function(team, i){
             if (team.base != null){
               bases ++;
               winner = i;
@@ -66,7 +69,7 @@ module.exports = function(lobby){
           }
         break;
         case "energy10000":
-          this.lobby.teams.forEach(function(team, i){
+          this.teams.forEach(function(team, i){
             if (team.energy >= 10000){
               that.end(i); //if multiple win at once the team with the lower index wins!
             }
@@ -84,8 +87,8 @@ module.exports = function(lobby){
     this.lobby.game = null;
     this.lobby.issues.inGame = false;
     var teams = [];
-    for(var i=0; i<this.lobby.teams.length; i++){
-      teams.push(this.lobby.teams[i].stats);
+    for(var i=0; i<this.teams.length; i++){
+      teams.push(this.teams[i].stats);
     }
     this.lobby.broadcast('end',{teams: teams, winner: winner});
     console.log("End game from lobby "+this.lobby.name+"!");
@@ -109,7 +112,7 @@ module.exports = function(lobby){
         this.lobby.broadcastTeam('placement',null,team);
         //if the ent is unique send to the team members they don't need to place it because it already was placed
       }
-      var t = this.lobby.teams[team];
+      var t = this.teams[team];
       if (preset.unitCosts != undefined){
          t.unitNumber += preset.unitCosts;
       }
@@ -171,7 +174,7 @@ module.exports = function(lobby){
         var action = ent.preset.actions[actionIndex];
         var costs = action.costs;
         var type = action.type;
-        var team = this.lobby.getTeam(client.team);
+        var team = this.teams[client.team];
         if (type == "vehicle"){
           var preset = entities[ent.preset.actions[actionIndex].ent];
           if (preset != undefined){
@@ -227,12 +230,12 @@ module.exports = function(lobby){
 
   this.syncTeams = function(team){ //sends every player information about their team
     if (team == undefined){
-      for(var i=0; i<this.lobby.teams.length; i++){
-        var t = this.lobby.teams[i];
+      for(var i=0; i<this.teams.length; i++){
+        var t = this.teams[i];
         this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits},i);
       }
     }else{
-      var t = this.lobby.teams[team];
+      var t = this.teams[team];
       this.lobby.broadcastTeam('t',{energy: t.energy, id: team, units: t.unitNumber, maxUnits: t.maxUnits},team);
     }
   }
@@ -252,7 +255,7 @@ module.exports = function(lobby){
     this.syncTeams();
 
     if (!this.goalReady){
-      if (this.lobby.teams.every(function(t){return t.base != null})){
+      if (this.teams.every(function(t){return t.base != null})){
         this.goalReady = true;
       }
     }
@@ -290,7 +293,7 @@ function Entity(x,y,type,team,id,game){
   this.hpMax = this.preset.health;
   this.speed = 2;
   this.actionTimers = [];
-  this.teamData = this.game.lobby.teams[this.team];
+  this.teamData = this.game.teams[this.team];
 
   for (var i=0; i<this.preset.actions.length; i++){
     var action = this.preset.actions[i];
@@ -489,14 +492,14 @@ entities = {
     events: {
       spawn: function(ent){
         ent.game.place(ent.team,ent.x+256,ent.y,"tank");
-        ent.game.lobby.teams[ent.team].base = ent;
+        ent.game.teams[ent.team].base = ent;
       },
       destroy: function(ent){
-        ent.game.lobby.teams[ent.team].base = null;
+        ent.game.teams[ent.team].base = null;
         ent.game.checkWin();
       },
       second: function(ent){
-        ent.game.lobby.teams[ent.team].energy += 5;
+        ent.game.teams[ent.team].energy += 5;
         ent.teamData.stats.energyCollected += 5;
       },
       a0: function(ent){
