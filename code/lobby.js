@@ -61,6 +61,10 @@ module.exports = function(host,name){
     if(this.clients.length <= 0){
       delete lobbies[this.name]; //remove the lobby if no player is in
     }
+
+    if (this.game){
+      this.game.teamUpdate();
+    }
   }
 
   this.setInfo = function(text){ //gives the status of the lobby to all players. Errors and things

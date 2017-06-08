@@ -197,6 +197,9 @@ a{
   width: 100%;
   height: 100%;
 }
+#statsTable tr td, #statsTable tr th{
+  text-align: left;
+}
 span.button:before{
   content: "["
 }

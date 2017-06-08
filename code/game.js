@@ -21,6 +21,7 @@ module.exports = function(lobby){
     team.maxUnits = 0;
     team.score = 0;
     team.base = null;
+    team.active = true;
     team.stats = {
       damageGet: 0,
       damageDone: 0,
@@ -49,6 +50,26 @@ module.exports = function(lobby){
   }
 
   this.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+
+    var activeTeams = 0;
+    var lastActiveTeam = null;
+    for(var i=0; i<this.teams.length; i++){
+      var team = this.teams[i];
+      if (team.active == true){
+        activeTeams ++;
+        lastActiveTeam = i;
+      }
+    }
+
+    if(activeTeams == 1){
+      this.end(lastActiveTeam);
+    }
+
+    if(activeTeams <= 0){
+      //this should never happen!
+      this.end(-1);
+    }
+
     if(this.goalReady){
       switch (this.lobby.settings.goal){
         case "bases":
@@ -78,6 +99,15 @@ module.exports = function(lobby){
         default:
           this.end(); //unkown goal
         break;
+      }
+    }
+  }
+
+  this.teamUpdate = function(){
+    for(var i=0; i<this.lobby.teams.length; i++){
+      var lobbyTeam = this.lobby.teams[i];
+      if (lobbyTeam.clients.length <= 0){
+        this.teams[i].active = false;
       }
     }
   }

@@ -50,7 +50,7 @@ socket.on('end',function(data){
 
   function insertTeams(attr){
     for(var i=0; i<teams.length; i++){
-      html += "<th style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+"</th>";
+      html += "<td style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+"</td>";
     }
   };
 
@@ -77,6 +77,7 @@ socket.on('end',function(data){
   
   html+="</tr>";
   $('#statsTable').html(html);
+  $('#statsWinner').html("The winner is team "+teamNames[data.winner]);
 
   showPanel('panelStats');
 
