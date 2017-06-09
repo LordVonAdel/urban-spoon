@@ -1,5 +1,5 @@
-module.exports = function(generator){
-  this.terrain = new Terrain(generator);
+module.exports = function(generator,size){
+  this.terrain = new Terrain(generator,size);
   this.gravity = 0.3;
   this.height = 1000;
   this.sync = function(lobby){
@@ -7,8 +7,8 @@ module.exports = function(generator){
   }
 }
 
-function Terrain(generator){
-  this.length = 500;
+function Terrain(generator,size){
+  this.length = size;
   this.nodes = [];
   this.ppn = 8; //Pixel per node
   this.amplitude = 400;
@@ -92,7 +92,7 @@ generators = {
     }
   },
   berge: function(terrain){
-    generateTerrainSin(500, 20, 0.6, terrain);
+    generateTerrainSin(terrain.length, 20, 0.6, terrain);
     shrink(terrain);
     roughness(0.003, terrain);
   },

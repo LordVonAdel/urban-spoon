@@ -7,7 +7,7 @@ module.exports = function(lobby){
   this.ents = {};
   console.log("Start game from lobby "+this.lobby.name+" !");
   this.lobby.broadcast("start",{});
-  this.world = new World(this.lobby.settings.worldGenerator);
+  this.world = new World(this.lobby.settings.worldGenerator,this.lobby.settings.worldSize);
   this.world.sync(this.lobby);
   this.goalReady = false;
 

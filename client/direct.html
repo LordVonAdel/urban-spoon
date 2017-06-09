@@ -36,9 +36,11 @@
         });
         var url = window.location.href;
         var blocks = url.split('?');
+        console.log(blocks);
+        $('#inName').val(atob(blocks[1]));
         if (blocks.length > 2){
-          $('#inName').val(blocks[1]);
-          $("#inId").val(blocks[2]);
+          $('#inName').val(atob(blocks[1]));
+          $("#inId").val(atob(blocks[2]));
         }
         if (blocks.length > 3){
           login();
@@ -88,6 +90,12 @@
               <option value="flat">Flat</option>
               <option value="random">Random</option>
               <option value="gauss">f(x)=4/√(π/0.2)*e^(-x^2/0.2)</option>
+            </select></td></tr>
+            <tr><td>Size</td><td><select name="worldSize">
+              <option value=2000>Large (2000)</option>
+              <option value=1000>Medium (1000)</option>
+              <option value=500>Small (500)</option>
+              <option value=200>Tiny (100)</option>
             </select></td></tr>
             <!--<tr><td>(Spikes)</td><td><input type="checkbox" min=1 max=26 value=1 name="worldSpikes"></td></tr>-->
             <!--<tr><td>(Noise)</td><td><input type="checkbox" min=1 max=26 value=1 name="worldNoise"></td></tr>-->

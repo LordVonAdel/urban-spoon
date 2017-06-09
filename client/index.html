@@ -33,10 +33,13 @@
         box-shadow: inset 0px 11px 8px -10px #000,
                     inset 0px -11px 8px -10px #000;
         overflow: auto;
-        height: calc(100% - 79px);
+        height: calc(100% - 59px);
       }
       a.button{
         text-decoration: none;
+      }
+      .panel h2{
+        margin-bottom: 0px;
       }
     </style>
     <title>Urban Spoon - Lobby Browser</title>
@@ -50,7 +53,7 @@
             $("#browserTable").html("<tr><th>Name</th><th>Players</th><th>Connect</th></tr>");
             data.lobbies.forEach(function(lobby){
               var playername = $('#playername').val();
-              $("#browserTable").append($("<tr><td>"+lobby.name+"</td><td>"+lobby.players+"/"+lobby.playersMax+"</td><td><a href='/direct?"+playername+"?"+lobby.name+"?1'>Connect</a></td></tr>"));
+              $("#browserTable").append($("<tr><td>"+lobby.name+"</td><td>"+lobby.players+"/"+lobby.playersMax+`</td><td><a onclick='gotoDirect("${lobby.name}")'>Connect</a></td></tr>`));
             });
             if (data.lobbies.length == 0){
               $("#browserTable").append("<h1>No game is open!</h1>")
@@ -67,6 +70,15 @@
       $(function(){
         showTab('tab2');
       });
+      function gotoDirect(lobbyname){
+        var name = btoa($('#playername').val());
+        if (lobbyname != undefined){
+          add = "?"+btoa(lobbyname);
+        }else{
+          add = "";
+        }
+        window.location.replace('/direct?'+name+add+"?1");
+      }
     </script>
   </head>
   <body onload="refreshLobbies();">
@@ -78,7 +90,7 @@
           <h3>Introduction</h3>
           <p>
             <strong>What is this?</strong><br>
-            This is Shellshock live as RTS-game!<br>
+            This is Shell Shock live as RTS-game!<br>
             <br><strong>How can I play this?</strong><br>
             Search for an open lobby and join. If no lobbies are open, open your own. But you need at least one other player to play this game!<br>
             The game is tested and works with Chrome, Firefox, Edge and Opera. If you have any technical problems, which could be because this is game is an very early phase, please contact me!<br>
@@ -96,7 +108,7 @@
           <h3 style="margin: 0">Lobby Browser</h3><br><span style="width: 500px">Playername: <input type="text" id="playername"></span>
           <br><br>
           <a onclick="refreshLobbies();" class="button">Refresh</a>
-          <a href="/direct" class="button">Open a lobby</a>
+          <button onclick="gotoDirect()">Open a lobby</button>
           <br><br>
           <table id="browserTable">
             <th>Lobby Name</th><th>Playernumber</th>
@@ -108,9 +120,12 @@
             <strong>Controlling units</strong><br>
             You can select a vehicle or building by clicking on it. If a unit is selected you see the actions you can do with it on the UI. With rightclick you can drive a vehicle to a position.
              If the vehicle can target and shoot there is a ring you can drag to change the target direction and strength of the shot. Some actions have an auto mode, which you can toggle with a right click on them.<br>
+            <br><strong>Building things</strong><br>
+            To build things, you need a builder. A builder is a unit, you can get in the base of your team. The builder have actions on the ui to build a hangar or powerplant. Buildings costs energy. When you place a building
+            somewhere a construction site appears there. The construction gets more health when a builder stands nearby. When the construction have 100 health it becomes the building.<br>
             <br><strong>Energy</strong><br>
             Energy is a resource, you need to do stuff. You get every second 10 energy from a powerplant and 5 energy from your base if you have one. Energy is used up by actions. The costs are
-            written below the name of the action.<img src="images/action.png"><br>
+            written below the name of the action.<br><img src="images/action.png"><br>
             <br><strong>Winning</strong><br>
             You win when you reach the goal!<br>
             Currently there are 3 goals:<br>
