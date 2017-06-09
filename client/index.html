@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/lib/jquery-ui.min.css">
     <link href="style.css" rel="stylesheet">
     <script src="/lib/jquery-3.2.1.min.js"></script>
@@ -26,8 +27,13 @@
         content: "]";
       }
       .panelContent{
+        position: relative;
+        top: 0px;
+        bottom: 0px;
         box-shadow: inset 0px 11px 8px -10px #000,
-                    inset 0px -11px 8px -10px #000; 
+                    inset 0px -11px 8px -10px #000;
+        overflow: auto;
+        height: calc(100% - 79px);
       }
       a.button{
         text-decoration: none;
@@ -64,11 +70,11 @@
     </script>
   </head>
   <body onload="refreshLobbies();">
-    <div class="panel" style="width: 1000px;">
+    <div class="panel" style="width: 80vw; height: 80vh; padding-bottom: 0px">
       <h2>Urban - Spoon</h2>
       <div style="padding: 2px"><a onclick="showTab('tab1');" id="menu-tab1" class="menu-tab">Introduction</a> <a onclick="showTab('tab2');" id="menu-tab2" class="menu-tab">Lobbies</a> <a onclick="showTab('tab3');" id="menu-tab3" class="menu-tab">Tutorial</a></div>
-      <div class="panelContent" style="height: 50vh; overflow: auto;">
-        <div class="tab" id="tab1">
+      <div class="panelContent">
+        <div class="tab" id="tab1" style="display: none">
           <h3>Introduction</h3>
           <p>
             <strong>What is this?</strong><br>
@@ -85,7 +91,7 @@
             Maybe you have a weak machine, or you are using a bad browser. Also this game is hosted on a very weak server. <small>Or the game needs to be optimized more...</small>
           </p>
         </div>
-        <div class="tab" id="tab2">
+        <div class="tab" id="tab2" style="display: none">
           <br>
           <h3 style="margin: 0">Lobby Browser</h3><br><span style="width: 500px">Playername: <input type="text" id="playername"></span>
           <br><br>
@@ -96,7 +102,7 @@
             <th>Lobby Name</th><th>Playernumber</th>
           </table>
         </div>
-        <div class="tab" id="tab3">
+        <div class="tab" id="tab3" style="display: none">
           <h3>How to play</h3>
           <p>
             <strong>Controlling units</strong><br>

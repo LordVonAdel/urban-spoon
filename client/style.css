@@ -56,20 +56,19 @@ a{
   cursor: pointer;
 }
 .panel{
-  top: 100px;
   width: 400px;
   margin: auto;
   background-color: #404040; 
   box-shadow: 4px 4px black;
   border: #0b3e6f 1px solid;
   color: white;
-  margin-top: 200px;
+  margin-top: 10vh;
+  padding-bottom: 10px;
 }
 .panelContent{
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 1px;
-  padding-bottom: 20px;
 }
 .panel h2{
   background: #0b3e6f url(ui/ui-bg_diagonals-thick_15_0b3e6f_40x40.png) 50% 50% repeat;
@@ -201,10 +200,10 @@ a{
   text-align: left;
 }
 span.button:before{
-  content: "["
+  content: "[";
 }
 span.button:after{
-  content: "]"
+  content: "]";
 }
 span.button{
   cursor: pointer;
