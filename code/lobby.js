@@ -61,10 +61,16 @@ module.exports = function(host,name){
 
     if(this.clients.length <= 0){
       delete lobbies[this.name]; //remove the lobby if no player is in
+      return;
     }
 
     if (this.game){
       this.game.teamUpdate();
+    }
+
+    if (client == this.host){
+      this.host = this.clients[0];
+      this.host.socket.emit('host',true);
     }
   }
 

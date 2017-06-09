@@ -4,7 +4,9 @@ socket.on('leave',function(){ //show the login thing again
   showPanel('panelLogin');
   isInLobby = false;
 });
-
+socket.on('host',function(data){
+  $('#lobbySettings input, #lobbySettings select').prop("disabled",!true)
+});
 socket.on('start',function(){
   showPanel('game');
   gameStart();
