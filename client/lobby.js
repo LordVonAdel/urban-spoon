@@ -90,29 +90,41 @@ Lobby = {
         html += "<th>"+teamNames[i]+"</th>";
       }
       html+="</tr>";
-      html+="<tr><th>Units Build</th>"
+      html+="<tr><th>Units build</th>"
       insertTeams("unitsBuild");
       html+="</tr>";
-      html+="<tr><th>Units Destroyed</th>"
+      html+="<tr><th>Units destroyed</th>"
       insertTeams("unitsDestroyed");
       html+="</tr>";
-      html+="<tr><th>Units Lost</th>"
+      html+="<tr><th>Units lost</th>"
       insertTeams("unitsLost");
       html+="</tr>";
-      html+="<tr><th>Damage Done</th>"
-      insertTeams("damageDone");
-      html+="</tr>";
-      html+="<tr><th>Damage Get</th>"
-      insertTeams("damageGet")
-      html+="</tr>";
-      html+="<tr><th>Energy Collected</th>"
-      insertTeams("energyCollected");
-      html+="</tr>";
-      html+="<tr><th>Buildings Constructed</th>"
+      html+="<tr><th>Buildings constructed</th>"
       insertTeams("buildingsConstructed");
       html+="</tr>";
-      html+="<tr><th>Buildings Destroyed</th>"
+      html+="<tr><th>Buildings destroyed</th>"
       insertTeams("buildingsDestroyed");
+      html+="</tr>";
+      html+="<tr><th>Buildings lost</th>"
+      insertTeams("buildingsLost");
+      html+="</tr>";
+      html+="<tr><th>Damage done</th>"
+      insertTeams("damageDone");
+      html+="</tr>";
+      html+="<tr><th>Damage get</th>"
+      insertTeams("damageGet")
+      html+="</tr>";
+      html+="<tr><th>Energy collected</th>"
+      insertTeams("energyCollected");
+      html+="</tr>";
+      html+="<tr><th>Highest energy level</th>"
+      insertTeams("energyHigh");
+      html+="</tr>";
+      html+="<tr><th>Shots fired</th>"
+      insertTeams("shotsFired");
+      html+="</tr>";
+      html+="<tr><th>Shot accuracy</th>"
+      insertTeams("shotAccuracy");
       html+="</tr>";
 
       $('#statsTable').html(html);

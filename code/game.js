@@ -29,8 +29,13 @@ module.exports = function(lobby){
       unitsLost: 0,
       unitsDestroyed: 0,
       energyCollected: 0,
+      energyHigh: 0,
       buildingsConstructed: 0,
-      buildingsDestroyed: 0
+      buildingsDestroyed: 0,
+      buildingsLost: 0,
+      shotsFired: 0,
+      shotsHit: 0,
+      shotAccuracy: "N/A"
     }
     this.teams.push(team);
   }
@@ -146,6 +151,11 @@ module.exports = function(lobby){
         //if the ent is unique send to the team members they don't need to place it because it already was placed
       }
       var t = this.teams[team];
+      if (preset.type == "vehicle"){
+        t.stats.unitsBuild += 1;
+      }else if(preset.type == "projectile"){
+        t.stats.shotsFired += 1;
+      }
       if (preset.unitCosts != undefined){
          t.unitNumber += preset.unitCosts;
       }
@@ -273,6 +283,7 @@ module.exports = function(lobby){
       for(var i=0; i<this.teams.length; i++){
         var t = this.teams[i];
         this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits},i);
+        this.teams[i].stats.energyHigh = Math.max(this.teams[i].energy, this.teams[i].stats.energyHigh);
       }
     }else{
       var t = this.teams[team];
@@ -491,7 +502,11 @@ function Entity(x,y,type,team,id,game){
     if (this.preset.unitCapacity != undefined){
       team.unitCapacity -= this.preset.unitCapacity;
     }
-    team.stats.unitsLosts += 1;
+    if (this.preset.type == "vehicle"){
+      team.stats.unitsLosts += 1;
+    }else if(this.preset.type == "building"){
+      team.stats.buildingsLost += 1;
+    }
 
     this.fire('destroy');
     this.isDestroyed = true;
@@ -553,11 +568,9 @@ entities = {
       },
       a0: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"builder");
-        ent.teamData.stats.unitsBuild += 1;
       },
       a1: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"tank");
-        ent.teamData.stats.unitsBuild += 1;
       },
     },
     actions: [
@@ -767,11 +780,16 @@ entities = {
     sprite: "sprites/bullet.png",
     grounded: false,
     gravity: 1,
+    type: "projectile",
     events: {
       worldCollision: function(ent){
         ent.destroy();
         ent.game.showEffect(ent.x-16,ent.y+16,"sprites/effectSmoke.png",1);
         var hits = ent.game.getCollisions(ent.x,ent.y);
+        if (hits.length > 0){
+          ent.teamData.stats.shotsHit += 1;
+          ent.teamData.stats.shotAccuracy = Math.round((ent.teamData.stats.shotsHit / ent.teamData.stats.shotsFired)*100)+"%";
+        }
         hits.forEach(function(hit){
           var dmg = 10; //damage
           if (hit.team == ent.team){
