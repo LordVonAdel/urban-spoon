@@ -228,7 +228,13 @@ module.exports = function(lobby){
         }
         if (team.energy >= costs){
           team.energy -= costs;
-          client.selectedEnt.fire("a"+actionIndex,extra);
+          if (action.time == undefined){
+            client.selectedEnt.fire("a"+actionIndex,extra);
+          }else{
+            ent.actionTimers[actionIndex].t = action.time;
+            ent.actionTimers[actionIndex].d = true; //do!
+            ent.syncTimers();
+          }
           this.syncTeams(client.team);
           if (action.cooldown){
             ent.actionTimers[actionIndex].t = action.cooldown;
@@ -238,6 +244,7 @@ module.exports = function(lobby){
       }
     }
   }
+
   this.playerAuto = function(client,data){
     if (data == undefined){
       return false;
@@ -329,9 +336,12 @@ function Entity(x,y,type,team,id,game){
     var action = this.preset.actions[i];
     if (action.cooldown){
       this.actionTimers.push({t: 0, m: action.cooldown});
+    }else if (action.time){
+      this.actionTimers.push({t: 0, m: action.time, d: false});
     }else{
       this.actionTimers.push({t: 0, m: 0});
     }
+
   }
 
   this.fire = function(event,data){
@@ -443,9 +453,13 @@ function Entity(x,y,type,team,id,game){
       if (this.actionTimers[i].t > 0){
         this.actionTimers[i].t -= 1/60;
       }
-      if (this.actionTimers[0].t <= 0){
+      if (this.actionTimers[i].t <= 0){ //when the timer of an action hits 0
         if( this.preset.actions[i].auto && this.auto){
           this.game.playerAction({selectedEnt: this, team: this.team},{index: i, extra:{}});
+        }
+        if (this.actionTimers[i].d){
+          this.fire("a"+i);
+          this.actionTimers[i].d = false;
         }
       }
     }
@@ -545,14 +559,16 @@ entities = {
         costs: 100,
         name: "Builder",
         client: "click",
-        ent: "builder"
+        ent: "builder",
+        time: 5
       },
       {
         type: "vehicle",
         costs: 50,
         name: "Tank",
         client: "click",
-        ent: "tank"
+        ent: "tank",
+        time: 5
       },
       {
         type: "ability",
