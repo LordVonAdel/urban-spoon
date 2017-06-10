@@ -10,6 +10,7 @@ module.exports = function(lobby){
   this.world = new World(this.lobby.settings.worldGenerator,this.lobby.settings.worldSize);
   this.world.sync(this.lobby);
   this.goalReady = false;
+  this.startTime = new Date();
 
   var that = this;
 
@@ -788,7 +789,6 @@ entities = {
         var hits = ent.game.getCollisions(ent.x,ent.y);
         if (hits.length > 0){
           ent.teamData.stats.shotsHit += 1;
-          ent.teamData.stats.shotAccuracy = Math.round((ent.teamData.stats.shotsHit / ent.teamData.stats.shotsFired)*100)+"%";
         }
         hits.forEach(function(hit){
           var dmg = 10; //damage
@@ -806,6 +806,7 @@ entities = {
             }
           }
         });
+        ent.teamData.stats.shotAccuracy = Math.round((ent.teamData.stats.shotsHit / ent.teamData.stats.shotsFired)*100)+"%";
       }
     }
   }

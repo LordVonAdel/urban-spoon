@@ -27,6 +27,11 @@ function drawUI(){
   ctx.fillStyle = "#ffffff";
   ctx.fillText("Energy: "+myTeam.energy,x,y+32);
   ctx.fillText("Units: "+myTeam.units+" / "+myTeam.maxUnits,x,y+64);
+  ctx.textAlign = "center";
+  var time = new Date() - startTime;
+  var seconds = Math.floor(time / 1000);
+  ctx.fillText(Math.floor(seconds / 60)+":"+((seconds % 60) < 10 ? "0": "")+(seconds % 60), window.innerWidth/2, 10);
+  ctx.textAlign = "left";
 
   ctx.globalAlpha = uiEntAlpha;
   ctx.fillStyle = "#232323";

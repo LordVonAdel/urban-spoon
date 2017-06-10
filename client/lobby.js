@@ -128,7 +128,11 @@ Lobby = {
       html+="</tr>";
 
       $('#statsTable').html(html);
-      $('#statsWinner').html("The winner is team "+teamNames[data.winner]);
+      if (data.winner != -1){
+        $('#statsWinner').html("The winning team is "+teamNames[data.winner]+"!");
+      }else{
+        $('#statsWinner').html("No team won!");
+      }
 
       showPanel('panelStats');
 

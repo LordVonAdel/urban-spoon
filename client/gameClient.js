@@ -92,6 +92,7 @@ function gameStart(){
   ctx.font = "24px Verdana";
   ents = {};
   isInGame = true;
+  startTime = new Date();
 
   gameLoop();
 
