@@ -27,7 +27,10 @@ module.exports = function(lobby){
       damageDone: 0,
       unitsBuild: 0,
       unitsLost: 0,
-      energyCollected: 0
+      unitsDestroyed: 0,
+      energyCollected: 0,
+      buildingsConstructed: 0,
+      buildingsDestroyed: 0
     }
     this.teams.push(team);
   }
@@ -137,7 +140,7 @@ module.exports = function(lobby){
         yy = y;
       }
       var ent = new Entity(x,yy,type,team,this.nextEntId,this);
-      ent.teamData.stats.unitsBuild += 1;
+      //ent.teamData.stats.unitsBuild += 1;
       if (preset.unique){
         this.lobby.broadcastTeam('placement',null,team);
         //if the ent is unique send to the team members they don't need to place it because it already was placed
@@ -331,6 +334,7 @@ function Entity(x,y,type,team,id,game){
   this.speed = 2;
   this.actionTimers = [];
   this.teamData = this.game.teams[this.team];
+  this.isDestroyed = false;
 
   for (var i=0; i<this.preset.actions.length; i++){
     var action = this.preset.actions[i];
@@ -490,6 +494,7 @@ function Entity(x,y,type,team,id,game){
     team.stats.unitsLosts += 1;
 
     this.fire('destroy');
+    this.isDestroyed = true;
   }
 
   this.damage = function(damage){
@@ -548,9 +553,11 @@ entities = {
       },
       a0: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"builder");
+        ent.teamData.stats.unitsBuild += 1;
       },
       a1: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"tank");
+        ent.teamData.stats.unitsBuild += 1;
       },
     },
     actions: [
@@ -620,6 +627,7 @@ entities = {
           if (ent.buildEnt != null){
             ent.game.place(ent.team,ent.x,ent.y,ent.buildEnt);
             ent.destroy();
+            ent.teamData.stats.buildingsConstructed += 1;
           }
         }
         ent.hp += 1;
@@ -638,7 +646,7 @@ entities = {
   },
   builder: {
     type: "vehicle",
-    width: 48,
+    width: 64,
     name: "Builder",
     sprite: ["sprites/vehicleBuilder.png"],
     health: 40,
@@ -772,6 +780,13 @@ entities = {
           hit.damage(dmg);
           hit.teamData.stats.damageGet += dmg;
           ent.teamData.stats.damageDone += dmg;
+          if (hit.isDestroyed){
+            if (hit.preset.type == "vehicle"){
+              ent.teamData.stats.unitsDestroyed += 1;
+            }else if(hit.preset.type == "building"){
+              ent.teamData.stats.buildingsDestroyed += 1;
+            }
+          }
         });
       }
     }

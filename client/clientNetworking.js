@@ -46,44 +46,9 @@ socket.on('lobbyStatus',function(data){
 socket.on('t',function(data){ //team data
   Object.assign(myTeam,data);
 });
-socket.on('end',function(data){
-  isInGame = false;
-  console.log("Game ends!",data);
 
-  function insertTeams(attr){
-    for(var i=0; i<teams.length; i++){
-      html += "<td style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+"</td>";
-    }
-  };
+//socket.on('end') is now in lobby.js
 
-  var html = "<tr><th>Teams</th>"
-  var teams = data.teams;
-  for(var i=0; i<teams.length; i++){
-    html += "<th>"+teamNames[i]+"</th>";
-  }
-  html+="</tr>";
-  html+="<tr><th>Units Build</th>"
-  insertTeams("unitsBuild");
-  html+="</tr>";
-  html+="<tr><th>Units Lost</th>"
-  insertTeams("unitsLost");
-  html+="</tr>";
-  html+="<tr><th>Damage Done</th>"
-  insertTeams("damageDone");
-  html+="</tr>";
-  html+="<tr><th>Damage Get</th>"
-  insertTeams("damageGet")
-  html+="</tr>";
-  html+="<tr><th>Energy Collected</th>"
-  insertTeams("energyCollected");
-  
-  html+="</tr>";
-  $('#statsTable').html(html);
-  $('#statsWinner').html("The winner is team "+teamNames[data.winner]);
-
-  showPanel('panelStats');
-
-});
 socket.on('selDat',function(data){ //data from selected object
   rClickOption = null;
   targetOption = null;
