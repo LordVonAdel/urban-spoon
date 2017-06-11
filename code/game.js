@@ -36,7 +36,7 @@ module.exports = function(lobby){
       buildingsLost: 0,
       shotsFired: 0,
       shotsHit: 0,
-      shotAccuracy: "N/A"
+      shotAccuracy: 100
     }
     this.teams.push(team);
   }
@@ -806,7 +806,7 @@ entities = {
             }
           }
         });
-        ent.teamData.stats.shotAccuracy = Math.round((ent.teamData.stats.shotsHit / ent.teamData.stats.shotsFired)*100)+"%";
+        ent.teamData.stats.shotAccuracy = Math.round((ent.teamData.stats.shotsHit / ent.teamData.stats.shotsFired)*100);
       }
     }
   }

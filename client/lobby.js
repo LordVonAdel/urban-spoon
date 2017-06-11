@@ -78,9 +78,16 @@ Lobby = {
       isInGame = false;
       console.log("Game ends!",data);
 
-      function insertTeams(attr){
+      function insertTeams(attr,special){
+        var sum = 0;
         for(var i=0; i<teams.length; i++){
-          html += "<td style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+"</td>";
+          html += "<td style='background-color: "+teamColors[i]+"'>"+teams[i][attr]+(special == 1 ? "%":"")+"</td>";
+          sum += teams[i][attr];
+        }
+        if (special == 1){ //percent values
+          html += "<td style='background-color: white; color: black'>"+sum/teams.length+"%</td>";
+        }else{
+          html += "<td style='background-color: white; color: black'>"+sum+"</td>";
         }
       };
 
@@ -89,7 +96,7 @@ Lobby = {
       for(var i=0; i<teams.length; i++){
         html += "<th>"+teamNames[i]+"</th>";
       }
-      html+="</tr>";
+      html+="<th>Total</th></tr>";
       html+="<tr><th>Units build</th>"
       insertTeams("unitsBuild");
       html+="</tr>";
@@ -124,7 +131,7 @@ Lobby = {
       insertTeams("shotsFired");
       html+="</tr>";
       html+="<tr><th>Shot accuracy</th>"
-      insertTeams("shotAccuracy");
+      insertTeams("shotAccuracy",1);
       html+="</tr>";
 
       $('#statsTable').html(html);
