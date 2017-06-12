@@ -26,7 +26,8 @@ module.exports = function(host,name){
     public: false,
     maxUnitsPerTeam: 6,
     startEnergy: 500,
-    goal: "bases"
+    goal: "bases",
+    limitEnergy: false
   };
 
   this.game = null;

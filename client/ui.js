@@ -25,7 +25,7 @@ function drawUI(){
   ctx.fillStyle = teamColors[myTeam.id];
   ctx.fillText(teamNames[myTeam.id],x,y);
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("Energy: "+myTeam.energy,x,y+32);
+  ctx.fillText("Energy: "+myTeam.energy+(myTeam.maxEnergy == null ? "" : " / "+myTeam.maxEnergy),x,y+32);
   ctx.fillText("Units: "+myTeam.units+" / "+myTeam.maxUnits,x,y+64);
   ctx.textAlign = "center";
   var time = new Date() - startTime;

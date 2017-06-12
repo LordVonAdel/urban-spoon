@@ -18,6 +18,7 @@ module.exports = function(lobby){
   for (var i=0; i<this.lobby.teams.length; i++){
     team = {};
     team.energy = that.lobby.settings.startEnergy;
+    team.maxEnergy = (that.lobby.settings.limitEnergy ? 0 : Infinity);
     team.unitNumber = 0;
     team.maxUnits = 0;
     team.score = 0;
@@ -163,6 +164,9 @@ module.exports = function(lobby){
       if (preset.unitCapacity != undefined){
          t.maxUnits += preset.unitCapacity;
       }
+      if (preset.energyCapacity != undefined){
+        t.maxEnergy += preset.energyCapacity;
+      }
       this.syncTeams(team);
       ent.sync();
       return ent;
@@ -283,7 +287,7 @@ module.exports = function(lobby){
     if (team == undefined){
       for(var i=0; i<this.teams.length; i++){
         var t = this.teams[i];
-        this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits},i);
+        this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits, maxEnergy: t.maxEnergy},i);
         this.teams[i].stats.energyHigh = Math.max(this.teams[i].energy, this.teams[i].stats.energyHigh);
       }
     }else{
@@ -318,6 +322,13 @@ module.exports = function(lobby){
 
   this.showEffect = function(x,y,sprite,duration){
     this.lobby.broadcast('e',[x,y,sprite,duration]);
+  }
+
+  this.teamGiveEnergy = function(teamIndex, amount){
+    var teamData = this.teams[teamIndex];
+    var transfer = Math.min(teamData.maxEnergy-teamData.energy,amount);
+    teamData.energy += transfer;
+    teamData.stats.energyCollected += transfer;
   }
 
   this.syncTeams();
@@ -503,6 +514,9 @@ function Entity(x,y,type,team,id,game){
     if (this.preset.unitCapacity != undefined){
       team.unitCapacity -= this.preset.unitCapacity;
     }
+    if (preset.energyCapacity != undefined){
+      team.maxEnergy -= this.preset.energyCapacity;
+    }
     if (this.preset.type == "vehicle"){
       team.stats.unitsLosts += 1;
     }else if(this.preset.type == "building"){
@@ -554,6 +568,7 @@ entities = {
     health: 500,
     grounded: true,
     unitCapacity: 2,
+    energyCapacity: 1000,
     events: {
       spawn: function(ent){
         ent.game.place(ent.team,ent.x+256,ent.y,"tank");
@@ -564,8 +579,7 @@ entities = {
         ent.game.checkWin();
       },
       second: function(ent){
-        ent.game.teams[ent.team].energy += 5;
-        ent.teamData.stats.energyCollected += 5;
+        ent.game.teamGiveEnergy(ent.team, 5);
       },
       a0: function(ent){
         ent.game.place(ent.team,ent.x,ent.y,"builder");
@@ -609,8 +623,7 @@ entities = {
     grounded: true,
     events: {
       second: function(ent){
-        ent.teamData.energy += 10;
-        ent.teamData.stats.energyCollected += 10;
+        ent.game.teamGiveEnergy(ent.team, 10);
       }
     }
   },

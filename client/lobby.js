@@ -96,7 +96,7 @@ Lobby = {
       for(var i=0; i<teams.length; i++){
         html += "<th>"+teamNames[i]+"</th>";
       }
-      html+="<th>Total</th></tr>";
+      html+="<th>Total / Avg.</th></tr>";
       html+="<tr><th>Units build</th>"
       insertTeams("unitsBuild");
       html+="</tr>";
