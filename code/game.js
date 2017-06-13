@@ -11,6 +11,7 @@ module.exports = function(lobby){
   this.world.sync(this.lobby);
   this.goalReady = false;
   this.startTime = new Date();
+  this.wind = 0;
 
   var that = this;
 

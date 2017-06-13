@@ -82,8 +82,22 @@
             <tr><td>Start Energy</td><td><input type="number" min=100 max=1000 value=100 name="startEnergy"></td></tr>
             <tr><td>Limit Energy</td><td><input type="checkbox" name="limitEnergy"></td></tr>
             <tr><td>Friendly Fire Multiplyer</td><td><input type="number" min=0 max=10 value=1 step=0.1 name="friendlyFire"></td></tr>
-            <tr><td>Bases</td><td><select name="bases"><option value="free">Free Placement</option><option value="auto">Auto start positions</option><option value="none">None</option></td></tr>
-            <tr><td>Goal</td><td><select name="goal"><option value="bases">Destroy Bases</option><option value="all">Destroy everything</option><option value="energy10000">Have 10 000 energy!</option></td></tr>
+            <tr><td>Bases</td><td><select name="bases">
+              <option value="free">Free Placement</option>
+              <option value="auto">Auto start positions</option>
+              <option value="none">None</option>
+            </select></td></tr>
+            <tr><td>Goal</td><td><select name="goal">
+              <option value="bases">Destroy Bases</option>
+              <option value="all">Destroy everything</option>
+              <option value="energy10000">Have 10 000 energy!</option>
+            </select></td></tr>
+            <tr><td>Wind</td><td><select>
+              <option value=0>None</option>  
+              <option value=1>Normal</option>
+              <option value=2>Storm</option>
+              <option value=4>Extreme!</option>
+            </select></td></tr>
             <!--<tr><td>(Unit Limit)</td><td><input type="number" min=1 max=20 value=1 name="maxUnitsPerTeam"></td></tr>-->
             <tr><th colspan=2>World</th></tr>
             <tr><td>Generator</td><td><select name="worldGenerator">

@@ -27,7 +27,8 @@ module.exports = function(host,name){
     maxUnitsPerTeam: 6,
     startEnergy: 500,
     goal: "bases",
-    limitEnergy: false
+    limitEnergy: false,
+    wind: 0
   };
 
   this.game = null;
@@ -255,6 +256,7 @@ module.exports = function(host,name){
       public: function(data){if (typeof data != typeof true){return false}; return data;},
       maxUnitsPerTeam: function(data){return Math.max(1,data)},
       startEnergy: function(data){return Math.max(100,Math.min(1000,data))},
+      wind: function(data){return Math.max(0, Math.min(5,daza));}
     }
     if (this.game == null){ //can't change settings in game
       for(var k in data){
