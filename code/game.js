@@ -319,6 +319,8 @@ module.exports = function(lobby){
 
     this.checkWin();
 
+    this.wind += 1-Math.random()*2;
+
   }
 
   this.showEffect = function(x,y,sprite,duration){
