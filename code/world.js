@@ -13,71 +13,69 @@ function Terrain(generator,size){
   this.ppn = 8; //Pixel per node
   this.amplitude = 400;
   this.height = 1000;
-
-  this.getWidth = function(){
-    return this.nodes.length * this.ppn;
-  }
-
-  this.getHeight = function(x) {
-    var node1 = this.nodes[Math.floor(x/this.ppn)];
-    var node2 = this.nodes[Math.ceil(x/this.ppn)];
-    var l = x % this.ppn;
-    return node1+((l/this.ppn) * (node2 - node1));
-  }
-
-  this.getY = function(x){
-    var node1 = this.nodes[Math.floor(x/this.ppn)];
-    var node2 = this.nodes[Math.ceil(x/this.ppn)];
-    var l = x % this.ppn;
-    return (node1+((l/this.ppn) * (node2 - node1)))*this.amplitude;
-  }
-
-  this.getSlope = function(x){
-    var n1x = Math.floor(x/this.ppn);
-    var n2x = Math.ceil(x/this.ppn);
-    if (n1x == n2x){ //if the position is perfect on the node
-      if(n1x == 0){ //go right when at 0 instead of left, because we don't want to go outside the bounds!
-        n2x = 1;
-      }else{
-        n1x -= 1;
-      }
-    }
-    var node1 = this.nodes[n1x]*this.amplitude;
-    var node2 = this.nodes[n2x]*this.amplitude;
-    return (node2-node1)/this.ppn;
-  }
-
-  this.setHeightRegion = function(xMin, xMax, height) {
-    for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
-      this.setNode(i,height);
-    }
-  }
-  
-  this.addHeightRegion = function(xMin, xMax, height) {
-    for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
-      this.addNode(i,height);
-    }
-  }
-
-  this.setYRegion = function(xMin, xMax, height) {
-    for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
-      this.setNode(i,height/this.amplitude);
-    }
-  }
-
-  this.setNode = function(index, height){
-    this.nodes[index] = height;
-  }
-
-  this.addNode = function(index, height){
-    this.nodes[index] += height;
-  }
-
-  this.digTerrain = function(x, radius, power) {
-
-  }
-
   generators[generator](this);
+}
+Terrain.prototype.getWidth = function(){
+  return this.nodes.length * this.ppn;
+}
+
+Terrain.prototype.getHeight = function(x) {
+  var node1 = this.nodes[Math.floor(x/this.ppn)];
+  var node2 = this.nodes[Math.ceil(x/this.ppn)];
+  var l = x % this.ppn;
+  return node1+((l/this.ppn) * (node2 - node1));
+}
+
+Terrain.prototype.getY = function(x){
+  var node1 = this.nodes[Math.floor(x/this.ppn)];
+  var node2 = this.nodes[Math.ceil(x/this.ppn)];
+  var l = x % this.ppn;
+  return (node1+((l/this.ppn) * (node2 - node1)))*this.amplitude;
+}
+
+Terrain.prototype.getSlope = function(x){
+  var n1x = Math.floor(x/this.ppn);
+  var n2x = Math.ceil(x/this.ppn);
+  if (n1x == n2x){ //if the position is perfect on the node
+    if(n1x == 0){ //go right when at 0 instead of left, because we don't want to go outside the bounds!
+      n2x = 1;
+    }else{
+      n1x -= 1;
+    }
+  }
+  var node1 = this.nodes[n1x]*this.amplitude;
+  var node2 = this.nodes[n2x]*this.amplitude;
+  return (node2-node1)/this.ppn;
+}
+
+Terrain.prototype.setHeightRegion = function(xMin, xMax, height) {
+  for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
+    this.setNode(i,height);
+  }
+}
+
+Terrain.prototype.addHeightRegion = function(xMin, xMax, height) {
+  for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
+    this.addNode(i,height);
+  }
+}
+
+Terrain.prototype.setYRegion = function(xMin, xMax, height) {
+  for(var i = Math.floor(xMin / this.ppn); Math.ceil(i<xMax / this.ppn); i++){
+    this.setNode(i,height/this.amplitude);
+  }
+}
+
+Terrain.prototype.setNode = function(index, height){
+  this.nodes[index] = height;
+}
+
+Terrain.prototype.addNode = function(index, height){
+  this.nodes[index] += height;
+}
+
+Terrain.prototype.digTerrain = function(x, radius, power) {
+
 }
 
 generators = {
