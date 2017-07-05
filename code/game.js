@@ -1,7 +1,7 @@
 //Game controls the game actions. What player is next and how projectiles fly and this stuff
 World = require('./world.js');
 
-module.exports = function(lobby){
+function Game(lobby){
   this.nextEntId = 0;
   this.lobby = lobby;
   this.ents = {};
@@ -42,302 +42,299 @@ module.exports = function(lobby){
     }
     this.teams.push(team);
   }
+  this.syncTeams();
+  this.init();
+}
 
-  this.init = function(){
-    if (this.lobby.settings.bases == "auto"){
-      //auto place bases
-      var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.teams.length);
-      for(var i=0; i<this.teams.length; i++){
-        this.place(i, b*i+b/2,0,"base");
-      }
+Game.prototype.init = function(){
+  if (this.lobby.settings.bases == "auto"){
+    //auto place bases
+    var b = ((this.world.terrain.length * this.world.terrain.ppn) / this.teams.length);
+    for(var i=0; i<this.teams.length; i++){
+      this.place(i, b*i+b/2,0,"base");
+    }
+    this.goalReady = true;
+  }else{
+    if (this.lobby.settings.bases == "free"){ //let the user place the base
+      this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
+    }else{
       this.goalReady = true;
-    }else{
-      if (this.lobby.settings.bases == "free"){ //let the user place the base
-        this.lobby.broadcast('placement',{sprite: "sprites/base.png", type: "base", text: "Place the base for your team!"});
-      }else{
-        this.goalReady = true;
-      }
+    }
+  }
+}
+
+Game.prototype.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+
+  var activeTeams = 0;
+  var lastActiveTeam = null;
+  for(var i=0; i<this.teams.length; i++){
+    var team = this.teams[i];
+    if (team.active == true){
+      activeTeams ++;
+      lastActiveTeam = i;
     }
   }
 
-  this.checkWin = function(){ //check for the winning team and if someone wins execute win stuff.
+  if(activeTeams == 1){
+    this.end(lastActiveTeam);
+  }
 
-    var activeTeams = 0;
-    var lastActiveTeam = null;
+  if(activeTeams <= 0){
+    //this should never happen!
+    this.end(-1);
+  }
+
+  if(this.goalReady){
+    switch (this.lobby.settings.goal){
+      case "bases":
+        var bases = 0;
+        var winner = -1;
+        this.teams.forEach(function(team, i){
+          if (team.base != null){
+            bases ++;
+            winner = i;
+          }
+        });
+        if (bases == 1){
+          this.end(winner);
+        }
+        if (bases == 0){
+          //both bases destroyed at the same time!
+          this.end(-1);
+        }
+      break;
+      case "energy10000":
+        this.teams.forEach(function(team, i){
+          if (team.energy >= 10000){
+            that.end(i); //if multiple win at once the team with the lower index wins!
+          }
+        });
+      break;
+      default:
+        this.end(); //unkown goal
+      break;
+    }
+  }
+}
+
+Game.prototype.teamUpdate = function(){
+  for(var i=0; i<this.lobby.teams.length; i++){
+    var lobbyTeam = this.lobby.teams[i];
+    if (lobbyTeam.clients.length <= 0){
+      this.teams[i].active = false;
+    }
+  }
+}
+
+Game.prototype.end = function(winner){ //ends the game
+  //if winner == -1 no one wins
+  this.lobby.game = null;
+  this.lobby.issues.inGame = false;
+  var teams = [];
+  for(var i=0; i<this.teams.length; i++){
+    teams.push(this.teams[i].stats);
+  }
+  this.lobby.broadcast('end',{teams: teams, winner: winner});
+  console.log("End game from lobby "+this.lobby.name+"!");
+}
+
+Game.prototype.place = function(team,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
+  this.nextEntId += 1;
+  var preset = entities[type];
+  if (preset != undefined){
+    var yy = this.world.terrain.getY(x);
+    if (preset.flat){
+      this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x)); //flat the ground under the ent
+      this.world.sync(this.lobby);
+    }
+    if (preset.grounded == false){
+      yy = y;
+    }
+    var ent = new Entity(x,yy,type,team,this.nextEntId,this);
+    //ent.teamData.stats.unitsBuild += 1;
+    if (preset.unique){
+      this.lobby.broadcastTeam('placement',null,team);
+      //if the ent is unique send to the team members they don't need to place it because it already was placed
+    }
+    var t = this.teams[team];
+    if (preset.type == "vehicle"){
+      t.stats.unitsBuild += 1;
+    }else if(preset.type == "projectile"){
+      t.stats.shotsFired += 1;
+    }
+    if (preset.unitCosts != undefined){
+        t.unitNumber += preset.unitCosts;
+    }
+    if (preset.unitCapacity != undefined){
+        t.maxUnits += preset.unitCapacity;
+    }
+    if (preset.energyCapacity != undefined){
+      t.maxEnergy += preset.energyCapacity;
+    }
+    this.syncTeams(team);
+    ent.sync();
+    return ent;
+  }else{
+    console.error("[Error]Unknown entity: "+type);
+  }
+}
+
+Game.prototype.getCollisions = function(x,hy){
+  var res = [];
+  for (var k in this.ents){
+    var ent = this.ents[k];
+    //hy does nothing yet
+    if (x > ent.x - ent.width / 2 && x < ent.x + ent.width / 2){
+      res.push(ent);
+    }
+  }
+  return res; //returns array with colliding objects
+}
+
+Game.prototype.getCollisionArea = function(x1,x2){
+  var res = [];
+  for (var k in this.ents){
+    var ent = this.ents[k];
+    var l = ent.x - ent.width / 2;
+    var r = ent.x + ent.width / 2;
+    if (x1 <= r && l <= x2){
+      res.push(ent);
+    }
+  }
+  return res; //returns array with colliding objects
+}
+
+Game.prototype.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
+  //send him information about the entity back
+  var ent = this.ents[entID];
+  if (ent == undefined){
+    return false;
+  }
+  client.selectedEnt = ent;
+  client.socket.emit('selDat',ent.getSelectData(client.team == ent.team));
+}
+
+Game.prototype.playerAction = function(client,data){ //when a player clicks on an action. This function is called at client.js too!
+  if (data == undefined){
+    return false;
+  }
+  var actionIndex = data.index;
+  var extra = data.extra || {};
+  var ent = client.selectedEnt
+  if (ent != null){
+    if (ent.team == client.team){
+      var action = ent.preset.actions[actionIndex];
+      var costs = action.costs;
+      var type = action.type;
+      var team = this.teams[client.team];
+      if (type == "vehicle"){
+        var preset = entities[ent.preset.actions[actionIndex].ent];
+        if (preset != undefined){
+          if (team.unitNumber + preset.unitCosts > team.maxUnits){
+            return "action.unitLimitReached"; //unit limit reached!
+          }
+        }
+      }
+      if (type == "build"){
+        var preset = entities[action.ent];
+        if (preset != undefined && extra.x != undefined){
+          if (this.getCollisionArea(extra.x-preset.width/2, extra.x+preset.width/2).length > 0){
+            return "action.positionBlocked";
+          }
+        }else{
+          return "missing preset";
+        }
+      }
+      if (ent.actionTimers[actionIndex].t > 0){
+        return "action.cooldownActive";
+      }
+      if (team.energy >= costs){
+        team.energy -= costs;
+        if (action.time == undefined){
+          client.selectedEnt.fire("a"+actionIndex,extra);
+        }else{
+          ent.actionTimers[actionIndex].t = action.time;
+          ent.actionTimers[actionIndex].d = true; //do!
+          ent.syncTimers();
+        }
+        this.syncTeams(client.team);
+        if (action.cooldown){
+          ent.actionTimers[actionIndex].t = action.cooldown;
+          ent.syncTimers();
+        }
+      }
+    }
+  }
+}
+
+Game.prototype.playerAuto = function(client,data){
+  if (data == undefined){
+    return false;
+  }
+  if (data.index == undefined || data.auto == undefined){
+    return false;
+  }
+  var actionIndex = data.index;
+  var ent = client.selectedEnt
+  if (ent != null){
+    if (ent.team == client.team){
+      var action = ent.preset.actions[actionIndex];
+      if (action.auto){
+        ent.auto = data.auto;
+        ent.syncAuto();
+      }
+    }
+  }
+}
+
+Game.prototype.syncTeams = function(team){ //sends every player information about their team
+  if (team == undefined){
     for(var i=0; i<this.teams.length; i++){
-      var team = this.teams[i];
-      if (team.active == true){
-        activeTeams ++;
-        lastActiveTeam = i;
-      }
+      var t = this.teams[i];
+      this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits, maxEnergy: t.maxEnergy},i);
+      this.teams[i].stats.energyHigh = Math.max(this.teams[i].energy, this.teams[i].stats.energyHigh);
     }
-
-    if(activeTeams == 1){
-      this.end(lastActiveTeam);
-    }
-
-    if(activeTeams <= 0){
-      //this should never happen!
-      this.end(-1);
-    }
-
-    if(this.goalReady){
-      switch (this.lobby.settings.goal){
-        case "bases":
-          var bases = 0;
-          var winner = -1;
-          this.teams.forEach(function(team, i){
-            if (team.base != null){
-              bases ++;
-              winner = i;
-            }
-          });
-          if (bases == 1){
-            this.end(winner);
-          }
-          if (bases == 0){
-            //both bases destroyed at the same time!
-            this.end(-1);
-          }
-        break;
-        case "energy10000":
-          this.teams.forEach(function(team, i){
-            if (team.energy >= 10000){
-              that.end(i); //if multiple win at once the team with the lower index wins!
-            }
-          });
-        break;
-        default:
-          this.end(); //unkown goal
-        break;
-      }
-    }
+  }else{
+    var t = this.teams[team];
+    this.lobby.broadcastTeam('t',{energy: t.energy, id: team, units: t.unitNumber, maxUnits: t.maxUnits},team);
   }
+}
 
-  this.teamUpdate = function(){
-    for(var i=0; i<this.lobby.teams.length; i++){
-      var lobbyTeam = this.lobby.teams[i];
-      if (lobbyTeam.clients.length <= 0){
-        this.teams[i].active = false;
-      }
-    }
+Game.prototype.tick = function(){ //called every tick from the lobby
+  for(var k in this.ents){
+    var ent = this.ents[k];
+    ent.tick();
   }
+}
 
-  this.end = function(winner){ //ends the game
-    //if winner == -1 no one wins
-    this.lobby.game = null;
-    this.lobby.issues.inGame = false;
-    var teams = [];
-    for(var i=0; i<this.teams.length; i++){
-      teams.push(this.teams[i].stats);
-    }
-    this.lobby.broadcast('end',{teams: teams, winner: winner});
-    console.log("End game from lobby "+this.lobby.name+"!");
+Game.prototype.second = function(){ //called every second from the lobby
+  for(var k in this.ents){
+    var ent = this.ents[k];
+    ent.fire("second",null);
   }
-
-  this.place = function(team,x,y,type){ //place an entity in the world and synchronise it with everyone in this lobby
-    this.nextEntId += 1;
-    var preset = entities[type];
-    if (preset != undefined){
-      var yy = this.world.terrain.getY(x);
-      if (preset.flat){
-        this.world.terrain.setYRegion(x-preset.width/2,x+preset.width/2,this.world.terrain.getY(x)); //flat the ground under the ent
-        this.world.sync(this.lobby);
-      }
-      if (preset.grounded == false){
-        yy = y;
-      }
-      var ent = new Entity(x,yy,type,team,this.nextEntId,this);
-      //ent.teamData.stats.unitsBuild += 1;
-      if (preset.unique){
-        this.lobby.broadcastTeam('placement',null,team);
-        //if the ent is unique send to the team members they don't need to place it because it already was placed
-      }
-      var t = this.teams[team];
-      if (preset.type == "vehicle"){
-        t.stats.unitsBuild += 1;
-      }else if(preset.type == "projectile"){
-        t.stats.shotsFired += 1;
-      }
-      if (preset.unitCosts != undefined){
-         t.unitNumber += preset.unitCosts;
-      }
-      if (preset.unitCapacity != undefined){
-         t.maxUnits += preset.unitCapacity;
-      }
-      if (preset.energyCapacity != undefined){
-        t.maxEnergy += preset.energyCapacity;
-      }
-      this.syncTeams(team);
-      ent.sync();
-      return ent;
-    }else{
-      console.error("[Error]Unknown entity: "+type);
-    }
-  }
-
-  this.getCollisions = function(x,hy){
-    var res = [];
-    for (var k in this.ents){
-      var ent = this.ents[k];
-      //hy does nothing yet
-      if (x > ent.x - ent.width / 2 && x < ent.x + ent.width / 2){
-        res.push(ent);
-      }
-    }
-    return res; //returns array with colliding objects
-  }
-
-  this.getCollisionArea = function(x1,x2){
-    var res = [];
-    for (var k in this.ents){
-      var ent = this.ents[k];
-      var l = ent.x - ent.width / 2;
-      var r = ent.x + ent.width / 2;
-      if (x1 <= r && l <= x2){
-        res.push(ent);
-      }
-    }
-    return res; //returns array with colliding objects
-  }
-
-  this.playerSelect = function(client,entID){ //when a player selects an entity. This function is called at client.js
-    //send him information about the entity back
-    var ent = this.ents[entID];
-    if (ent == undefined){
-      return false;
-    }
-    client.selectedEnt = ent;
-    client.socket.emit('selDat',ent.getSelectData(client.team == ent.team));
-  }
-
-  this.playerAction = function(client,data){ //when a player clicks on an action. This function is called at client.js too!
-    if (data == undefined){
-      return false;
-    }
-    var actionIndex = data.index;
-    var extra = data.extra || {};
-    var ent = client.selectedEnt
-    if (ent != null){
-      if (ent.team == client.team){
-        var action = ent.preset.actions[actionIndex];
-        var costs = action.costs;
-        var type = action.type;
-        var team = this.teams[client.team];
-        if (type == "vehicle"){
-          var preset = entities[ent.preset.actions[actionIndex].ent];
-          if (preset != undefined){
-            if (team.unitNumber + preset.unitCosts > team.maxUnits){
-              return "action.unitLimitReached"; //unit limit reached!
-            }
-          }
-        }
-        if (type == "build"){
-          var preset = entities[action.ent];
-          if (preset != undefined && extra.x != undefined){
-            if (this.getCollisionArea(extra.x-preset.width/2, extra.x+preset.width/2).length > 0){
-              return "action.positionBlocked";
-            }
-          }else{
-            return "missing preset";
-          }
-        }
-        if (ent.actionTimers[actionIndex].t > 0){
-          return "action.cooldownActive";
-        }
-        if (team.energy >= costs){
-          team.energy -= costs;
-          if (action.time == undefined){
-            client.selectedEnt.fire("a"+actionIndex,extra);
-          }else{
-            ent.actionTimers[actionIndex].t = action.time;
-            ent.actionTimers[actionIndex].d = true; //do!
-            ent.syncTimers();
-          }
-          this.syncTeams(client.team);
-          if (action.cooldown){
-            ent.actionTimers[actionIndex].t = action.cooldown;
-            ent.syncTimers();
-          }
-        }
-      }
-    }
-  }
-
-  this.playerAuto = function(client,data){
-    if (data == undefined){
-      return false;
-    }
-    if (data.index == undefined || data.auto == undefined){
-      return false;
-    }
-    var actionIndex = data.index;
-    var ent = client.selectedEnt
-    if (ent != null){
-      if (ent.team == client.team){
-        var action = ent.preset.actions[actionIndex];
-        if (action.auto){
-          ent.auto = data.auto;
-          ent.syncAuto();
-        }
-      }
-    }
-  }
-
-  this.syncTeams = function(team){ //sends every player information about their team
-    if (team == undefined){
-      for(var i=0; i<this.teams.length; i++){
-        var t = this.teams[i];
-        this.lobby.broadcastTeam('t',{energy: t.energy, id: i, units: t.unitNumber, maxUnits: t.maxUnits, maxEnergy: t.maxEnergy},i);
-        this.teams[i].stats.energyHigh = Math.max(this.teams[i].energy, this.teams[i].stats.energyHigh);
-      }
-    }else{
-      var t = this.teams[team];
-      this.lobby.broadcastTeam('t',{energy: t.energy, id: team, units: t.unitNumber, maxUnits: t.maxUnits},team);
-    }
-  }
-
-  this.tick = function(){ //called every tick from the lobby
-    for(var k in this.ents){
-      var ent = this.ents[k];
-      ent.tick();
-    }
-  }
-
-  this.second = function(){ //called every second from the lobby
-    for(var k in this.ents){
-      var ent = this.ents[k];
-      ent.fire("second",null);
-    }
-    this.syncTeams();
-
-    if (!this.goalReady){
-      if (this.teams.every(function(t){return t.base != null})){
-        this.goalReady = true;
-      }
-    }
-
-    this.checkWin();
-
-    this.wind += 1-Math.random()*2;
-
-  }
-
-  this.showEffect = function(x,y,sprite,duration){
-    this.lobby.broadcast('e',[x,y,sprite,duration]);
-  }
-
-  this.teamGiveEnergy = function(teamIndex, amount){
-    var teamData = this.teams[teamIndex];
-    var transfer = Math.min(teamData.maxEnergy-teamData.energy,amount);
-    teamData.energy += transfer;
-    teamData.stats.energyCollected += transfer;
-  }
-
   this.syncTeams();
 
-  this.init();
+  if (!this.goalReady){
+    if (this.teams.every(function(t){return t.base != null})){
+      this.goalReady = true;
+    }
+  }
 
+  this.checkWin();
+
+  this.wind += 1-Math.random()*2;
+
+}
+
+Game.prototype.showEffect = function(x,y,sprite,duration){
+  this.lobby.broadcast('e',[x,y,sprite,duration]);
+}
+
+Game.prototype.teamGiveEnergy = function(teamIndex, amount){
+  var teamData = this.teams[teamIndex];
+  var transfer = Math.min(teamData.maxEnergy-teamData.energy,amount);
+  teamData.energy += transfer;
+  teamData.stats.energyCollected += transfer;
 }
 
 function Entity(x,y,type,team,id,game){
@@ -544,6 +541,7 @@ function Entity(x,y,type,team,id,game){
   }
 
   this.fire("spawn");
+  this.syncAuto();
 
   this.game.lobby.broadcast('build',{
     x: this.x,
@@ -557,7 +555,6 @@ function Entity(x,y,type,team,id,game){
     grounded: this.preset.grounded,
     timers: this.actionTimers
   });
-  this.syncAuto();
 }
 
 entities = {
@@ -835,3 +832,5 @@ for (var k in entities){
     preset.actions = [];
   }
 }
+
+module.exports = Game;
