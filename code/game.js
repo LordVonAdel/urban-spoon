@@ -371,175 +371,6 @@ function Entity(x,y,type,team,id,game){
 
   }
 
-  this.fire = function(event,data){
-    if (this.preset.events != undefined){
-      var ev = this.preset.events[event];
-      if (ev != undefined){
-        ev(this,data);
-      }
-    }
-  }
-
-  this.sync = function(){ //send array with entity information for synchronisation
-    this.update();
-    this.game.lobby.broadcast(1,[this.id,this.x,this.y,this.hp]);
-    if (this.preset.angleToGround){
-      this.game.lobby.broadcast(2,[this.id,this.angle]);
-    }
-    if (this.vspeed != undefined || this.xspeed != undefined){
-      this.game.lobby.broadcast(3,[this.id,this.hspeed,this.vspeed]);
-    }
-    if (this.dx != undefined){
-      this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx),Math.sqrt(this.dx*this.dx + this.dy*this.dy)]);
-    }
-  }
-
-  this.syncSource = function(){
-    if (this.source != undefined){
-      this.game.lobby.broadcast(6,[this.id,this.source]);
-    }
-  }
-
-  this.syncAuto = function(){
-    if (this.auto != undefined){
-      this.game.lobby.broadcast(7,[this.id,this.auto]);
-    }
-  }
-
-  this.syncTimers = function(){
-    var res = [];
-    this.actionTimers.forEach(function(timer){
-      res.push(timer.t);
-    });
-    this.game.lobby.broadcastTeam(5,[this.id, res],this.team);
-  }
-
-  this.update = function(){
-    if (this.preset.angleToGround){
-      this.angle = Math.atan2(this.game.world.terrain.getSlope(this.x),1);
-    }
-    if (this.preset.grounded != false){
-      this.y = this.game.world.terrain.getY(this.x);
-    }
-  }
-
-  this.getSelectData = function(ownTeam){
-    if (ownTeam){
-      return {
-        name: this.preset.name,
-        hp: this.hp,
-        hpMax: this.hpMax,
-        options: this.preset.actions
-      }
-    }else{
-      return {
-        name: this.preset.name,
-        hp: this.hp,
-        hpMax: this.hpMax,
-        options: []
-      }
-    }
-  }
-
-  this.driveTo = function(x){
-    this.targetX = x;
-  }
-
-  this.tick = function(){
-    var xpre = this.x;
-    var ypre = this.y;
-    if (this.targetX != undefined){
-      if (Math.abs(this.x - this.targetX)>this.speed){
-        this.x += Math.sign(this.targetX - this.x)*this.speed;
-      }else{
-        this.x = this.targetX;
-      }
-    }
-    if (this.vspeed != undefined){
-      if (this.preset.gravity != undefined){
-        this.vspeed += (this.game.world.gravity * this.preset.gravity);
-      }
-      this.y -= this.vspeed;
-      if (this.y < this.game.world.terrain.getY(this.x)){
-        this.fire("worldCollision");
-        this.vspeed = 0;
-        this.hspeed = 0;
-      }
-    }
-    if (this.hspeed != undefined){
-      this.x += this.hspeed;
-    }
-    if (this.x != xpre || this.y != ypre){
-      this.sync();
-      if (this.x < 0 || this.x > this.game.world.terrain.getWidth()){
-        this.destroy();
-      }
-    }
-
-    for (var i=0; i<this.actionTimers.length; i++){
-      if (this.actionTimers[i].t > 0){
-        this.actionTimers[i].t -= 1/60;
-      }
-      if (this.actionTimers[i].t <= 0){ //when the timer of an action hits 0
-        if( this.preset.actions[i].auto && this.auto){
-          this.game.playerAction({selectedEnt: this, team: this.team},{index: i, extra:{}});
-        }
-        if (this.actionTimers[i].d){
-          this.fire("a"+i);
-          this.actionTimers[i].d = false;
-        }
-      }
-    }
-    var collisions = this.game.getCollisionArea(this.x-this.width/2,this.x+this.width/2);
-    if (collisions.length > 1){
-      for (var i=0; i<collisions.length; i++){
-        var ent = collisions[i];
-        if (ent.team == this.team && ent.type == "builder"){
-          this.fire("builder");
-        }
-      }
-    }
-
-    this.fire('tick');
-  }
-
-  this.destroy = function(){
-    this.game.lobby.broadcast('x',this.id);
-    delete this.game.ents[this.id];
-
-    var team = this.teamData;
-    if (this.preset.unitCosts != undefined){
-      team.unitNumber -= this.preset.unitCosts;
-    }
-    if (this.preset.unitCapacity != undefined){
-      team.unitCapacity -= this.preset.unitCapacity;
-    }
-    if (preset.energyCapacity != undefined){
-      team.maxEnergy -= this.preset.energyCapacity;
-    }
-    if (this.preset.type == "vehicle"){
-      team.stats.unitsLosts += 1;
-    }else if(this.preset.type == "building"){
-      team.stats.buildingsLost += 1;
-    }
-
-    this.fire('destroy');
-    this.isDestroyed = true;
-  }
-
-  this.damage = function(damage){
-    this.hp -= damage;
-    if (this.hp <= 0){
-      this.destroy();
-      this.game.showEffect(this.x+this.width/2+10,this.y-2,"sprites/effectSmoke.png",1);
-      this.game.showEffect(this.x+this.width/2-10,this.y+2,"sprites/effectSmoke.png",1);
-      this.game.showEffect(this.x+this.width/2,this.y-8,"sprites/effectSmoke.png",1);
-      this.teamData.stats.unitsLost += 1;
-    }else{
-      this.sync();
-    }
-  }
-
   this.fire("spawn");
   this.syncAuto();
 
@@ -555,6 +386,175 @@ function Entity(x,y,type,team,id,game){
     grounded: this.preset.grounded,
     timers: this.actionTimers
   });
+}
+
+Entity.prototype.fire = function(event,data){
+  if (this.preset.events != undefined){
+    var ev = this.preset.events[event];
+    if (ev != undefined){
+      ev(this,data);
+    }
+  }
+}
+
+Entity.prototype.sync = function(){ //send array with entity information for synchronisation
+  this.update();
+  this.game.lobby.broadcast(1,[this.id,this.x,this.y,this.hp]);
+  if (this.preset.angleToGround){
+    this.game.lobby.broadcast(2,[this.id,this.angle]);
+  }
+  if (this.vspeed != undefined || this.xspeed != undefined){
+    this.game.lobby.broadcast(3,[this.id,this.hspeed,this.vspeed]);
+  }
+  if (this.dx != undefined){
+    this.game.lobby.broadcast(4,[this.id,Math.atan2(this.dy,this.dx),Math.sqrt(this.dx*this.dx + this.dy*this.dy)]);
+  }
+}
+
+Entity.prototype.syncSource = function(){
+  if (this.source != undefined){
+    this.game.lobby.broadcast(6,[this.id,this.source]);
+  }
+}
+
+Entity.prototype.syncAuto = function(){
+  if (this.auto != undefined){
+    this.game.lobby.broadcast(7,[this.id,this.auto]);
+  }
+}
+
+Entity.prototype.syncTimers = function(){
+  var res = [];
+  this.actionTimers.forEach(function(timer){
+    res.push(timer.t);
+  });
+  this.game.lobby.broadcastTeam(5,[this.id, res],this.team);
+}
+
+Entity.prototype.update = function(){
+  if (this.preset.angleToGround){
+    this.angle = Math.atan2(this.game.world.terrain.getSlope(this.x),1);
+  }
+  if (this.preset.grounded != false){
+    this.y = this.game.world.terrain.getY(this.x);
+  }
+}
+
+Entity.prototype.getSelectData = function(ownTeam){
+  if (ownTeam){
+    return {
+      name: this.preset.name,
+      hp: this.hp,
+      hpMax: this.hpMax,
+      options: this.preset.actions
+    }
+  }else{
+    return {
+      name: this.preset.name,
+      hp: this.hp,
+      hpMax: this.hpMax,
+      options: []
+    }
+  }
+}
+
+Entity.prototype.driveTo = function(x){
+  this.targetX = x;
+}
+
+Entity.prototype.tick = function(){
+  var xpre = this.x;
+  var ypre = this.y;
+  if (this.targetX != undefined){
+    if (Math.abs(this.x - this.targetX)>this.speed){
+      this.x += Math.sign(this.targetX - this.x)*this.speed;
+    }else{
+      this.x = this.targetX;
+    }
+  }
+  if (this.vspeed != undefined){
+    if (this.preset.gravity != undefined){
+      this.vspeed += (this.game.world.gravity * this.preset.gravity);
+    }
+    this.y -= this.vspeed;
+    if (this.y < this.game.world.terrain.getY(this.x)){
+      this.fire("worldCollision");
+      this.vspeed = 0;
+      this.hspeed = 0;
+    }
+  }
+  if (this.hspeed != undefined){
+    this.x += this.hspeed;
+  }
+  if (this.x != xpre || this.y != ypre){
+    this.sync();
+    if (this.x < 0 || this.x > this.game.world.terrain.getWidth()){
+      this.destroy();
+    }
+  }
+
+  for (var i=0; i<this.actionTimers.length; i++){
+    if (this.actionTimers[i].t > 0){
+      this.actionTimers[i].t -= 1/60;
+    }
+    if (this.actionTimers[i].t <= 0){ //when the timer of an action hits 0
+      if( this.preset.actions[i].auto && this.auto){
+        this.game.playerAction({selectedEnt: this, team: this.team},{index: i, extra:{}});
+      }
+      if (this.actionTimers[i].d){
+        this.fire("a"+i);
+        this.actionTimers[i].d = false;
+      }
+    }
+  }
+  var collisions = this.game.getCollisionArea(this.x-this.width/2,this.x+this.width/2);
+  if (collisions.length > 1){
+    for (var i=0; i<collisions.length; i++){
+      var ent = collisions[i];
+      if (ent.team == this.team && ent.type == "builder"){
+        this.fire("builder");
+      }
+    }
+  }
+
+  this.fire('tick');
+}
+
+Entity.prototype.destroy = function(){
+  this.game.lobby.broadcast('x',this.id);
+  delete this.game.ents[this.id];
+
+  var team = this.teamData;
+  if (this.preset.unitCosts != undefined){
+    team.unitNumber -= this.preset.unitCosts;
+  }
+  if (this.preset.unitCapacity != undefined){
+    team.unitCapacity -= this.preset.unitCapacity;
+  }
+  if (preset.energyCapacity != undefined){
+    team.maxEnergy -= this.preset.energyCapacity;
+  }
+  if (this.preset.type == "vehicle"){
+    team.stats.unitsLosts += 1;
+  }else if(this.preset.type == "building"){
+    team.stats.buildingsLost += 1;
+  }
+
+  this.fire('destroy');
+  this.isDestroyed = true;
+}
+
+Entity.prototype.damage = function(damage){
+  this.hp -= damage;
+  if (this.hp <= 0){
+    this.destroy();
+    this.game.showEffect(this.x+this.width/2+10,this.y-2,"sprites/effectSmoke.png",1);
+    this.game.showEffect(this.x+this.width/2-10,this.y+2,"sprites/effectSmoke.png",1);
+    this.game.showEffect(this.x+this.width/2,this.y-8,"sprites/effectSmoke.png",1);
+    this.teamData.stats.unitsLost += 1;
+  }else{
+    this.sync();
+  }
 }
 
 entities = {
