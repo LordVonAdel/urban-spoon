@@ -12,7 +12,7 @@
     <script src="/lobby.js"></script>
     <script src="/clientNetworking.js"></script>
     <script>
-
+      
       entUIPosition = "bottom"; //top | left | bottom
 
       function login(){
@@ -45,14 +45,8 @@
         if (blocks.length > 3){
           login();
         }
-        //$("button").button();
-        //$("input").button();
-        //$("input[type='number']").spinner();
-        //$("select").selectmenu();
         $(document).tooltip();
       });
-
-      
     </script>
   </head>
   <body>
@@ -124,9 +118,7 @@
       </div>
     </div>
     <div id="game" style="display: none">
-      <canvas id=gameCanvas>
-
-      </canvas>
+      <canvas id=gameCanvas></canvas>
     </div>
     <div class="panel" id="panelStats" style="display: none; width: 60vw">
       <h2>Stats</h2>
